@@ -1,4 +1,11 @@
+"use client";
+
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+
 export default function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div
       className="flex items-center justify-center min-h-screen bg-cover bg-center"
@@ -22,12 +29,25 @@ export default function LoginPage() {
 
           <div>
             <label className="block text-sm font-medium text-black">Password</label>
-            <input
-              type="password"
-              className="w-full mt-1 px-3 py-2 border-2 border-gray-400 rounded-md 
-                         focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 
-                         text-black"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="w-full mt-1 px-3 py-2 border-2 border-gray-400 rounded-md 
+                           focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 
+                           text-black pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-600"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="text-right text-sm">
@@ -47,7 +67,7 @@ export default function LoginPage() {
         {/* Register link */}
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
-            Belum punya akun?{" "}
+            Don’t have an account?{" "}
             <a href="/register" className="text-red-600 hover:underline">
               Register
             </a>
