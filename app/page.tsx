@@ -1,11 +1,14 @@
 "use client";
+
 import Navbar from "@/components/navbar";
 import Image from "next/image";
-export default function index() {
+
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
       <Navbar />
+
       <main className="px-4 lg:px-6 py-4 lg:py-6 space-y-6 lg:space-y-8">
         <div className="grid gap-6 grid-cols-[200px,1fr,2fr] items-center">
           {/* Foto */}
@@ -14,7 +17,7 @@ export default function index() {
               src="/images/5.jpeg"
               alt="Class Xcode"
               fill
-              className="rounded-lg"
+              className="rounded-lg object-cover"
             />
           </div>
 
@@ -29,8 +32,10 @@ export default function index() {
               digital.
             </p>
           </div>
-          {/* video class */}
-          <div className="grid gap-4 grid-cols-4 grid-rows-auto">
+
+          {/* Video Class */}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Card Video */}
             <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
               <Image
                 src="/images/foto_vid.png"
@@ -41,7 +46,7 @@ export default function index() {
               />
               <div className="flex flex-col flex-1 p-4 gap-2">
                 <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
+                  <h2 className="font-bold text-lg mb-1">Judul video</h2>
                   <p className="font-extralight text-sm mb-2">deskripsi</p>
                 </div>
                 <span className="font-bold text-base mb-4">10.000</span>
@@ -50,6 +55,8 @@ export default function index() {
                 </button>
               </div>
             </div>
+
+            {/* Card Video Kedua */}
             <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
               <Image
                 src="/images/foto_vid.png"
@@ -60,140 +67,7 @@ export default function index() {
               />
               <div className="flex flex-col flex-1 p-4 gap-2">
                 <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
-                  <p className="font-extralight text-sm mb-2">deskripsi</p>
-                </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                  Beli
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
-                  <p className="font-extralight text-sm mb-2">deskripsi</p>
-                </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                  Beli
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
-                  <p className="font-extralight text-sm mb-2">deskripsi</p>
-                </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                  Beli
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
-                  <p className="font-extralight text-sm mb-2">deskripsi</p>
-                </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                  Beli
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
-                  <p className="font-extralight text-sm mb-2">deskripsi</p>
-                </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                  Beli
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
-                  <p className="font-extralight text-sm mb-2">deskripsi</p>
-                </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                  Beli
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
-                  <p className="font-extralight text-sm mb-2">deskripsi</p>
-                </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                  Beli
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h1 className="font-bold text-lg mb-1">Judul video</h1>
+                  <h2 className="font-bold text-lg mb-1">Judul video</h2>
                   <p className="font-extralight text-sm mb-2">deskripsi</p>
                 </div>
                 <span className="font-bold text-base mb-4">10.000</span>
