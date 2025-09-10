@@ -1,235 +1,155 @@
 import { PrismaClient } from '../app/generated/prisma'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  // 🔑 Buat admin
+  // Create Admin
   const adminPassword = await bcrypt.hash('admin123', 10)
   const admin = await prisma.user.create({
     data: {
-      email: 'atmin@example.com',
+      email: 'admin@xcode.com',
       password: adminPassword,
-      name: 'Admin User',
+      name: 'Admin XCode',
       role: 'ADMIN'
     }
   })
 
-  // 👤 Buat user biasa
-  const userPassword = await bcrypt.hash('user123', 10)
-  const user = await prisma.user.create({
+  // Create Regular Users
+  const user1Password = await bcrypt.hash('user123', 10)
+  const user1 = await prisma.user.create({
     data: {
-      email: 'member@example.com',
-      password: userPassword,
-      name: 'Regular User',
+      email: 'john@example.com',
+      password: user1Password,
+      name: 'John Doe',
       role: 'USER'
     }
   })
 
-  // 📚 Buat Class + Videos
-  const class1 = await prisma.class.create({
+  const user2Password = await bcrypt.hash('user456', 10)
+  const user2 = await prisma.user.create({
     data: {
-      title: 'Next.js Mastery',
-      description: 'Pelajari Next.js dari dasar sampai advanced',
-      price: 250000,
-      thumbnailUrl: 'https://example.com/thumb/nextjs.jpg',
-      mentor: 'Satya',
+      email: 'jane@example.com',
+      password: user2Password,
+      name: 'Jane Smith',
+      role: 'USER'
+    }
+  })
+
+  // Create Classes with Videos
+  const webDevClass = await prisma.class.create({
+    data: {
+      title: 'Web Development Fundamentals',
+      description: 'Learn the basics of web development including HTML, CSS, and JavaScript.',
+      price: 299000,
+      thumbnailUrl: '/images/web-dev-thumb.jpg',
+      mentor: 'Alex Johnson',
       videos: {
         create: [
           {
-            title: 'Intro to Next.js',
-            videoUrl: 'https://example.com/videos/next-intro.mp4',
-            duration: 12,
+            title: 'Introduction to HTML5',
+            videoUrl: 'https://example.com/videos/html-intro.mp4',
+            duration: 45,
             order: 1
           },
           {
-            title: 'Routing in Next.js',
-            videoUrl: 'https://example.com/videos/next-routing.mp4',
-            duration: 18,
+            title: 'CSS Styling Basics',
+            videoUrl: 'https://example.com/videos/css-basics.mp4',
+            duration: 50,
             order: 2
           },
           {
-            title: 'API Routes & Prisma',
-            videoUrl: 'https://example.com/videos/next-api.mp4',
-            duration: 25,
+            title: 'JavaScript Fundamentals',
+            videoUrl: 'https://example.com/videos/js-fundamentals.mp4',
+            duration: 60,
             order: 3
           }
         ]
       }
-    },
-    include: { videos: true }
+    }
   })
 
-  const class2 = await prisma.class.create({
+  const reactClass = await prisma.class.create({
     data: {
-      title: 'React for Beginners',
-      description: 'Mulai belajar React dengan project sederhana',
-      price: 150000,
-      thumbnailUrl: 'https://example.com/thumb/react.jpg',
-      mentor: 'Jane Smith',
+      title: 'Modern React Development',
+      description: 'Master React.js with hooks, context, and modern best practices.',
+      price: 499000,
+      thumbnailUrl: '/images/react-thumb.jpg',
+      mentor: 'Sarah Wilson',
       videos: {
         create: [
           {
-            title: 'Intro to React',
-            videoUrl: 'https://example.com/videos/react-intro.mp4',
-            duration: 10,
+            title: 'React Fundamentals',
+            videoUrl: 'https://example.com/videos/react-basics.mp4',
+            duration: 55,
             order: 1
           },
           {
-            title: 'Components & Props',
-            videoUrl: 'https://example.com/videos/react-components.mp4',
-            duration: 20,
+            title: 'Working with Hooks',
+            videoUrl: 'https://example.com/videos/react-hooks.mp4',
+            duration: 65,
             order: 2
-          }
-        ]
-      }
-    },
-    include: { videos: true }
-  })
-
-  // 🛒 Create orders and access for regular user
-  // Order for class1
-  const order1 = await prisma.order.create({
-    data: {
-      userId: user.id,
-      totalAmount: class1.price,
-      status: 'COMPLETED',
-      orderItems: {
-        create: {
-          classId: class1.id,
-          price: class1.price
-        }
-      }
-    },
-    include: { orderItems: true }
-  })
-
-  // Order for class2
-  const order2 = await prisma.order.create({
-    data: {
-      userId: user.id,
-      totalAmount: class2.price,
-      status: 'COMPLETED',
-      orderItems: {
-        create: {
-          classId: class2.id,
-          price: class2.price
-        }
-      }
-    },
-    include: { orderItems: true }
-  })
-
-  // 🎟️ Grant access to purchased classes for regular user
-  await prisma.userClassVideo.create({
-    data: {
-      userId: user.id,
-      classId: class1.id,
-      purchaseDate: new Date('2025-09-01') // Set specific date for testing
-    }
-  })
-
-  await prisma.userClassVideo.create({
-    data: {
-      userId: user.id,
-      classId: class2.id,
-      purchaseDate: new Date('2025-09-02')
-    }
-  })
-
-  // Create test users with different scenarios
-  const testUser1 = await prisma.user.create({
-    data: {
-      email: 'test1@example.com',
-      password: await bcrypt.hash('test123', 10),
-      name: 'Test User 1',
-      role: 'USER'
-    }
-  })
-
-  const testUser2 = await prisma.user.create({
-    data: {
-      email: 'test2@example.com',
-      password: await bcrypt.hash('test123', 10),
-      name: 'Test User 2',
-      role: 'USER'
-    }
-  })
-
-  // Create orders for test users
-  const testOrder1 = await prisma.order.create({
-    data: {
-      userId: testUser1.id,
-      totalAmount: class2.price,
-      status: 'COMPLETED',
-      orderItems: {
-        create: {
-          classId: class2.id,
-          price: class2.price
-        }
-      }
-    }
-  })
-
-  const testOrder2 = await prisma.order.create({
-    data: {
-      userId: testUser2.id,
-      totalAmount: class1.price + class2.price,
-      status: 'COMPLETED',
-      orderItems: {
-        create: [
-          {
-            classId: class1.id,
-            price: class1.price
           },
           {
-            classId: class2.id,
-            price: class2.price
+            title: 'State Management',
+            videoUrl: 'https://example.com/videos/react-state.mp4',
+            duration: 70,
+            order: 3
           }
         ]
       }
     }
   })
 
-  // Grant access to purchased classes for test users
+  // Create Orders
+  const order1 = await prisma.order.create({
+    data: {
+      userId: user1.id,
+      totalAmount: webDevClass.price,
+      status: 'COMPLETED',
+      midtransOrderId: 'ORDER-001',
+      orderItems: {
+        create: {
+          classId: webDevClass.id,
+          price: webDevClass.price
+        }
+      }
+    }
+  })
+
+  const order2 = await prisma.order.create({
+    data: {
+      userId: user2.id,
+      totalAmount: reactClass.price,
+      status: 'COMPLETED',
+      midtransOrderId: 'ORDER-002',
+      orderItems: {
+        create: {
+          classId: reactClass.id,
+          price: reactClass.price
+        }
+      }
+    }
+  })
+
+  // Create UserClassVideo entries for purchased classes
   await prisma.userClassVideo.create({
     data: {
-      userId: testUser1.id,
-      classId: class2.id,
-      purchaseDate: new Date('2025-09-03')
+      userId: user1.id,
+      classId: webDevClass.id,
+      purchaseDate: new Date()
     }
   })
 
-  await prisma.userClassVideo.createMany({
-    data: [
-      {
-        userId: testUser2.id,
-        classId: class1.id,
-        purchaseDate: new Date('2025-09-04')
-      },
-      {
-        userId: testUser2.id,
-        classId: class2.id,
-        purchaseDate: new Date('2025-09-04')
-      }
-    ]
-  })
-
-  console.log('✅ Seed data created successfully!')
-  console.log({
-    admin,
-    user,
-    testUser1,
-    testUser2,
-    class1,
-    class2,
-    orders: {
-      order1,
-      order2,
-      testOrder1,
-      testOrder2
+  await prisma.userClassVideo.create({
+    data: {
+      userId: user2.id,
+      classId: reactClass.id,
+      purchaseDate: new Date()
     }
   })
+
+  console.log('✅ Database seeded successfully!')
 }
 
 main()

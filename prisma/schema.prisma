@@ -57,6 +57,7 @@ model Order {
   userId      String
   totalAmount Int 
   status      OrderStatus @default(PENDING)
+  midtransOrderId String?    @unique // <--- ID transaksi dari Midtrans
   orderNumber Int         @default(autoincrement())
   user        User        @relation(fields: [userId], references: [id],  onDelete: Cascade) 
   orderItems  OrderItem[]
