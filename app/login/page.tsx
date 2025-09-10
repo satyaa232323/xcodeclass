@@ -1,16 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
       style={{ backgroundImage: "url('/images/bg-login.png')" }}
     >
+      {/* Tombol Back */}
+      <a
+        href="/"
+        className="absolute bottom-6 left-6 flex items-center gap-2 text-white bg-black/50 px-4 py-2 rounded-full hover:bg-black/70 transition"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Home
+      </a>
+
       {/* Login card */}
       <div className="bg-white/90 rounded-2xl shadow-xl w-96 p-8 relative z-10">
         <h1 className="text-2xl font-bold text-center text-black">XcodeVideo</h1>

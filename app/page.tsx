@@ -113,18 +113,7 @@ export default function HomePage() {
                   Master Kurniawan
                 </h2>
                 <p className="text-black text-lg leading-relaxed">
-                  Lorem ipsum dolor sit amet consectetur adipiscing elit. QLorem
-                  ipsum dolor sit amet consectetur adipiscing elit. QLorem ipsum
-                  dolor sit amet consectetur adipiscing elit. QLorem ipsum dolor
-                  sit amet consectetur adipiscing elit. QLorem ipsum dolor sit
-                  amet consectetur adipiscing elit. QLorem ipsum dolor sit amet
-                  consectetur adipiscing elit. Lorem ipsum dolor sit amet
-                  consectetur adipiscing elit. QLorem ipsum dolor sit amet
-                  consectetur adipiscing elit. QLorem ipsum dolor sit amet
-                  consectetur adipiscing elit. QLorem ipsum dolor sit amet
-                  consectetur adipiscing elit. QLorem ipsum dolor sit amet
-                  consectetur adipiscing elit. QLorem ipsum dolor sit amet
-                  consectetur adipiscing elit.
+                  Kurniawan adalah seorang intelektual dan ahli IT Security, penetration testing, software engineering, dan cloud architecture dengan pengalaman lebih dari 29 tahun di dunia komputer dan 24 tahun di bidang hacking & cyber security. Ia telah menangani berbagai klien besar, termasuk Kementerian Pertahanan RI, Kominfo, KPK, ITB, Metro TV, Kimia Farma, Alterra, Mamikos.com, hingga klien internasional dari Malaysia, Timor Leste, dan Madagascar, serta aktif menjadi pembicara seminar, workshop, dan dosen tamu di berbagai universitas ternama di Indonesia.
                 </p>
               </div>
             </div>

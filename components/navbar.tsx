@@ -32,12 +32,18 @@ const Navbar = () => {
       {/* Kanan: Tombol Masuk & Daftar, hidden on small */}
       <div className="flex-1 flex justify-end items-center gap-3">
         <div className="hidden sm:flex gap-3">
-          <button className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition">
-            Masuk
-          </button>
-          <button className="px-5 py-1.5 bg-red-500 border rounded-xl text-white hover:bg-red-600 transition">
-            Daftar
-          </button>
+        <a
+          href="/login"
+          className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition inline-block text-center"
+        >
+          Masuk
+        </a>
+        <a
+          href="/register"
+          className="px-5 py-1.5 bg-red-500 border rounded-xl text-white hover:bg-red-600 transition inline-block text-center">
+          Daftar
+        </a>
+
         </div>
         {/* Hamburger menu on small */}
         <div className="sm:hidden flex items-center">
