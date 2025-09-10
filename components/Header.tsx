@@ -1,7 +1,7 @@
-export default function Header() {
+export default function Header({ title }: { title: string }) {
   return (
-    <header className="flex justify-between items-center p-4 bg-gray-900 shadow rounded-lg mb-6">
-      <h2 className="text-xl font-semibold">Admin Dashboard</h2>
+    <header className="flex justify-between items-center p-4 bg-red-900 shadow rounded-lg mb-6">
+      <h2 className="text-xl font-semibold">{title}</h2>
       <input
         type="text"
         placeholder="Search here"
