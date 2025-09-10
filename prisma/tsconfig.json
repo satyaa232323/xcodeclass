@@ -6,6 +6,10 @@
             "es2019",
             "esnext.asynciterable"
         ],
+        "typeRoots": [
+            "../node_modules/@types",
+            "./types"
+        ],
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
