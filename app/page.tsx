@@ -5,6 +5,12 @@ import Image from "next/image";
 import Footer from "@/components/footer";
 
 export default function HomePage() {
+  const handleScroll = () => {
+    const element = document.getElementById("class");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" }); // animasi smooth
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
@@ -13,7 +19,7 @@ export default function HomePage() {
       <main className=" py-4 lg:py-6 space-y-6 lg:space-y-8">
         <div className="flex flex-col gap-10 w-full">
           {/* Call to Action */}
-          <div className="w-full bg-white flex flex-col md:flex-row items-center justify-between min-h-64 lg:min-h-[440px] px-4 md:px-10 py-10 gap-6">
+          <div className="w-full bg-gray-50 flex flex-col md:flex-row items-center justify-between min-h-64 lg:min-h-[440px] px-4 md:px-10 py-10 gap-6">
             <div className="flex-1 flex flex-col items-center md:items-start justify-center gap-4 text-black text-center md:text-left px-4 md:px-10">
               <h1 className="text-3xl lg:text-5xl font-bold mb-2">
                 Gabung Kelas XcodeClass Sekarang!
@@ -23,7 +29,10 @@ export default function HomePage() {
                 berbasis studi kasus nyata. Raih peluang karier di dunia
                 teknologi!
               </p>
-              <button className="px-10 py-4 bg-red-500 text-white font-bold rounded-full shadow hover:bg-red-600 transition text-xl cursor-pointer">
+              <button
+                className="px-10 py-4 bg-red-500 text-white font-bold rounded-full shadow hover:bg-red-600 transition text-xl cursor-pointer"
+                onClick={handleScroll}
+              >
                 Beli Kelas
               </button>
             </div>
@@ -40,7 +49,7 @@ export default function HomePage() {
           </div>
 
           {/* Teks */}
-          <div className="flex flex-col space-y-4 px-4 md:px-20">
+          <div className="flex flex-col space-y-4 px-4 md:px-20 " id="class">
             <h1 className="text-black text-2xl lg:text-2xl font-bold leading-snug">
               Kuasai Keamanan Cyber, Amankan Karier Digital Anda
             </h1>
@@ -115,7 +124,16 @@ export default function HomePage() {
                   Master Kurniawan
                 </h2>
                 <p className="text-black text-lg leading-relaxed">
-                  Kurniawan adalah seorang intelektual dan ahli IT Security, penetration testing, software engineering, dan cloud architecture dengan pengalaman lebih dari 29 tahun di dunia komputer dan 24 tahun di bidang hacking & cyber security. Ia telah menangani berbagai klien besar, termasuk Kementerian Pertahanan RI, Kominfo, KPK, ITB, Metro TV, Kimia Farma, Alterra, Mamikos.com, hingga klien internasional dari Malaysia, Timor Leste, dan Madagascar, serta aktif menjadi pembicara seminar, workshop, dan dosen tamu di berbagai universitas ternama di Indonesia.
+                  Kurniawan adalah seorang intelektual dan ahli IT Security,
+                  penetration testing, software engineering, dan cloud
+                  architecture dengan pengalaman lebih dari 29 tahun di dunia
+                  komputer dan 24 tahun di bidang hacking & cyber security. Ia
+                  telah menangani berbagai klien besar, termasuk Kementerian
+                  Pertahanan RI, Kominfo, KPK, ITB, Metro TV, Kimia Farma,
+                  Alterra, Mamikos.com, hingga klien internasional dari
+                  Malaysia, Timor Leste, dan Madagascar, serta aktif menjadi
+                  pembicara seminar, workshop, dan dosen tamu di berbagai
+                  universitas ternama di Indonesia.
                 </p>
               </div>
             </div>
