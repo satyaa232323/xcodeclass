@@ -14,8 +14,8 @@ export async function GET(req: Request, { params }: { params: { id: string}}) {
                 price: true,
                 createdAt: true,
                 updatedAt: true,
-                
-                videos:{
+
+                videos: {
                     select: {
                         id: true,
                         title: true,

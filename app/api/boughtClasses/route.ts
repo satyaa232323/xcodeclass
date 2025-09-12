@@ -1,25 +1,22 @@
-import { verivyJWT } from "@/lib/auth";
+import { verifyJWT } from "@/lib/auth";
 import { PrismaClient } from "@/app/generated/prisma";
-export async function GET(req: Request) {
+import { verifyAuth } from "@/lib/authMiddleware";
+import { NextRequest } from "next/server";
+
+export async function GET(req: NextRequest) {
 
     try{
         const prisma = new PrismaClient();
-        const authHeader = req.headers.get('Authorization');
+        const user = await verifyAuth(req, "USER");
 
-        if (!authHeader) {
+        if (!user) {
             return new Response(JSON.stringify({ message: 'Authorization header missing' }), { status: 401 });
         }
 
-        const token = authHeader.split(' ')[1];
-        const payload = verivyJWT(token);
-
-        if (!payload) {
-            return new Response(JSON.stringify({ message: 'Invalid token' }), { status: 401 });
-        }
 
         const boughtClasses = await prisma.userClassVideo.findMany({
             where: {
-                userId: (payload as {id: string}).id
+                userId: (user as {id: string}).id
             },
             include: {
                 classObj: true, 

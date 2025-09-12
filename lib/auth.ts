@@ -15,9 +15,9 @@ export function generateJWT(payload: object){
     return jwt.sign(payload, JWT_SECRET, {expiresIn: '1h'});
 }
 
-export function verivyJWT(token: string){
+export function verifyJWT(token: string){
     try{
-        return jwt.verify(token, JWT_SECRET);
+        return jwt.verify(token, JWT_SECRET) as {id: string, email: string, role: "ADMIN" | "USER"};
     } catch (error) {
         return null;
     }
