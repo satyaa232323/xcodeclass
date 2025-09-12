@@ -14,7 +14,7 @@ export default function desc() {
         <div className="w-full bg-red-500 flex flex-col md:flex-row items-center justify-between py-6 px-4 md:px-10 lg:px-24 xl:px-32 gap-6">
           <div className="flex flex-col gap-1 flex-1">
             <h1 className="font-bold text-3xl md:text-4xl lg:text-5xl">
-              Ini Judul Video
+              Ini Judul Kelas
             </h1>
             <h1 className="text-lg md:text-xl mt-2">Mentor:</h1>
             <h1 className="text-base md:text-lg">Bu Keksi</h1>
