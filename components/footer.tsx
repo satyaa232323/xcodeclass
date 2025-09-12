@@ -82,7 +82,7 @@ export default function Footer() {
             </li>
             <li>
               <a
-                href="https://api.whatsapp.com/send/?phone=62895420754477&text&type=phone_number&app_absent=0"
+                href="https://api.whatsapp.com/send/?phone=6285728917933&text&type=phone_number&app_absent=0"
                 className="hover:text-red-500"
               >
                 Hubungi Admin
