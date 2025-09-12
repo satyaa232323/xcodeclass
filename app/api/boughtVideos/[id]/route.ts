@@ -1,5 +1,5 @@
 import { PrismaClient } from "@/app/generated/prisma";
-import { verivyJWT } from "@/lib/auth";
+import { verifyJWT } from "@/lib/auth";
 import { verifyAuth } from "@/lib/authMiddleware";
 import { NextRequest } from "next/server";
 
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string}}
         const prisma = new PrismaClient();
 
 
-        const user = await verifyAuth(req)
+        const user = await verifyAuth(req, "USER")
         if (!user) {
             return new Response(JSON.stringify({ message: 'Authorization header missing' }), { status: 401 });
         }
