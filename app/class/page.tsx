@@ -1,5 +1,6 @@
 "use client";
 
+import Navbar from "@/components/navbar";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -9,31 +10,12 @@ export default function IsiVideoPage() {
   return (
     <div className="flex flex-col h-screen">
       {/* NAVBAR */}
-      <nav className="bg-[#A41111] text-white flex items-center justify-between px-6 py-3">
-        <div className="text-2xl font-bold w-1/3">XcodeVideo</div>
-
-        {/* Search bar */}
-        <div className="flex-1 flex justify-center">
-          <div className="bg-white flex items-center rounded-full px-3 w-2/3">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent text-black outline-none flex-1 px-2 py-1"
-            />
-            <button className="text-black">🔍</button>
-          </div>
-        </div>
-
-        {/* Profile icon */}
-        <div className="w-1/3 flex justify-end">
-          <button className="text-white text-xl">👤</button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* CONTENT */}
       <div className="flex flex-1">
         {/* SIDEBAR */}
-        <aside className="bg-[#2B2222] w-[20%] p-13 space-y-8 overflow-y-auto">
+        <aside className="bg-red-500 w-[20%] p-13 space-y-8 overflow-y-auto">
           {[1, 2, 3, 4].map((v) => (
             <div
               key={v}
@@ -60,7 +42,7 @@ export default function IsiVideoPage() {
 
         {/* MAIN VIDEO SECTION */}
         <main className="flex-1 bg-white p-6 overflow-y-auto flex flex-col items-center">
-          <div className="w-full max-w-5xl"> 
+          <div className="w-full max-w-5xl">
             {/* max-w lebih gede biar lebar (5xl) */}
             <h2 className="text-2xl font-bold mb-4 text-black">Nama kelas</h2>
 
@@ -98,7 +80,7 @@ export default function IsiVideoPage() {
               memperbesar kekuatan spiritual, elemen api
             </p>
 
-          {/* Info creator + laporkan */}
+            {/* Info creator + laporkan */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Image
@@ -128,10 +110,10 @@ export default function IsiVideoPage() {
                 perspiciatis unde omnis iste natus error sit voluptatem
                 accusantium doloremque laudantium. Nemo enim ipsam voluptatem
                 quia voluptas sit aspernatur aut odit aut fugit. Lorem ipsum
-                dolor sit amet, consectetur adipisicing elit. Sed ut perspiciatis
-                unde omnis iste natus error sit voluptatem accusantium doloremque
-                laudantium. Nemo enim ipsam voluptatem quia voluptas sit
-                aspernatur aut odit aut fugit.
+                dolor sit amet, consectetur adipisicing elit. Sed ut
+                perspiciatis unde omnis iste natus error sit voluptatem
+                accusantium doloremque laudantium. Nemo enim ipsam voluptatem
+                quia voluptas sit aspernatur aut odit aut fugit.
               </p>
             </div>
           </div>
