@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -16,7 +17,7 @@ const Navbar = () => {
           className="w-10 h-10 sm:w-14 sm:h-14 md:w-[58px] md:h-[58px] object-contain"
         />
         <span className="hidden sm:inline text-lg sm:text-xl font-bold text-gray-900 ml-2">
-          <span className="text-red-500">X</span>CodeClass
+          <span className="text-red-500">X</span>CODEClass
         </span>
       </div>
 
@@ -32,12 +33,17 @@ const Navbar = () => {
       {/* Kanan: Tombol Masuk & Daftar, hidden on small */}
       <div className="flex-1 flex justify-end items-center gap-3">
         <div className="hidden sm:flex gap-3">
-          <button className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition">
-            Masuk
-          </button>
-          <button className="px-5 py-1.5 bg-red-500 border rounded-xl text-white hover:bg-red-600 transition">
-            Daftar
-          </button>
+          <Link href="/login">
+            <button className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition cursor-pointer">
+              Masuk
+            </button>
+          </Link>
+
+          <Link href="/register">
+            <button className="px-5 py-1.5 bg-red-500 border rounded-xl text-white hover:bg-red-600 transition cursor-pointer">
+              Daftar
+            </button>
+          </Link>
         </div>
         {/* Hamburger menu on small */}
         <div className="sm:hidden flex items-center">
