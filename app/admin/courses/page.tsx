@@ -99,34 +99,50 @@ export default function CoursesPage() {
 
         {/* Modal Tambah Course */}
         {showModal && (
-          <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-red-500 p-6 rounded-lg shadow-lg w-full max-w-lg">
-              <h2 className="text-xl font-bold mb-4 text-white">
-                Tambah Course Baru
-              </h2>
-              <form onSubmit={addCourse} className="flex flex-col gap-3">
-                <input
-                  className="border p-2 rounded"
-                  placeholder="Judul Course"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-                <input
-                  className="border p-2 rounded"
-                  placeholder="Mentor"
-                  value={mentor}
-                  onChange={(e) => setMentor(e.target.value)}
-                />
-                <textarea
-                  className="border p-2 rounded"
-                  placeholder="Deskripsi"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
+          <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex justify-center items-center z-50">
+              <form
+                onSubmit={addCourse}
+                className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-lg w-full max-w-lg mx-auto"
+              >
+                <h2 className="text-2xl font-semibold text-gray-900 mb-2">Tambah Course</h2>
+
+                {/* Judul */}
+                <div className="flex flex-col">
+                  <label className="text-sm text-gray-800 mb-1">Judul Course</label>
+                  <input
+                    className="border border-gray-700 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder="Masukkan judul course..."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                </div>
+
+                {/* Mentor */}
+                <div className="flex flex-col">
+                  <label className="text-sm text-gray-800 mb-1">Mentor</label>
+                  <input
+                    className="border border-gray-700 bg-white text-gray-700 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder="Nama mentor..."
+                    value={mentor}
+                    onChange={(e) => setMentor(e.target.value)}
+                  />
+                </div>
+
+                {/* Deskripsi */}
+                <div className="flex flex-col">
+                  <label className="text-sm text-gray-800 mb-1">Deskripsi</label>
+                  <textarea
+                    rows={4}
+                    className="border border-gray-700 bg-white text-gray-700 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder="Tuliskan deskripsi course..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
 
                 {/* Input Video File Upload */}
-                <div>
-                  <label className="block text-white mb-2">
+                <div className="flex flex-col">
+                  <label className="block text-sm text-gray-800 mb-2">
                     Upload Video (bisa lebih dari 1)
                   </label>
 
@@ -143,36 +159,42 @@ export default function CoursesPage() {
                   {/* custom button */}
                   <label
                     htmlFor="video-upload"
-                    className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded inline-block"
+                    className="cursor-pointer bg-red-600 hover:bg-red-700 transition-colors text-white px-4 py-2 rounded-lg font-medium w-fit"
                   >
                     Pilih Video
                   </label>
 
-                  <ul className="mt-2 text-sm text-gray-200">
-                    {videos.map((v, i) => (
-                      <li key={i}>Video {i + 1}</li>
-                    ))}
-                  </ul>
+                  {videos.length > 0 && (
+                    <ul className="mt-3 space-y-1 text-sm text-gray-300">
+                      {videos.map((v, i) => (
+                        <li
+                          key={i}
+                          className="px-3 py-2 bg-gray-800 rounded-md border border-gray-700"
+                        >
+                          🎬 Video {i + 1}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
-
-                <div className="flex justify-end gap-2 mt-4">
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 mt-6">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2 rounded border text-white"
+                    className="px-4 py-2 rounded-lg border border-gray-600 text-gray-800 hover:bg-gray-50 transition-colors"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
-                    className="bg-green-600 text-white px-4 py-2 rounded"
+                    className="bg-red-600 hover:bg-red-700 transition-colors text-white px-4 py-2 rounded-lg font-medium"
                   >
                     Simpan
                   </button>
                 </div>
               </form>
-            </div>
           </div>
         )}
       </main>

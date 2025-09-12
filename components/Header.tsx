@@ -5,7 +5,7 @@ export default function Header({ title }: { title: string }) {
       <input
         type="text"
         placeholder="Search here"
-        className="border px-4 py-2 rounded-lg w-64"
+        className="border px-4 py-2 rounded-lg w-64 color placeholder-white"
       />
     </header>
   );
