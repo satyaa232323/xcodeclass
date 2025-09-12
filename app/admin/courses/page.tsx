@@ -19,7 +19,6 @@ export default function CoursesPage() {
   const [title, setTitle] = useState("");
   const [mentor, setMentor] = useState("");
   const [description, setDescription] = useState("");
-  const [videoInput, setVideoInput] = useState("");
   const [videos, setVideos] = useState<string[]>([]);
 
   function addCourse(e: React.FormEvent) {
@@ -38,9 +37,16 @@ export default function CoursesPage() {
     setMentor("");
     setDescription("");
     setVideos([]);
-    setVideoInput("");
     setShowModal(false);
   }
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const videoUrl = URL.createObjectURL(file);
+      setVideos([...videos, videoUrl]);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -53,7 +59,7 @@ export default function CoursesPage() {
           <h1 className="text-2xl font-bold text-gray-600">Daftar Courses</h1>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800"
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-800"
           >
             + Tambah Course
           </button>
@@ -67,20 +73,25 @@ export default function CoursesPage() {
             courses.map((c) => (
               <div
                 key={c.id}
-                className="bg-red-900 shadow rounded-xl p-4 flex flex-col gap-3"
+                className="bg-white shadow rounded-xl p-4 flex flex-col gap-3"
               >
-                <h3 className="text-lg font-semibold text-white-600">
+                <h3 className="text-lg font-semibold text-red-600">
                   {c.title}
                 </h3>
-                <p className="text-sm text-white-600">Mentor: {c.mentor}</p>
-                <p className="text-white-700">{c.description}</p>
-                <div className="flex flex-col gap-2">
+                <p className="text-sm text-gray-600">Mentor: {c.mentor}</p>
+                <p className="text-gray-600">{c.description}</p>
+                <div className="flex overflow-x-auto gap-3 pb-2">
                   {c.videos.map((video, idx) => (
-                    <video key={idx} controls className="rounded-lg">
+                    <video
+                      key={idx}
+                      controls
+                      className="rounded-lg w-64 flex-shrink-0"
+                    >
                       <source src={video} type="video/mp4" />
                     </video>
                   ))}
                 </div>
+
               </div>
             ))
           )}
@@ -88,9 +99,11 @@ export default function CoursesPage() {
 
         {/* Modal Tambah Course */}
         {showModal && (
-          <div className="fixed inset-0 bg-white bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-red-900 p-6 rounded-lg shadow-lg w-full max-w-lg">
-              <h2 className="text-xl font-bold mb-4">Tambah Course Baru</h2>
+          <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-red-500 p-6 rounded-lg shadow-lg w-full max-w-lg">
+              <h2 className="text-xl font-bold mb-4 text-white">
+                Tambah Course Baru
+              </h2>
               <form onSubmit={addCourse} className="flex flex-col gap-3">
                 <input
                   className="border p-2 rounded"
@@ -111,40 +124,43 @@ export default function CoursesPage() {
                   onChange={(e) => setDescription(e.target.value)}
                 />
 
-                {/* Input Video */}
+                {/* Input Video File Upload */}
                 <div>
-                  <div className="flex gap-2">
-                    <input
-                      className="border p-2 flex-1 rounded"
-                      placeholder="Video URL"
-                      value={videoInput}
-                      onChange={(e) => setVideoInput(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (videoInput.trim() !== "") {
-                          setVideos([...videos, videoInput]);
-                          setVideoInput("");
-                        }
-                      }}
-                      className="bg-blue-500 text-white px-4 rounded"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <ul className="mt-2 text-sm text-gray-700">
+                  <label className="block text-white mb-2">
+                    Upload Video (bisa lebih dari 1)
+                  </label>
+
+                  {/* hidden input */}
+                  <input
+                    type="file"
+                    accept="video/*"
+                    multiple
+                    id="video-upload"
+                    className="hidden"
+                    onChange={handleVideoUpload}
+                  />
+
+                  {/* custom button */}
+                  <label
+                    htmlFor="video-upload"
+                    className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded inline-block"
+                  >
+                    Pilih Video
+                  </label>
+
+                  <ul className="mt-2 text-sm text-gray-200">
                     {videos.map((v, i) => (
-                      <li key={i}>{v}</li>
+                      <li key={i}>Video {i + 1}</li>
                     ))}
                   </ul>
                 </div>
+
 
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2 rounded border"
+                    className="px-4 py-2 rounded border text-white"
                   >
                     Batal
                   </button>
