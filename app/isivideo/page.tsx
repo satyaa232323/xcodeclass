@@ -1,0 +1,142 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+
+export default function IsiVideoPage() {
+  const [playing, setPlaying] = useState(false);
+
+  return (
+    <div className="flex flex-col h-screen">
+      {/* NAVBAR */}
+      <nav className="bg-[#A41111] text-white flex items-center justify-between px-6 py-3">
+        <div className="text-2xl font-bold w-1/3">XcodeVideo</div>
+
+        {/* Search bar */}
+        <div className="flex-1 flex justify-center">
+          <div className="bg-white flex items-center rounded-full px-3 w-2/3">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="bg-transparent text-black outline-none flex-1 px-2 py-1"
+            />
+            <button className="text-black">🔍</button>
+          </div>
+        </div>
+
+        {/* Profile icon */}
+        <div className="w-1/3 flex justify-end">
+          <button className="text-white text-xl">👤</button>
+        </div>
+      </nav>
+
+      {/* CONTENT */}
+      <div className="flex flex-1">
+        {/* SIDEBAR */}
+        <aside className="bg-[#2B2222] w-[20%] p-13 space-y-8 overflow-y-auto">
+          {[1, 2, 3, 4].map((v) => (
+            <div
+              key={v}
+              className="bg-white rounded-lg overflow-hidden shadow cursor-pointer"
+            >
+              <Image
+                src="/thumbnail.jpg"
+                alt="Thumbnail"
+                width={250}
+                height={100} // <<< DIPENDEKIN
+                className="w-full h-[90px] object-cover"
+              />
+              <div className="p-2">
+                <h3 className="font-semibold text-xs text-black">
+                  Cara besarin otong
+                </h3>
+                <p className="text-[10px] text-gray-500">
+                  Lorem Ipsum Dolor Sit Amet...
+                </p>
+              </div>
+            </div>
+          ))}
+        </aside>
+
+        {/* MAIN VIDEO SECTION */}
+        <main className="flex-1 bg-white p-6 overflow-y-auto flex flex-col items-center">
+          <div className="w-full max-w-5xl"> 
+            {/* max-w lebih gede biar lebar (5xl) */}
+            <h2 className="text-2xl font-bold mb-4 text-black">Nama kelas</h2>
+
+            {/* Video player */}
+            <div className="relative w-full mb-4">
+              {!playing ? (
+                <div
+                  className="relative cursor-pointer"
+                  onClick={() => setPlaying(true)}
+                >
+                  <Image
+                    src="/elon.jpg"
+                    alt="Video Thumbnail"
+                    width={1000}
+                    height={560}
+                    className="w-full h-auto rounded-lg"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-red-600 text-white rounded-full p-4 text-2xl">
+                      ▶
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <video
+                  controls
+                  autoPlay
+                  className="w-full h-auto rounded-lg"
+                  src="/sample.mp4"
+                />
+              )}
+            </div>
+
+            <p className="text-lg font-bold mb-10 text-black">
+              memperbesar kekuatan spiritual, elemen api
+            </p>
+
+          {/* Info creator + laporkan */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Image
+                  src="/avatar.jpg"
+                  alt="Avatar"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+                <div>
+                  <p className="font-semibold text-black">Master Kurniawan</p>
+                  <p className="text-sm text-black">Chief Technology Officer</p>
+                </div>
+              </div>
+              <p className="text-sm text-black">
+                Ada masalah dengan video?{" "}
+                <span className="text-red-600 font-semibold cursor-pointer">
+                  laporkan
+                </span>
+              </p>
+            </div>
+
+            {/* Description */}
+            <div className="bg-gray-200 p-6 rounded-lg shadow w-full">
+              <p className="text-lg leading-relaxed text-black">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed ut
+                perspiciatis unde omnis iste natus error sit voluptatem
+                accusantium doloremque laudantium. Nemo enim ipsam voluptatem
+                quia voluptas sit aspernatur aut odit aut fugit. Lorem ipsum
+                dolor sit amet, consectetur adipisicing elit. Sed ut perspiciatis
+                unde omnis iste natus error sit voluptatem accusantium doloremque
+                laudantium. Nemo enim ipsam voluptatem quia voluptas sit
+                aspernatur aut odit aut fugit.
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
