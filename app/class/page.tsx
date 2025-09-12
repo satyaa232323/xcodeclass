@@ -13,38 +13,15 @@ export default function IsiVideoPage() {
       <Navbar />
 
       {/* CONTENT */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
         {/* SIDEBAR */}
-        <aside className="bg-red-500 w-[20%] p-13 space-y-8 overflow-y-auto">
-          {[1, 2, 3, 4].map((v) => (
-            <div
-              key={v}
-              className="bg-white rounded-lg overflow-hidden shadow cursor-pointer"
-            >
-              <Image
-                src="/thumbnail.jpg"
-                alt="Thumbnail"
-                width={250}
-                height={100} // <<< DIPENDEKIN
-                className="w-full h-[90px] object-cover"
-              />
-              <div className="p-2">
-                <h3 className="font-semibold text-xs text-black">
-                  Cara besarin otong
-                </h3>
-                <p className="text-[10px] text-gray-500">
-                  Lorem Ipsum Dolor Sit Amet...
-                </p>
-              </div>
-            </div>
-          ))}
-        </aside>
 
         {/* MAIN VIDEO SECTION */}
-        <main className="flex-1 bg-white p-6 overflow-y-auto flex flex-col items-center">
+        <main className="flex-1 bg-white p-4 sm:p-6 overflow-y-auto flex flex-col items-center">
           <div className="w-full max-w-5xl">
-            {/* max-w lebih gede biar lebar (5xl) */}
-            <h2 className="text-2xl font-bold mb-4 text-black">Nama kelas</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-black">
+              Nama kelas
+            </h2>
 
             {/* Video player */}
             <div className="relative w-full mb-4">
@@ -76,12 +53,12 @@ export default function IsiVideoPage() {
               )}
             </div>
 
-            <p className="text-lg font-bold mb-10 text-black">
+            <p className="text-base sm:text-lg font-bold mb-6 text-black">
               memperbesar kekuatan spiritual, elemen api
             </p>
 
             {/* Info creator + laporkan */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
               <div className="flex items-center space-x-2">
                 <Image
                   src="/avatar.jpg"
@@ -104,8 +81,8 @@ export default function IsiVideoPage() {
             </div>
 
             {/* Description */}
-            <div className="bg-gray-200 p-6 rounded-lg shadow w-full">
-              <p className="text-lg leading-relaxed text-black">
+            <div className="bg-gray-200 p-4 sm:p-6 rounded-lg shadow w-full">
+              <p className="text-sm sm:text-base leading-relaxed text-black">
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed ut
                 perspiciatis unde omnis iste natus error sit voluptatem
                 accusantium doloremque laudantium. Nemo enim ipsam voluptatem
@@ -118,6 +95,30 @@ export default function IsiVideoPage() {
             </div>
           </div>
         </main>
+        <aside className="bg-red-500 w-full md:w-1/5 p-4 md:p-6 space-y-4 md:space-y-8 overflow-y-auto">
+          {[1, 2, 3, 4].map((v) => (
+            <div
+              key={v}
+              className="bg-white rounded-lg overflow-hidden shadow cursor-pointer"
+            >
+              <Image
+                src="/thumbnail.jpg"
+                alt="Thumbnail"
+                width={250}
+                height={100}
+                className="w-full h-[90px] object-cover"
+              />
+              <div className="p-2">
+                <h3 className="font-semibold text-xs sm:text-sm text-black">
+                  Cara besarin otong
+                </h3>
+                <p className="text-[10px] sm:text-xs text-gray-500">
+                  Lorem Ipsum Dolor Sit Amet...
+                </p>
+              </div>
+            </div>
+          ))}
+        </aside>
       </div>
     </div>
   );
