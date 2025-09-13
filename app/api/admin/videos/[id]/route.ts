@@ -16,8 +16,28 @@ export async function PUT(
 
     try {
         const videoId = params.id;
-        const body = await request.json();
+        
+        // Add error handling for JSON parsing
+        let body;
+        try {
+            body = await request.json();
+        } catch (jsonError) {
+            return new Response(
+                JSON.stringify({ error: "Invalid JSON in request body" }), 
+                { status: 400 }
+            );
+        }
+
         const { title, videoUrl, duration } = body;
+
+        
+        // Validate required fields
+        if (!title || !videoUrl || !duration) {
+            return new Response(
+                JSON.stringify({ error: "Missing required fields: title, videoUrl, and duration are required" }), 
+                { status: 400 }
+            );
+        }
 
         // Update the video
         const video = await prisma.video.update({
@@ -34,7 +54,7 @@ export async function PUT(
         return new Response(JSON.stringify(video), { status: 200 });
     } catch (error) {
         console.error("Update video error:", error);
-        return new Response("Internal Server Error", { status: 500 });
+        return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
     } finally {
         await prisma.$disconnect();
     }

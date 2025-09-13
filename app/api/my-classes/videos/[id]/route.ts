@@ -1,27 +1,29 @@
 import { PrismaClient } from "@/app/generated/prisma";
-import { verifyJWT } from "@/lib/auth";
 import { verifyAuth } from "@/lib/authMiddleware";
 import { NextRequest } from "next/server";
 
 
-export async function GET(req: NextRequest, { params }: { params: { id: string}}) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const prisma = new PrismaClient();
 
 
         const user = await verifyAuth(req, "USER")
+
+        console.log("Verified user in my-classes videos:", user);``
+
         if (!user) {
             return new Response(JSON.stringify({ message: 'Authorization header missing' }), { status: 401 });
         }
 
-      
 
         // Find the specific UserClassVideo entry by its ID
+
         const boughtVideo = await prisma.userClassVideo.findFirst({
             where: {
                 AND: [
-                    { id: params.id },
-                    { userId: (user as {id: string}).id } // Ensure the user owns this entry
+                    { classId: params.id },
+                    { userId: (user as { id: string }).id } // Ensure the user owns this entry
                 ]
             },
             select: {

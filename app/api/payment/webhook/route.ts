@@ -10,29 +10,30 @@ export async function POST(request: NextRequest) {
 
         const user = await verifyAuth(request, "USER");
 
+        let body: any = {};
 
-        const body = await request.json();
-
-
-        // validate required fields
-        if (!body.order_id || !body.transaction_status) {
-            return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+        try {
+            body = await request.json();
+        } catch (error) {
+            console.error("Error parsing request body:", error);
         }
 
 
+        const { order_id, transaction_status, fraud_status } = body;
+
 
         // Verifikasi notifikasi dari Midtrans
-       
 
-        const orderId = body.order_id; // ini "APP-xxxx"
-        const transactionStatus = body.transaction_status;
-        const fraudStatus = body.fraud_status;
 
-        console.log(`Processing order ${orderId} with status ${transactionStatus}`);
+        // const orderId = body.order_id; // ini "APP-xxxx"
+        // const transactionStatus = body.transaction_status;
+        // const fraudStatus = body.fraud_status;
+
+        console.log(`Processing order ${order_id} with status ${transaction_status}`);
 
         // Cari order di database berdasarkan midtransOrderId
         const order = await prisma.order.findFirst({
-            where: { midtransOrderId: orderId },
+            where: { midtransOrderId: order_id },
             include: {
                 orderItems: true,
                 user: true,
@@ -40,17 +41,17 @@ export async function POST(request: NextRequest) {
         });
 
         if (!order) {
-            console.error(`Order not found for midtransOrderId: ${orderId}`);
+            console.error(`Order not found for midtransOrderId: ${order_id}`);
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
         }
 
         // Handle status transaksi
-        switch (transactionStatus) {
+        switch (transaction_status) {
             case "capture":
-                if (fraudStatus === "challenge") {
+                if (fraud_status === "challenge") {
                     await updateOrderStatus(order.id, "PENDING");
 
-                } else if(fraudStatus === "accept"){
+                } else if (fraud_status === "accept") {
                     await processSuccessfulPayment(order);
                 }
                 break;
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error("Webhook error:", error);
         return NextResponse.json(
-            { error: "Webhook processing failed",},
+            { error: "Webhook processing failed", },
             { status: 500 }
         );
     }

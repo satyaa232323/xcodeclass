@@ -3,7 +3,10 @@ import { NextRequest } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
 
 export async function GET(request: NextRequest) {
+    
     const user = await verifyAuth(request, "ADMIN");
+
+    console.log("Verified user:", user);
 
     if (!user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -34,6 +37,7 @@ export async function GET(request: NextRequest) {
                         },
                     },
                 }
+                
             },
         });
 

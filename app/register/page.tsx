@@ -127,9 +127,8 @@ export default function RegisterPage() {
 
           {message && (
             <p
-              className={`text-sm text-center ${
-                isError ? "text-red-600" : "text-gray-600"
-              }`}
+              className={`text-sm text-center ${isError ? "text-red-600" : "text-gray-600"
+                }`}
             >
               {message}
             </p>

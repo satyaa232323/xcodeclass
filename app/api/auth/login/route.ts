@@ -1,40 +1,55 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
-
 import { verifyPassword, generateJWT } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     try {
         const { email, password } = await req.json();
 
         if (!email || !password) {
-            return NextResponse.json(
-                { error: "Email dan password wajib diisi" },
-                { status: 400 }
-            );
+            return NextResponse.json(JSON.stringify({ error: "Email and password are required" }), { status: 400 });
         }
 
-        const user = await prisma.user.findUnique({ where: { email } });
+
+        const user = await prisma.user.findUnique({
+            where: { email }
+        })
+
         if (!user) {
-            return NextResponse.json({ error: "User tidak ditemukan" }, { status: 401 });
+            return NextResponse.json(JSON.stringify({ error: "Invalid email or password" }), { status: 401 });
         }
 
-        const isValid = await verifyPassword(password, user.password);
-        if (!isValid) {
-            return NextResponse.json({ error: "Password salah" }, { status: 401 });
+        const isPasswordValid = await verifyPassword(password, user.password);
+
+        if (!isPasswordValid) {
+            return NextResponse.json(JSON.stringify({ error: "Invalid email or password" }), { status: 401 });
         }
 
-        const token = generateJWT({ id: user.id, email: user.email, role: user.role });
+        const token = generateJWT({
+            id: user.id,
+            email: user.email,
+            role: user.role
+        });
 
         return NextResponse.json({
-            message: "Login berhasil",
             token,
-            user: { id: user.id, email: user.email, name: user.name, role: user.role },
-        });
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        },
+            { status: 200 });
     } catch (error) {
         console.error("Login error:", error);
-        return NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 }
+        );
+    } finally {
+        await prisma.$disconnect();
     }
 }

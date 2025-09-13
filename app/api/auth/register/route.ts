@@ -1,7 +1,7 @@
 import { hashPassword } from "@/lib/auth";
 import { PrismaClient } from "@/app/generated/prisma";
 
-export  async function POST(req: Request) {
+export async function POST(req: Request) {
     const prisma = new PrismaClient();
 
     try {
@@ -19,13 +19,13 @@ export  async function POST(req: Request) {
             return new Response(JSON.stringify({ message: 'User already exists' }), { status: 409 });
         }
 
-        const hashedPassword  = await hashPassword(password);
+        const hashedPassword = await hashPassword(password);
 
         const user = await prisma.user.create({
-            data: { 
-                email, 
-                password: hashedPassword, 
-                name 
+            data: {
+                email,
+                password: hashedPassword,
+                name
             }
         })
 
