@@ -26,6 +26,11 @@ model User {
   updatedAt       DateTime         @updatedAt
   orders          Order[]
   userClassVideos UserClassVideo[]
+
+  // reset password
+  resetPasswordToken String? // token untuk reset password
+  resetPasswordExpiry DateTime? // waktu kadaluarsa token
+  passwordChangedAt    DateTime? // waktu terakhir password diubah
 }
 
 model Class {
