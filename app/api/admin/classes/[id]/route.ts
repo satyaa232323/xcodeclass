@@ -25,3 +25,27 @@ export async function GET(
     );
   }
 }
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const id = params.id;
+    const body = await req.json();
+    const { title, description, price, thumbnailUrl, mentor } = body;
+
+    const updatedClass = await prisma.class.update({
+      where: { id },
+      data: { title, description, price, thumbnailUrl, mentor },
+    });
+
+    return NextResponse.json(updatedClass);
+  } catch (error: any) {
+    console.error("PUT /api/admin/classes/[id] error:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to update class" },
+      { status: 500 }
+    );
+  }
+}
