@@ -51,7 +51,10 @@ export default function ProfileLayout({
                 Dashboard
               </li>
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
-                History
+                <Link href="/profile">Profile</Link>
+              </li>
+              <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
+                <Link href="/profile/history">History</Link>
               </li>
             </ul>
           </div>
