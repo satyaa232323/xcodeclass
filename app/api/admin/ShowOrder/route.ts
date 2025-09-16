@@ -1,15 +1,14 @@
 import { verifyAuth } from "@/lib/authMiddleware";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
 
 export async function GET(request: NextRequest) {
-    
+
     const user = await verifyAuth(request, "ADMIN");
 
-    console.log("Verified user:", user);
 
     if (!user) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const prisma = new PrismaClient();
@@ -37,14 +36,14 @@ export async function GET(request: NextRequest) {
                         },
                     },
                 }
-                
+
             },
         });
 
-        return new Response(JSON.stringify(orders), { status: 200 });
+        return NextResponse.json({ data: orders }, { status: 200 });
     } catch (error) {
         console.error("List orders error:", error);
-        return new Response("Internal Server Error", { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     } finally {
         await prisma.$disconnect();
     }

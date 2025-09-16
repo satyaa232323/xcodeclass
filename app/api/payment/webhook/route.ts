@@ -8,7 +8,6 @@ const prisma = new PrismaClient();
 export async function POST(request: NextRequest) {
     try {
 
-        const user = await verifyAuth(request, "USER");
 
         let body: any = {};
 

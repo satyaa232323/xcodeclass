@@ -1,5 +1,5 @@
 import { PrismaClient } from "@/app/generated/prisma";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import crypto, { hash } from "crypto";
 
 export async function POST(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
         });
 
         if(!email ||  !availableEmail) {
-            return new Response("Email not found", { status: 404 });
+            return NextResponse.json({ message: "Email not found" }, { status: 404 });
         }
 
         // Generate a password reset token
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        return new Response("Password reset token generated" + resetToken, { status: 200 });
+        return  NextResponse.json({ message: "Password reset token generated", token: resetToken }, { status: 200 });
 
 
         // Here, you would typically send the reset token to the user's email address.
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         
 
     } catch (error) {
-        return new Response("Internal Server Error" + error, { status: 500 });
+        return NextResponse.json({ message: "Internal Server Error" + error }, { status: 500 });
     }
 
 }

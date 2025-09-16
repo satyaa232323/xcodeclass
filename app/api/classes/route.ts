@@ -1,5 +1,6 @@
 import { PrismaClient } from "@/app/generated/prisma";
 import { verify } from "crypto";
+import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
     const prisma = new PrismaClient();
@@ -16,9 +17,9 @@ export async function GET(req: Request) {
                 mentor: true,
             } 
         });
-        return new Response(JSON.stringify(classes), { status: 200 });
+        return NextResponse.json({data: classes}, { status: 200 });
     } catch (error) {
         console.log(error);
-        return new Response(JSON.stringify({ message: 'Internal server error' }), { status: 500 });
+        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
     }
 }

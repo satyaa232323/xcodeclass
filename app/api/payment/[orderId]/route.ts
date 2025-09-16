@@ -16,9 +16,9 @@ export async function POST(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { orderId } = params;
+        const { orderId } = await params;
 
-        
+
 
         // 🔎 Get order details (and ensure it belongs to the logged-in user)
         const order = await prisma.order.findFirst({
