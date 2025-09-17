@@ -3,6 +3,9 @@
 import Navbar from "@/components/navbar";
 import Image from "next/image";
 import Footer from "@/components/footer";
+import ReviewMarquee from "@/components/ReviewMarquee";
+import { useState } from "react";
+import { FaUserTie, FaBookOpen, FaUsers, FaInfinity } from "react-icons/fa";
 
 export default function HomePage() {
   const handleScroll = () => {
@@ -11,8 +14,52 @@ export default function HomePage() {
       element.scrollIntoView({ behavior: "smooth" }); // animasi smooth
     }
   };
+  // Dummy data kelas (bisa diganti dengan data dari API)
+  const kelasList = [
+    { id: 1, title: "Judul kelas", desc: "deskripsi", price: "10.000" },
+    { id: 2, title: "Judul kelas 2", desc: "deskripsi", price: "20.000" },
+    { id: 3, title: "Judul kelas 3", desc: "deskripsi", price: "30.000" },
+    { id: 4, title: "Judul kelas 4", desc: "deskripsi", price: "40.000" },
+    { id: 5, title: "Judul kelas 5", desc: "deskripsi", price: "50.000" },
+    // ...tambahkan data lain jika perlu
+  ];
+  const visibleKelas = kelasList.slice(0, 4);
+  // Keunggulan card data
+  const keunggulanCards = [
+    {
+      icon: <FaUserTie className="w-7 h-7 text-red-500" />,
+      title: "Mentor Berpengalaman",
+      desc: "Dibimbing langsung oleh mentor yang ahli di bidangnya dan berpengalaman puluhan tahun.",
+    },
+    {
+      icon: <FaBookOpen className="w-7 h-7 text-blue-500" />,
+      title: "Materi Studi Kasus Nyata",
+      desc: "Pembelajaran berbasis studi kasus nyata agar siap menghadapi tantangan dunia kerja.",
+    },
+    {
+      icon: <FaUsers className="w-7 h-7 text-green-500" />,
+      title: "Komunitas Aktif",
+      desc: "Bergabung dengan komunitas belajar yang aktif dan saling support.",
+    },
+    {
+      icon: <FaInfinity className="w-7 h-7 text-purple-500" />,
+      title: "Akses Selamanya",
+      desc: "Materi dan video kelas bisa diakses kapan saja tanpa batas waktu.",
+    },
+    {
+      icon: <FaBookOpen className="w-7 h-7 text-orange-500" />,
+      title: "Sertifikat Resmi",
+      desc: "Dapatkan sertifikat resmi setelah menyelesaikan kelas dan tugas akhir.",
+    },
+    {
+      icon: <FaUsers className="w-7 h-7 text-cyan-500" />,
+      title: "Konsultasi Gratis",
+      desc: "Bisa konsultasi langsung dengan mentor tanpa biaya tambahan.",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-22">
       {/* Navbar */}
       <Navbar />
 
@@ -38,7 +85,7 @@ export default function HomePage() {
             </div>
             <div className="flex-1 flex items-center justify-center md:justify-end h-full pr-0 md:pr-8 mt-6 md:mt-0">
               <Image
-                src="/images/landing.png"
+                src="/images/lan2.svg"
                 alt="Landing Illustration"
                 width={320}
                 height={320}
@@ -47,6 +94,7 @@ export default function HomePage() {
               />
             </div>
           </div>
+          <hr className="border-t-2 border-gray-200 my-4 w-full" />
 
           {/* Teks */}
           <div className="flex flex-col space-y-4 px-4 md:px-20 " id="class">
@@ -62,86 +110,118 @@ export default function HomePage() {
 
           {/* Video Class */}
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
-            {/* Card Video */}
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h2 className="font-bold text-lg mb-1">Judul kelas</h2>
-                  <p className="font-extralight text-sm mb-2 line-clamp-1">
-                    deskripsi
-                  </p>
+            {visibleKelas.map((kelas) => (
+              <div
+                key={kelas.id}
+                className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md"
+              >
+                <Image
+                  src="/images/foto_vid.png"
+                  alt="Thumbnail Video"
+                  width={400}
+                  height={220}
+                  className="object-cover w-full h-48"
+                />
+                <div className="flex flex-col flex-1 p-4 gap-2">
+                  <div>
+                    <h2 className="font-bold text-lg mb-1">{kelas.title}</h2>
+                    <p className="font-extralight text-sm mb-2 line-clamp-1">
+                      {kelas.desc}
+                    </p>
+                  </div>
+                  <span className="font-bold text-base mb-4">
+                    {kelas.price}
+                  </span>
+                  <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
+                    Beli
+                  </button>
                 </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
-                  Beli
-                </button>
               </div>
+            ))}
+          </div>
+          <div className="flex justify-center mt-6">
+            <a
+              href="/classes"
+              className="px-8 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition text-lg shadow"
+            >
+              Lihat Semua Kelas
+            </a>
+          </div>
+        </div>
+        <hr className="border-t-2 border-gray-200 my-4 w-full" />
+        <div className="flex flex-col items-center justify-center bg-whte py-10 gap-10 px-4 md:px-20 w-full">
+          <h1 className="text-3xl text-black font-bold">Mentor Kami</h1>
+          <div className="flex flex-col lg:flex-row justify-center items-center gap-10 lg:gap-20 border-2 border-gray-200 rounded-xl p-6 md:p-14 w-full max-w-full mx-auto bg-white">
+            <Image
+              src="/images/ctokurniawan.png"
+              alt="Mentor Master Kurniawan"
+              width={340}
+              height={380}
+              className="object-fit rounded-2xl aspect-square"
+            />
+            <div className=" flex-1 flex flex-col items-center md:items-start justify-center h-full px-8 text-center md:text-left">
+              <h2 className="text-2xl text-black font-bold mb-4">
+                Master Kurniawan
+              </h2>
+              <p className="text-black text-lg leading-relaxed">
+                Kurniawan adalah seorang intelektual dan ahli IT Security,
+                penetration testing, software engineering, dan cloud
+                architecture dengan pengalaman lebih dari 29 tahun di dunia
+                komputer dan 24 tahun di bidang hacking & cyber security. Ia
+                telah menangani berbagai klien besar, termasuk Kementerian
+                Pertahanan RI, Kominfo, KPK, ITB, Metro TV, Kimia Farma,
+                Alterra, Mamikos.com, hingga klien internasional dari Malaysia,
+                Timor Leste, dan Madagascar, serta aktif menjadi pembicara
+                seminar, workshop, dan dosen tamu di berbagai universitas
+                ternama di Indonesia.
+              </p>
             </div>
-
-            {/* Card Video Kedua */}
-
-            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md">
-              <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
-                width={400}
-                height={220}
-                className="object-cover w-full h-48"
-              />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
-                  <h2 className="font-bold text-lg mb-1">Judul Kelas</h2>
-                  <p className="font-extralight text-sm mb-2 line-clamp-1">
-                    deskripsi
-                  </p>
+          </div>
+        </div>
+        <hr className="border-t-2 border-gray-200 my-4 w-full" />
+        {/* Section Keunggulan */}
+        <div className="w-full flex flex-col items-center mb-10">
+          <h2 className="text-3xl font-bold text-black mb-6">
+            Keunggulan Kelas
+          </h2>
+          <p className="mb-6 text-center text-lg px-4 md:px-20 text-black">
+            Inilah alasan mengapa program kami menjadi pilihan terbaik untuk
+            menguasai keamanan siber.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 justify-center">
+            {keunggulanCards.map((item, idx) => (
+              <div
+                key={idx}
+                className="min-w-[220px] max-w-xl bg-white rounded-xl shadow-lg p-12 flex flex-col gap-3 relative"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    {item.icon}
+                  </div>
+                  <span className="font-bold text-gray-800 text-base">
+                    {item.title}
+                  </span>
                 </div>
-                <span className="font-bold text-base mb-4">10.000</span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
-                  Beli
-                </button>
+                <div className="text-gray-600 text-sm font-light">
+                  {item.desc}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-          <div className="flex flex-col items-center justify-center bg-whte py-10 gap-10 px-4 md:px-20 w-full">
-            <h1 className="text-3xl text-black font-bold">Mentor Kami</h1>
-            <div className="flex flex-col lg:flex-row justify-center items-center gap-10 lg:gap-20 border-2 border-gray-200 rounded-xl p-6 md:p-14 w-full max-w-full mx-auto bg-white">
-              <Image
-                src="/images/ctokurniawan.png"
-                alt="Mentor Master Kurniawan"
-                width={340}
-                height={380}
-                className="object-fit rounded-2xl aspect-square"
-              />
-              <div className=" flex-1 flex flex-col items-center md:items-start justify-center h-full px-8 text-center md:text-left">
-                <h2 className="text-2xl text-black font-bold mb-4">
-                  Master Kurniawan
-                </h2>
-                <p className="text-black text-lg leading-relaxed">
-                  Kurniawan adalah seorang intelektual dan ahli IT Security,
-                  penetration testing, software engineering, dan cloud
-                  architecture dengan pengalaman lebih dari 29 tahun di dunia
-                  komputer dan 24 tahun di bidang hacking & cyber security. Ia
-                  telah menangani berbagai klien besar, termasuk Kementerian
-                  Pertahanan RI, Kominfo, KPK, ITB, Metro TV, Kimia Farma,
-                  Alterra, Mamikos.com, hingga klien internasional dari
-                  Malaysia, Timor Leste, dan Madagascar, serta aktif menjadi
-                  pembicara seminar, workshop, dan dosen tamu di berbagai
-                  universitas ternama di Indonesia.
-                </p>
-              </div>
-            </div>
-          </div>
-          {/* Footer*/}
-          <div>
-            <Footer />
-          </div>
+        </div>
+        <hr className="border-t-2 border-gray-200 my-4 w-full" />
+
+        {/* Review Marquee */}
+        <div className="flex flex-col items-center justify-center py-10 gap-10 px-4 md:px-20 w-full">
+          <h1 className="text-3xl text-black font-bold">Reviews</h1>
+          <p className="mb-6 text-center text-lg px-4 md:px-20 text-black">
+            Ini yang mereka sampaikan setelah belajar di kelas kami!{" "}
+          </p>
+          <ReviewMarquee />
+        </div>
+        {/* Footer*/}
+        <div>
+          <Footer />
         </div>
       </main>
     </div>

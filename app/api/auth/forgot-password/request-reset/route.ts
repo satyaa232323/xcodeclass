@@ -1,13 +1,37 @@
 import { PrismaClient } from "@/app/generated/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import crypto, { hash } from "crypto";
-
+import { arcjetUtils } from "@/utils/archjet";
 export async function POST(request: NextRequest) {
 
     const prisma = new PrismaClient();
-
+    const aj = arcjetUtils();
     try {
+
+        const decision = await aj.protect(request, { requested: 1 });
+
+        if (decision.isDenied()) {
+            if (decision.reason.isRateLimit()) {
+                return NextResponse.json(
+                    { error: "Too Many Requests", reason: decision.reason },
+                    { status: 429 },
+                );
+            } else if (decision.reason.isBot()) {
+                return NextResponse.json(
+                    { error: "No bots allowed", reason: decision.reason },
+                    { status: 403 },
+                );
+            } else {
+                return NextResponse.json(
+                    { error: "Forbidden", reason: decision.reason },
+                    { status: 403 },
+                );
+            }
+        }
+
         const { email } = await request.json();
+
+
 
         const availableEmail = await prisma.user.findUnique({
             where: {
@@ -15,7 +39,7 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        if(!email ||  !availableEmail) {
+        if (!email || !availableEmail) {
             return NextResponse.json({ message: "Email not found" }, { status: 404 });
         }
 
@@ -38,7 +62,7 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        return  NextResponse.json({ message: "Password reset token generated", token: resetToken }, { status: 200 });
+        return NextResponse.json({ message: "Password reset token generated", token: resetToken }, { status: 200 });
 
 
         // Here, you would typically send the reset token to the user's email address.
@@ -46,7 +70,7 @@ export async function POST(request: NextRequest) {
 
 
 
-        
+
 
     } catch (error) {
         return NextResponse.json({ message: "Internal Server Error" + error }, { status: 500 });

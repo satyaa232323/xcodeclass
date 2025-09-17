@@ -1,21 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyPassword, generateJWT } from "@/lib/auth";
+import { arcjetUtils } from "@/utils/archjet";
 
 const prisma = new PrismaClient();
-
+const aj = arcjetUtils();
 export async function POST(req: NextRequest) {
     try {
+
+        const decision = await aj.protect(req, { requested: 1 });
+
+
+
+        if (decision.isDenied()) {
+            if (decision.reason.isRateLimit()) {
+                return NextResponse.json(
+                    { error: "Too Many Requests", reason: decision.reason },
+                    { status: 429 },
+                );
+            } else if (decision.reason.isBot()) {
+                return NextResponse.json(
+                    { error: "No bots allowed", reason: decision.reason },
+                    { status: 403 },
+                );
+            } else {
+                return NextResponse.json(
+                    { error: "Forbidden", reason: decision.reason },
+                    { status: 403 },
+                );
+            }
+        }
+
+
         const { email, password } = await req.json();
+
+
+
 
         if (!email || !password) {
             return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
         }
 
-
+        // Ambil user dulu berdasarkan email
         const user = await prisma.user.findUnique({
-            where: { email }
-        })
+            where: { email },
+            select: { id: true, email: true, password: true, role: true, name: true },
+        });
+
+
+
+
+        // protect endpoint rate limit
+
+
 
         if (!user) {
             return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
@@ -26,6 +63,7 @@ export async function POST(req: NextRequest) {
         if (!isPasswordValid) {
             return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
         }
+
 
         const token = generateJWT({
             id: user.id,
@@ -42,7 +80,7 @@ export async function POST(req: NextRequest) {
                 role: user.role
             }
         },
-            { status: 200 });
+            { status: 201 });
     } catch (error) {
         console.error("Login error:", error);
         return NextResponse.json(

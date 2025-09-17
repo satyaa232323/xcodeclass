@@ -2,15 +2,43 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyAuth } from "@/lib/authMiddleware";
 import { createMidtransTransaction } from "@/utils/midtrans";
+import { arcjetUtils } from "@/utils/archjet";
 
 const prisma = new PrismaClient();
-
+const aj = arcjetUtils();
 export async function POST(
     request: NextRequest,
     { params }: { params: { orderId: string } }
 ) {
     try {
         // 🔑 Verify JWT token
+
+
+
+
+        const decision = await aj.protect(request, { requested: 1 });
+
+        if (decision.isDenied()) {
+            if (decision.reason.isRateLimit()) {
+                return NextResponse.json(
+                    { error: "Too Many Requests", reason: decision.reason },
+                    { status: 429 },
+                );
+            } else if (decision.reason.isBot()) {
+                return NextResponse.json(
+                    { error: "No bots allowed", reason: decision.reason },
+                    { status: 403 },
+                );
+            } else {
+                return NextResponse.json(
+                    { error: "Forbidden", reason: decision.reason },
+                    { status: 403 },
+                );
+            }
+        }
+
+
+
         const user = await verifyAuth(request, "USER");
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
