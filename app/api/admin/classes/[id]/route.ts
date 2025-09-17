@@ -25,7 +25,7 @@ export async function GET(
     });
 
     if (!classData) {
-        return NextResponse.json({ error: "Class not found" }, { status: 404 });
+      return NextResponse.json({ error: "Class not found" }, { status: 404 });
     }
     return NextResponse.json({ data: classData }, { status: 200 });
   } catch (error) {
@@ -89,12 +89,12 @@ export async function DELETE(
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
- 
+
 
     await prisma.class.delete({
       where: { id },
     });
-    return NextResponse.json (
+    return NextResponse.json(
       { message: "Class deleted successfully" },
       { status: 200 }
     );

@@ -1,27 +1,57 @@
 import { PrismaClient } from "@/app/generated/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/authMiddleware";
+import { arcjetUtils } from "@/utils/archjet";
 
 
 const prisma = new PrismaClient();
-
+const aj = arcjetUtils();
 export async function POST(request: NextRequest) {
     try {
 
 
-        let body: any = {};
 
-        try {
-            body = await request.json();
-        } catch (error) {
-            console.error("Error parsing request body:", error);
+        const decision = await aj.protect(request, { requested: 1 });
+
+        if (decision.isDenied()) {
+            if (decision.reason.isRateLimit()) {
+                return NextResponse.json(
+                    { error: "Too Many Requests", reason: decision.reason },
+                    { status: 429 },
+                );
+            } else if (decision.reason.isBot()) {
+                return NextResponse.json(
+                    { error: "No bots allowed", reason: decision.reason },
+                    { status: 403 },
+                );
+            } else {
+                return NextResponse.json(
+                    { error: "Forbidden", reason: decision.reason },
+                    { status: 403 },
+                );
+            }
         }
 
+        const body = await request.json();
 
         const { order_id, transaction_status, fraud_status } = body;
 
 
-        // Verifikasi notifikasi dari Midtrans
+
+        if (!order_id || !transaction_status) {
+            return NextResponse.json({ error: "Missing Required fields" }, { status: 400 });
+        }
+
+
+        // Simpan log webhook untuk debugging
+        await prisma.paymentLog.create({
+            data: {
+                orderId: order_id,
+                rawBody: body,
+            },
+        });
+
+
 
 
         // const orderId = body.order_id; // ini "APP-xxxx"
@@ -43,6 +73,22 @@ export async function POST(request: NextRequest) {
             console.error(`Order not found for midtransOrderId: ${order_id}`);
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
         }
+
+        console.log(`Found order ${order.id} for midtransOrderId: ${order_id}`);
+
+
+
+
+        // Add transaction metadata to help with debugging
+
+
+        // ✅ Idempotent: kalau status sama, skip update
+        if (order.status === mapMidtransStatus(transaction_status, fraud_status)) {
+            console.log(`⚠️ Duplicate webhook for order ${order.id}, skipped.`);
+            return NextResponse.json({ status: "OK (duplicate ignored)" });
+        }
+
+
 
         // Handle status transaksi
         switch (transaction_status) {
@@ -75,6 +121,23 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
+// 🔀 Map Midtrans status → sistem status
+function mapMidtransStatus(transactionStatus: string, fraudStatus?: string) {
+    switch (transactionStatus) {
+        case "capture":
+            return fraudStatus === "accept" ? "COMPLETED" : "PENDING";
+        case "settlement":
+            return "COMPLETED";
+        case "cancel":
+        case "deny":
+        case "expire":
+            return "FAILED";
+        default:
+            return "PENDING";
+    }
+}
+
 
 async function processSuccessfulPayment(order: any) {
     try {
