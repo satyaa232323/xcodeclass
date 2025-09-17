@@ -1,9 +1,17 @@
 import { PrismaClient } from "@/app/generated/prisma";
+import { verifyAuth } from "@/lib/authMiddleware";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     const prisma = new PrismaClient();
 
     try {
+
+        const user = await verifyAuth(req, "USER");
+
+        if (!user) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
 
         const videoId = await prisma.class.findUnique({
             where: { id: (params.id) },
@@ -27,14 +35,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         });
 
         if (!videoId) {
-            return new Response(JSON.stringify({ message: 'Video not found' }), { status: 404 });
+            return NextResponse.json({ message: 'Video not found' }, { status: 404 });
         }
 
-        return new Response(JSON.stringify(videoId), { status: 200 });
+        return NextResponse.json({ data: videoId }, { status: 200 });
 
     } catch (error) {
         console.log(error);
-        return new Response(JSON.stringify({ message: 'Internal server error' }), { status: 500 });
+        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
     }
 
 }

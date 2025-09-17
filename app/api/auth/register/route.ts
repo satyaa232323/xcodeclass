@@ -1,5 +1,6 @@
 import { hashPassword } from "@/lib/auth";
 import { PrismaClient } from "@/app/generated/prisma";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     const prisma = new PrismaClient();
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
         const { email, password, name } = await req.json();
 
         if (!email || !password || !name) {
-            return new Response(JSON.stringify({ message: 'Name, email and password are required' }), { status: 400 });
+            return  NextResponse.json({ message: 'Name, email and password are required' }, { status: 400 });
         }
 
         const exsistingUser = await prisma.user.findUnique({
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
         })
 
         if (exsistingUser) {
-            return new Response(JSON.stringify({ message: 'User already exists' }), { status: 409 });
+            return NextResponse.json({ message: 'User already exists' }, { status: 409 });
         }
 
         const hashedPassword = await hashPassword(password);
@@ -29,10 +30,10 @@ export async function POST(req: Request) {
             }
         })
 
-        return new Response(JSON.stringify({ message: 'User created', user: { id: user.id, email: user.email, name: user.name, role: user.role } }), { status: 201 });
+        return NextResponse.json({ message: 'User created', user: { id: user.id, email: user.email, name: user.name, role: user.role } }, { status: 201 });
     } catch (error) {
         console.log(error);
-        return new Response(JSON.stringify({ message: 'Internal server error' }), { status: 500 });
+        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
     }
 
 

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyAuth } from "@/lib/authMiddleware";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         console.log("Verified user in my-classes videos:", user);``
 
         if (!user) {
-            return new Response(JSON.stringify({ message: 'Authorization header missing' }), { status: 401 });
+            return NextResponse.json({ message: 'Authorization header missing' }, { status: 401 });
         }
 
 
@@ -55,13 +55,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         });
 
         if (!boughtVideo) {
-            return new Response(JSON.stringify({ message: 'No purchased video found with this ID' }), { status: 404 });
+            return NextResponse.json({ message: 'No purchased video found with this ID' }, { status: 404 });
         }
 
-        return new Response(JSON.stringify(boughtVideo), { status: 200 });
+        return NextResponse.json({data: boughtVideo }, { status: 200 });
 
     } catch (error) {
         console.error(error);
-        return new Response(JSON.stringify({ message: 'Internal server error' }), { status: 500 });
+        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
     }
 }

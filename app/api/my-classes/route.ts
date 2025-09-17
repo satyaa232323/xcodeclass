@@ -1,7 +1,7 @@
 import { verifyJWT } from "@/lib/auth";
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyAuth } from "@/lib/authMiddleware";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
         console.log("Verified user in boughtClasses:", user);
 
         if (!user) {
-            return new Response(JSON.stringify({ message: 'Authorization header missing' }), { status: 401 });
+            return NextResponse.json({ message: 'Authorization header missing' }, { status: 401 });
         }
 
 
@@ -26,14 +26,14 @@ export async function GET(req: NextRequest) {
         });
 
         if (!boughtClasses) {
-            return new Response(JSON.stringify({ message: "No bought classes found" }), { status: 404 });
+            return NextResponse.json({ message: "No bought classes found" }, { status: 404 });
         }
 
-        return new Response(JSON.stringify(boughtClasses), { status: 200 });
+        return NextResponse.json({ data: boughtClasses }, { status: 200 });
 
     }
     catch (error) {
-        return new Response(JSON.stringify({ message: "Internal server error", error }), { status: 500 });
+        return NextResponse.json({ message: "Internal server error", error }, { status: 500 });
     }
 
 
