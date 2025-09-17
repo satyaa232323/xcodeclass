@@ -8,18 +8,21 @@ const Navbar = () => {
   return (
     <nav className="w-full bg-white shadow flex items-center justify-between px-6 py-3 border-b-1 relative">
       {/* Kiri: Logo & Tulisan, hidden on small */}
-      <div className="flex-1 flex items-center">
-        <Image
-          src="/images/xcodelogo.png"
-          alt="Xcode Internships Logo"
-          width={58}
-          height={58}
-          className="w-10 h-10 sm:w-14 sm:h-14 md:w-[58px] md:h-[58px] object-contain"
-        />
-        <span className="hidden sm:inline text-lg sm:text-xl font-bold text-gray-900 ml-2">
-          <span className="text-red-500">X</span>CODEClass
-        </span>
-      </div>
+      <Link href="/">
+        {/* Kiri: Logo & Tulisan, hidden on small */}
+        <div className="flex-1 flex items-center">
+          <Image
+            src="/images/xcodelogo.png"
+            alt="Xcode Internships Logo"
+            width={58}
+            height={58}
+            className="w-10 h-10 sm:w-14 sm:h-14 md:w-[58px] md:h-[58px] object-contain"
+          />
+          <span className="hidden sm:inline text-lg sm:text-xl font-bold text-gray-900 ml-2">
+            <span className="text-red-500">X</span>CODEClass
+          </span>
+        </div>
+      </Link>
 
       {/* Tengah: Search Bar */}
       <div className="flex-1 flex justify-center">
