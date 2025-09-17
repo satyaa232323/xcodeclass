@@ -6,8 +6,8 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-white shadow flex items-center justify-between px-6 py-3 border-b-1 relative">
-      {/* Kiri: Logo & Tulisan, hidden on small */}
+    <nav className="fixed top-0 left-0 w-full bg-white shadow flex items-center justify-between px-6 py-3 border-b-1 z-50">
+      {/* Kiri: Logo & Tulisan */}
       <div className="flex-1 flex items-center">
         <Image
           src="/images/xcodelogo.png"
@@ -30,7 +30,7 @@ const Navbar = () => {
         />
       </div>
 
-      {/* Kanan: Tombol Masuk & Daftar, hidden on small */}
+      {/* Kanan: Tombol */}
       <div className="flex-1 flex justify-end items-center gap-3">
         <div className="hidden sm:flex gap-3">
           <Link href="/login">
@@ -45,6 +45,7 @@ const Navbar = () => {
             </button>
           </Link>
         </div>
+
         {/* Hamburger menu on small */}
         <div className="sm:hidden flex items-center">
           <button
@@ -60,11 +61,7 @@ const Navbar = () => {
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
               <svg
@@ -74,27 +71,21 @@ const Navbar = () => {
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             )}
           </button>
         </div>
       </div>
 
-      {/* Fullscreen menu for small screens, animasi slide */}
+      {/* Fullscreen menu for small screens */}
       <div
-        className={`fixed inset-0 w-full h-full bg-white z-50 flex flex-col items-center justify-center sm:hidden transition-transform duration-300 ease-in-out ${
-          menuOpen
-            ? "translate-x-0 pointer-events-auto"
-            : "translate-x-full pointer-events-none"
+        className={`fixed inset-0 w-full h-full bg-white z-40 flex flex-col items-center justify-center sm:hidden transition-transform duration-300 ease-in-out ${
+          menuOpen ? "translate-x-0 pointer-events-auto" : "translate-x-full pointer-events-none"
         }`}
         style={{ willChange: "transform" }}
       >
-        {/* Tombol X di pojok kanan atas */}
+        {/* Tombol X */}
         <button
           className="absolute top-4 right-4 p-1 rounded-full focus:outline-none"
           style={{ background: "transparent" }}
@@ -108,13 +99,10 @@ const Navbar = () => {
             strokeWidth="2"
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
+
         <span className="text-2xl font-bold text-gray-900 mb-8">
           <span className="text-red-500">X</span>CodeClass
         </span>
