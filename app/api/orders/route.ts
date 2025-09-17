@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyAuth } from "@/lib/authMiddleware";
+import { arcjetUtils } from "@/utils/archjet";
 
 const prisma = new PrismaClient();
+const aj = arcjetUtils();
 
 export async function GET(req: NextRequest) {
     try {
@@ -41,6 +43,31 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
+
+
+
+    
+        const decision = await aj.protect(req, { requested: 1 });
+
+        if (decision.isDenied()) {
+            if (decision.reason.isRateLimit()) {
+                return NextResponse.json(
+                    { error: "Too Many Requests", reason: decision.reason },
+                    { status: 429 },
+                );
+            } else if (decision.reason.isBot()) {
+                return NextResponse.json(
+                    { error: "No bots allowed", reason: decision.reason },
+                    { status: 403 },
+                );
+            } else {
+                return NextResponse.json(
+                    { error: "Forbidden", reason: decision.reason },
+                    { status: 403 },
+                );
+            }
+        }
+
         const user = await verifyAuth(req, "USER");
         if (!user) {
             return NextResponse.json(
@@ -50,14 +77,14 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        console.log("Request body:", body);
-
       
+
+
 
         // Validate request body
         const classId = body.classId || body.classId; // fallback
 
-        
+
 
 
         console.log("classId:", classId);
@@ -77,17 +104,17 @@ export async function POST(req: NextRequest) {
             }
         });
 
-        
 
 
-        if(!classes){
+
+        if (!classes) {
             return NextResponse.json(
                 { error: "Classes not found" },
                 { status: 404 }
             );
         }
 
-        
+
 
 
         // hitung total amount
