@@ -69,6 +69,15 @@ model Order {
   createdAt   DateTime    @default(now())
 }
 
+
+model PaymentLog {
+  id           String    @id @default(cuid())
+  orderId   String
+  rawBody   Json
+  createdAt DateTime @default(now())  
+
+}
+
 model OrderItem {
   id       Int    @id @default(autoincrement())
   orderId  String
@@ -88,6 +97,10 @@ model UserClassVideo {
 
   @@unique([userId, classId])
 }
+
+
+
+
 
 enum role {
   USER
