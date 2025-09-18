@@ -11,13 +11,13 @@ export default function desc() {
 
       <main className="p-0 m-0 flex flex-col gap-6">
         {/* Header Section */}
-        <div className="w-full bg-red-500 flex flex-col md:flex-row items-center justify-between py-6 px-4 md:px-10 lg:px-24 xl:px-32 gap-6">
+        <div className="w-full mt-10 flex flex-col md:flex-row justify-between py-6 px-4 md:px-10 lg:px-24 xl:px-32 gap-6">
           <div className="flex flex-col gap-1 flex-1">
-            <h1 className="font-bold text-3xl md:text-4xl lg:text-5xl">
+            <h1 className="font-bold text-black text-3xl md:text-4xl lg:text-5xl">
               Ini Judul Kelas
             </h1>
-            <h1 className="text-lg md:text-xl mt-2">Mentor:</h1>
-            <h1 className="text-base md:text-lg">Bu Keksi</h1>
+            <h1 className="text-lg text-black md:text-xl mt-2">Mentor:</h1>
+            <h1 className="text-base text-black md:text-lg">Bu Keksi</h1>
           </div>
           <div className="flex flex-col gap-4 flex-1 max-w-xs md:max-w-sm lg:max-w-md w-full items-center">
             <Image
@@ -27,7 +27,7 @@ export default function desc() {
               height={300}
               className="rounded-lg w-full object-cover h-48 md:h-60 lg:h-72"
             />
-            <button className="mt-auto py-2 px-6 bg-white text-red-500 rounded-lg hover:bg-gray-200 transition font-semibold w-full">
+            <button className="mt-auto py-4 px-6 bg-red-500 text-white text-lg  rounded-lg hover:bg-red-600 transition font-semibold w-full">
               Beli
             </button>
           </div>
@@ -38,7 +38,7 @@ export default function desc() {
           <h1 className="text-lg md:text-xl font-medium text-black">
             Video yang di dapat
           </h1>
-          <div className="flex gap-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 py-2">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar py-2">
             {/* vid 1 */}
             <Image
               src="/images/foto_vid.png"
@@ -113,7 +113,7 @@ export default function desc() {
           <h1 className="text-black text-lg md:text-xl font-bold">
             Rekomendasi Kelas
           </h1>
-          <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-auto overflow-y-hidden h-80 md:h-100">
+          <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-auto no-scrollbar overflow-y-hidden h-80 md:h-100">
             {/* Card Video */}
             <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]">
               <Image
