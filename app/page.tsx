@@ -6,6 +6,7 @@ import Footer from "@/components/footer";
 import ReviewMarquee from "@/components/ReviewMarquee";
 import { useState } from "react";
 import { FaUserTie, FaBookOpen, FaUsers, FaInfinity } from "react-icons/fa";
+import { motion } from "motion/react";
 
 export default function HomePage() {
   const handleScroll = () => {
@@ -113,7 +114,7 @@ export default function HomePage() {
             {visibleKelas.map((kelas) => (
               <div
                 key={kelas.id}
-                className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md"
+                className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md transition-transform duration-300 hover:scale-105"
               >
                 <Image
                   src="/images/foto_vid.png"
@@ -188,24 +189,28 @@ export default function HomePage() {
             Inilah alasan mengapa program kami menjadi pilihan terbaik untuk
             menguasai keamanan siber.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10 justify-center p-10">
             {keunggulanCards.map((item, idx) => (
-              <div
+              <motion.button
                 key={idx}
-                className="min-w-[220px] max-w-xl bg-white rounded-xl shadow-lg p-12 flex flex-col gap-3 relative"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onHoverStart={() => console.log("hover started!")}
               >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                    {item.icon}
+                <div className="min-w-[220px] max-w-xl bg-white rounded-xl shadow-lg p-12 flex flex-col gap-3 relative">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <span className="font-bold text-gray-800 text-base">
+                      {item.title}
+                    </span>
                   </div>
-                  <span className="font-bold text-gray-800 text-base">
-                    {item.title}
-                  </span>
+                  <div className="text-gray-600 text-sm font-light">
+                    {item.desc}
+                  </div>
                 </div>
-                <div className="text-gray-600 text-sm font-light">
-                  {item.desc}
-                </div>
-              </div>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -215,7 +220,7 @@ export default function HomePage() {
         <div className="flex flex-col items-center justify-center py-10 gap-10 px-4 md:px-20 w-full">
           <h1 className="text-3xl text-black font-bold">Reviews</h1>
           <p className="mb-6 text-center text-lg px-4 md:px-20 text-black">
-            Ini yang mereka sampaikan setelah belajar di kelas kami!{" "}
+            Ini yang mereka katakan setelah belajar di kelas kami!{" "}
           </p>
           <ReviewMarquee />
         </div>
