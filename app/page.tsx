@@ -110,7 +110,7 @@ export default function HomePage() {
           </div>
 
           {/* Video Class */}
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
             {visibleKelas.map((kelas) => (
               <div
                 key={kelas.id}
