@@ -19,19 +19,19 @@ export default function ClassesPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <main className="flex flex-col items-center py-10 px-4 md:px-20 w-full">
-        <h1 className="text-3xl font-bold text-black mb-4 text-center">
+        <h1 className="text-3xl font-bold text-black mb-4 text-center mt-15">
           Kelas Kami
         </h1>
         <p className="text-lg text-gray-700 mb-12 text-center max-w-2xl">
           Pilih kelas yang sesuai dengan minat dan kebutuhanmu. Semua kelas
           didesain untuk pembelajaran praktis dan siap kerja!
         </p>
-        
+
         <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
           {kelasList.map((kelas) => (
             <div
               key={kelas.id}
-              className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md min-w-[340px] max-w-2xl"
+              className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full max-w-xs mx-auto"
             >
               <Image
                 src="/images/foto_vid.png"

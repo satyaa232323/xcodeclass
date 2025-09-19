@@ -34,6 +34,11 @@ export default function CoursesPage() {
     formData.append("price", price);
     formData.append("thumbnail", thumbnail);
 
+    // tambahin semua video
+    videos.forEach((video, idx) => {
+      formData.append(`video_${idx}`, video);
+    });
+
     const res = await fetch("/api/admin/postClass", {
       method: "POST",
       body: formData,
@@ -54,10 +59,33 @@ export default function CoursesPage() {
   }
 
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setVideos(Array.from(e.target.files));
-    }
-  };
+  const files = e.target.files; 
+  if (files && files.length > 0) {
+    setVideos((prev) => [...prev, ...Array.from(files)]);
+  }
+};
+
+
+  // hapus video dari list
+  function removeVideo(i: number) {
+    setVideos((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  // edit video (ganti dengan file baru)
+  function editVideo(i: number) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "video/*";
+    input.onchange = (e: any) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setVideos((prev) =>
+          prev.map((v, idx) => (idx === i ? file : v))
+        );
+      }
+    };
+    input.click();
+  }
 
   return (
     <main className="p-6">
@@ -101,134 +129,171 @@ export default function CoursesPage() {
         )}
       </div>
 
-      {/* Modal Tambah Course */}
+     {/* Modal Tambah Course */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex justify-center items-center z-50">
-          <form
-            onSubmit={addCourse}
-            className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-lg w-full max-w-lg mx-auto"
-          >
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              Tambah Course
-            </h2>
+          {/* wrapper biar bisa scroll */}
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <form
+              onSubmit={addCourse}
+              className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-lg"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                Upload Kelas Baru
+              </h2>
 
-            {/* Judul */}
-            <div className="flex flex-col">
-              <label className="text-sm text-gray-800 mb-1">Judul Course</label>
-              <input
-                className="border border-gray-700 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Masukkan judul course..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            {/* Mentor */}
-            <div className="flex flex-col">
-              <label className="text-sm text-gray-800 mb-1">Mentor</label>
-              <input
-                className="border border-gray-700 bg-white text-gray-700 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Nama mentor..."
-                value={mentor}
-                onChange={(e) => setMentor(e.target.value)}
-              />
-            </div>
-
-            {/* Deskripsi */}
-            <div className="flex flex-col">
-              <label className="text-sm text-gray-800 mb-1">Deskripsi</label>
-              <textarea
-                rows={4}
-                className="border border-gray-700 bg-white text-gray-700 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Tuliskan deskripsi course..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-
-            {/* Harga */}
-            <div className="flex flex-col">
-              <label className="text-sm text-gray-800 mb-1">Harga</label>
-              <input
-                type="number"
-                className="border border-gray-700 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Masukkan harga course..."
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-            </div>
-
-            {/* Input Video File Upload */}
-            <div className="flex flex-col">
-              <label className="block text-sm text-gray-800 mb-2">
-                Upload Video (bisa lebih dari 1)
-              </label>
-              <input
-                type="file"
-                accept="video/*"
-                multiple
-                id="video-upload"
-                className="hidden"
-                name="videos"
-                onChange={handleVideoUpload}
-              />
-              <label
-                htmlFor="video-upload"
-                className="cursor-pointer bg-red-600 hover:bg-red-700 transition-colors text-white px-4 py-2 rounded-lg font-medium w-fit"
-              >
-                Pilih Video
-              </label>
-              {videos.length > 0 && (
-                <ul className="mt-3 space-y-1 text-sm text-gray-300">
-                  {videos.map((v, i) => (
-                    <li
-                      key={i}
-                      className="px-3 py-2 bg-gray-800 rounded-md border border-gray-700"
-                    >
-                      🎬 Video {i + 1}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Input Thumbnail */}
-            <div className="flex flex-col">
-              <label className="text-sm text-gray-800 mb-1">
-                Upload Thumbnail
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setThumbnail(e.target.files ? e.target.files[0] : null)
+              {/* Upload Thumbnail */}
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 transition"
+                onClick={() =>
+                  document.getElementById("thumbnail-upload")?.click()
                 }
-                className="border border-gray-700 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-              {thumbnail && (
-                <span className="text-xs text-gray-500 mt-1">
-                  {thumbnail.name}
-                </span>
-              )}
-            </div>
+              >
+                <input
+                  id="thumbnail-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    setThumbnail(e.target.files ? e.target.files[0] : null)
+                  }
+                />
+                {thumbnail ? (
+                  <div className="text-sm text-gray-600">{thumbnail.name}</div>
+                ) : (
+                  <div className="text-gray-500 text-sm">
+                    Drop your image here, or{" "}
+                    <span className="text-blue-500">browse</span>
+                  </div>
+                )}
+              </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded-lg border border-gray-600 text-gray-800 hover:bg-gray-50 transition-colors"
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                className="bg-red-600 hover:bg-red-700 transition-colors text-white px-4 py-2 rounded-lg font-medium"
-              >
-                Simpan
-              </button>
-            </div>
-          </form>
+              {/* Judul */}
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-800 mb-1">Judul Kelas</label>
+                <input
+                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Masukkan judul kelas..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+
+              {/* Mentor */}
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-800 mb-1">Mentor</label>
+                <input
+                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nama mentor..."
+                  value={mentor}
+                  onChange={(e) => setMentor(e.target.value)}
+                />
+              </div>
+
+              {/* Deskripsi */}
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-800 mb-1">Deskripsi</label>
+                <textarea
+                  rows={3}
+                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Tuliskan deskripsi course..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+
+              {/* Harga */}
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-800 mb-1">Harga</label>
+                <input
+                  type="number"
+                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Masukkan harga course..."
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                />
+              </div>
+
+              {/* Daftar Video */}
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-800 mb-2">
+                  Daftar Video Kelas
+                </label>
+
+                <input
+                  type="file"
+                  accept="video/*"
+                  multiple
+                  id="video-upload"
+                  className="hidden"
+                  onChange={handleVideoUpload}
+                />
+                <label
+                  htmlFor="video-upload"
+                  className="cursor-pointer flex items-center justify-center border border-gray-300 bg-gray-50 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+                >
+                  + Tambah Video
+                </label>
+
+                {videos.length > 0 && (
+                  <ul className="mt-3 space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {videos.map((v, i) => (
+                      <li
+                        key={i}
+                        className="flex items-center justify-between p-3 bg-gray-100 rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full">
+                            ▶
+                          </span>
+                          <div>
+                            <p className="font-medium text-sm text-gray-800">
+                              {i + 1}. {v.name}
+                            </p>
+                            <p className="text-xs text-gray-500">Durasi: -</p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            className="text-blue-500 hover:text-blue-700 text-sm"
+                            onClick={() => editVideo(i)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="text-red-500 hover:text-red-700 text-sm"
+                            onClick={() => removeVideo(i)}
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="bg-red-500 hover:bg-red-700 transition-colors text-white px-6 py-2 rounded-lg font-medium"
+                >
+                  Simpan Course
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </main>
