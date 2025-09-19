@@ -69,7 +69,7 @@ export default function HomePage() {
           {/* Call to Action */}
           <div className="w-full bg-gray-50 flex flex-col md:flex-row items-center justify-between min-h-64 lg:min-h-[440px] px-4 md:px-10 py-10 gap-6">
             <div className="flex-1 flex flex-col items-center md:items-start justify-center gap-4 text-black text-center md:text-left px-4 md:px-10">
-              <h1 className="text-3xl lg:text-5xl font-bold mb-2">
+              <h1 className="text-3xl lg:text-5xl font-sans font-bold mb-2">
                 Gabung Kelas XcodeClass Sekarang!
               </h1>
               <p className="text-lg lg:text-xl mb-4 max-w-2xl">

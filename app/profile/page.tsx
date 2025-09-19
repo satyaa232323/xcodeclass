@@ -13,7 +13,7 @@ export default function ProfilePage() {
       </div>
       <div className="flex flex-col items-start">
         <h1 className="text-black font-bold text-xl">Kelas Yang Kamu Ikuti</h1>
-        <div className="flex flex-col gap-4 max-h-none md:max-h-[420px] overflow-y-auto w-full pr-2 mt-2 rounded-2xl">
+        <div className="flex flex-col gap-4 max-h-none md:max-h-[420px] overflow-y-auto no-scrollbar w-full pr-2 mt-2 rounded-2xl">
           {/* Card */}
           <div className="flex flex-col sm:flex-row bg-white rounded-2xl shadow-lg border border-gray-200 min-h-[220px] w-full overflow-hidden">
             <div className="h-48 sm:h-full sm:w-1/3 min-w-[220px] max-w-[340px] flex-shrink-0">
