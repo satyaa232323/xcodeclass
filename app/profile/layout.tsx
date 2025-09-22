@@ -35,15 +35,17 @@ export default function ProfileLayout({
           {/* Bagian atas: Logo + Menu */}
           <div className="flex flex-col items-center w-full">
             {/* Logo */}
-            <div className="pt-6 pb-4">
-              <Image
-                src="/images/xcodelogo.png"
-                alt="Logo"
-                width={100}
-                height={100}
-                className="mx-auto"
-              />
-            </div>
+            <Link href="/">
+              <div className="pt-6 pb-4">
+                <Image
+                  src="/images/xcodelogo.png"
+                  alt="Logo"
+                  width={100}
+                  height={100}
+                  className="mx-auto"
+                />
+              </div>
+            </Link>
 
             {/* Menu */}
             <ul className="w-full text-center lg:text-left">
