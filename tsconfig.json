@@ -18,9 +18,11 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
+      
       {
         "name": "next"
       }
+      
     ],
     "paths": {
       "@/*": [

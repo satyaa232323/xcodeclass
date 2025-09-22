@@ -3,38 +3,38 @@ import Image from "next/image";
 const reviews = [
   {
     user: "Ayu",
-    avatar: "/images/user1.png",
+    avatar: "/avataricon/avatar2.png",
     stars: 5,
     comment:
       "Kelasnya sangat bermanfaat! Materinya lengkap, penjelasan mentor sangat detail dan mudah dipahami. Saya jadi lebih percaya diri untuk belajar cyber security dan mencoba studi kasus nyata. Terima kasih XcodeClass!",
   },
   {
     user: "Budi",
-    avatar: "/images/user2.png",
+    avatar: "/avataricon/avatar1.png",
     stars: 5,
     comment:
-      "Mentor ramah dan penjelasan detail. Sesi tanya jawab sangat membantu, dan komunitasnya aktif. Cocok untuk pemula maupun yang ingin upgrade skill.",
+      "Mentor ramah dan penjelasan detail. Cocok untuk pemula maupun yang ingin upgrade skill.",
   },
   {
     user: "Citra",
-    avatar: "/images/user3.png",
+    avatar: "/avataricon/avatar3.png",
     stars: 4,
     comment:
-      "Materi lengkap, recommended! Banyak contoh kasus dan latihan yang bisa langsung dipraktikkan. UI platform juga mudah digunakan.",
+      "Materi lengkap, recommended! Banyak contoh kasus dan latihan yang bisa langsung dipraktikkan.",
   },
   {
     user: "Dewi",
-    avatar: "/images/user4.png",
+    avatar: "/avataricon/avatar5.png",
     stars: 5,
     comment:
-      "Belajar jadi lebih seru di sini! Mentor selalu support dan kelasnya interaktif. Saya suka fitur diskusi dan review tugas.",
+      "Belajar jadi lebih seru di sini! Mentor selalu support.",
   },
   {
     user: "Eko",
-    avatar: "/images/user5.png",
+    avatar: "/avataricon/avatar4.png",
     stars: 4,
     comment:
-      "Video pembelajaran jelas dan interaktif. Penjelasan step by step sangat membantu, dan ada banyak tips praktis dari mentor.",
+      "Video pembelajaran jelas. Penjelasan step by step sangat membantu, dan ada banyak tips praktis dari mentor.",
   },
 ];
 

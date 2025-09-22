@@ -4,6 +4,8 @@ import Link from "next/link";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  // Simulasi status login, ganti dengan state/auth dari context jika sudah ada
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // default: belum login
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow flex items-center justify-between px-6 py-3 border-b-1 z-50">
@@ -36,17 +38,28 @@ const Navbar = () => {
       {/* Kanan: Tombol */}
       <div className="flex-1 flex justify-end items-center gap-3">
         <div className="hidden sm:flex gap-3">
-          <Link href="/auth/login">
-            <button className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition cursor-pointer">
-              Masuk
-            </button>
-          </Link>
-
-          <Link href="/auth/register">
-            <button className="px-5 py-1.5 bg-red-500 border rounded-xl text-white hover:bg-red-600 transition cursor-pointer">
-              Daftar
-            </button>
-          </Link>
+          {isLoggedIn ? (
+            <Image
+              src="/images/profile.svg"
+              alt="Profile"
+              width={40}
+              height={40}
+              className="rounded-full w-10 h-10 object-cover border-2 border-gray-300"
+            />
+          ) : (
+            <>
+              <Link href="/login">
+                <button className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition cursor-pointer">
+                  Masuk
+                </button>
+              </Link>
+              <Link href="/register">
+                <button className="px-5 py-1.5 bg-red-500 border rounded-xl text-white hover:bg-red-600 transition cursor-pointer">
+                  Daftar
+                </button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Hamburger menu on small */}
@@ -64,7 +77,11 @@ const Navbar = () => {
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
               <svg
@@ -74,7 +91,11 @@ const Navbar = () => {
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -83,8 +104,11 @@ const Navbar = () => {
 
       {/* Fullscreen menu for small screens */}
       <div
-        className={`fixed inset-0 w-full h-full bg-white z-40 flex flex-col items-center justify-center sm:hidden transition-transform duration-300 ease-in-out ${menuOpen ? "translate-x-0 pointer-events-auto" : "translate-x-full pointer-events-none"
-          }`}
+        className={`fixed inset-0 w-full h-full bg-white z-40 flex flex-col items-center justify-center sm:hidden transition-transform duration-300 ease-in-out ${
+          menuOpen
+            ? "translate-x-0 pointer-events-auto"
+            : "translate-x-full pointer-events-none"
+        }`}
         style={{ willChange: "transform" }}
       >
         {/* Tombol X */}
@@ -101,7 +125,11 @@ const Navbar = () => {
             strokeWidth="2"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
 

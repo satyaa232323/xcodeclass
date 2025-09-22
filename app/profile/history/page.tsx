@@ -9,7 +9,7 @@ export default function History() {
       <h1 className="font-medium text-base sm:text-lg text-gray-600">
         Berikut history pembayaran anda
       </h1>
-      <div className="flex flex-col gap-2 sm:gap-4 max-h-none md:max-h-[600px] overflow-y-auto w-full">
+      <div className="flex flex-col gap-2 sm:gap-4 max-h-none md:max-h-[600px] overflow-y-auto no-scrollbar w-full">
         {/* Card */}
         <div className="flex flex-col sm:flex-row border-2 justify-between items-start sm:items-center border-gray-200 rounded-2xl shadow-md p-3 sm:p-4 bg-white w-full">
           <h1 className="font-bold text-base sm:text-xl text-gray-600 mb-2 sm:mb-0">
