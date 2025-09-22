@@ -46,7 +46,7 @@ export default function ProfileLayout({
             </div>
 
             {/* Menu */}
-            <ul className="w-full text-center lg:text-left">
+            <ul className="w-full text-center lg:text-left ">
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
                 Dashboard
               </li>

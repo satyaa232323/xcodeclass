@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { register } from "@/utils/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -23,16 +24,12 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
 
-      const data = await res.json();
+      const res = await register( username, email, password );
 
-      if (!res.ok) {
-        setMessage(data.message || "Register gagal");
+
+      if (!res) {
+        setMessage(res|| "Register gagal");
         setIsError(true);
         return;
       }
@@ -42,7 +39,7 @@ export default function RegisterPage() {
 
       // redirect ke login setelah 2 detik
       setTimeout(() => {
-        router.push("/login");
+        router.push("/auth/login");
       }, 2000);
     } catch (err) {
       setMessage("Terjadi kesalahan server");
@@ -52,8 +49,6 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: "url('/images/bg-login.png')" }}
     >
 
       {/* Tombol Back */}

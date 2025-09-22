@@ -36,13 +36,13 @@ const Navbar = () => {
       {/* Kanan: Tombol */}
       <div className="flex-1 flex justify-end items-center gap-3">
         <div className="hidden sm:flex gap-3">
-          <Link href="/login">
+          <Link href="/auth/login">
             <button className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition cursor-pointer">
               Masuk
             </button>
           </Link>
 
-          <Link href="/register">
+          <Link href="/auth/register">
             <button className="px-5 py-1.5 bg-red-500 border rounded-xl text-white hover:bg-red-600 transition cursor-pointer">
               Daftar
             </button>
@@ -83,9 +83,8 @@ const Navbar = () => {
 
       {/* Fullscreen menu for small screens */}
       <div
-        className={`fixed inset-0 w-full h-full bg-white z-40 flex flex-col items-center justify-center sm:hidden transition-transform duration-300 ease-in-out ${
-          menuOpen ? "translate-x-0 pointer-events-auto" : "translate-x-full pointer-events-none"
-        }`}
+        className={`fixed inset-0 w-full h-full bg-white z-40 flex flex-col items-center justify-center sm:hidden transition-transform duration-300 ease-in-out ${menuOpen ? "translate-x-0 pointer-events-auto" : "translate-x-full pointer-events-none"
+          }`}
         style={{ willChange: "transform" }}
       >
         {/* Tombol X */}
