@@ -18,7 +18,6 @@ export default function ProfileLayout({
     localStorage.removeItem("token");
     window.location.href = "/";
   };
-
   return (
     <div className="h-screen bg-gray-50 overflow-hidden flex flex-col">
       <main className="flex flex-1 overflow-hidden relative">

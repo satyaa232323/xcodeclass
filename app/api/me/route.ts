@@ -5,8 +5,12 @@ export async function GET(request: NextRequest) {
 
     const user = await verifyAuth(request, "USER");
 
+
     if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        // user belum login → balikin null, bukan error
+        return NextResponse.json({
+            user: null,
+        });
     }
 
     return NextResponse.json({
