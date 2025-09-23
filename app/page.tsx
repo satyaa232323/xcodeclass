@@ -34,21 +34,8 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-lg text-gray-600">Loading...</p>
-      </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-lg text-red-500">{error}</p>
-      </div>
-    );
-  }
+
 
 
 
@@ -60,7 +47,7 @@ export default function HomePage() {
       element.scrollIntoView({ behavior: "smooth" }); // animasi smooth
     }
   };
-  
+
   const keunggulanCards = [
     {
       icon: <FaUserTie className="w-7 h-7 text-red-500" />,
@@ -148,6 +135,29 @@ export default function HomePage() {
 
           {/* Video Class */}
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
+            {loading && (
+              <div className="flex flex-col gap-4 w-full mt-4">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="animate-pulse bg-white p-6 rounded-xl shadow-sm border border-gray-300"
+                  >
+                    <div className="h-4 bg-gray-200 mb-2 rounded"></div>
+                    <div className="h-3 bg-gray-200 mb-4 rounded"></div>
+                    <div className="flex space-x-2">
+                      <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                      <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* cek error */}
+            {error && !loading && (
+                <div className="mt-4 text-red-600 font-semibold">{error}</div>
+            )}
+
             {classes.slice(0, 4).map((item) => (
               <div
                 key={item.id}
@@ -171,11 +181,11 @@ export default function HomePage() {
                     Rp {item.price.toLocaleString('id-ID')}
                   </span>
                   <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
-                    <Link 
-                    key={item.id}
-                    href={`/classes/${item.id}`}
+                    <Link
+                      key={item.id}
+                      href={`/classes/${item.id}`}
                     >
-                      Beli  
+                      Beli
                     </Link>
                   </button>
                 </div>

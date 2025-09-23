@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { logout } from "@/utils/api";
 
 export default function ProfileLayout({
   children,
@@ -11,6 +12,12 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = "/";
+ 
+  }
 
   return (
     <div className="h-screen bg-gray-50 overflow-hidden flex flex-col">
@@ -64,7 +71,7 @@ export default function ProfileLayout({
           {/* Bagian bawah: Logout */}
           <div className="w-full">
             <ul className="text-center lg:text-left">
-              <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
+              <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer" onClick={handleLogout}>
                 Keluar
               </li>
             </ul>

@@ -37,16 +37,13 @@ export async function POST(req: Request) {
       );
     }
 
-    const exsistingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+        const exsistingUser = await prisma.user.findUnique({
+            where: { email: email.trim().toLowerCase() }
+        })
 
-    if (exsistingUser) {
-      return NextResponse.json(
-        { message: "User already exists" },
-        { status: 409 }
-      );
-    }
+        if (exsistingUser) {
+            return NextResponse.json({ message: 'Email sudah terdaftar' }, { status: 400 });
+        }
 
     const hashedPassword = await hashPassword(password);
 

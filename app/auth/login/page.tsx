@@ -30,7 +30,6 @@ export default function LoginPage() {
 
         // simpan token ke localStorage atau cookie
         localStorage.setItem("token", body.token);
-        console.log("Login sukses:", body);
       } else {
         setError("Login gagal, cek email/password");
         console.error("Login gagal:", body);
@@ -39,7 +38,7 @@ export default function LoginPage() {
         // redirect ke login setelah 2 detik
       setTimeout(() => {
         router.push("/");
-      }, 2000);
+      }, 1000);
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan");
     } finally {
@@ -114,7 +113,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-red-600 text-white py-2 rounded-full hover:bg-red-700 transition"
+            className="w-full bg-red-600 text-white cursor-pointer py-2 rounded-full hover:bg-red-700 transition"
             onClick={handleLogin}
             disabled={loading}
           >

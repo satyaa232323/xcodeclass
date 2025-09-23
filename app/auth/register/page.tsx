@@ -11,15 +11,13 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
+  const [isError, setIsError] = useState("");
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!username || !email || !password) {
-      setMessage("Semua field wajib diisi");
-      setIsError(true);
+      setIsError("Semua field wajib diisi");
       return;
     }
 
@@ -29,21 +27,20 @@ export default function RegisterPage() {
 
 
       if (!res) {
-        setMessage(res|| "Register gagal");
-        setIsError(true);
+        setIsError("Register gagal");
         return;
       }
+      else{
+              setIsError("Akun berhasil dibuat");
 
-      setMessage("Akun berhasil dibuat");
-      setIsError(false);
-
+      }
+      
       // redirect ke login setelah 2 detik
       setTimeout(() => {
         router.push("/auth/login");
       }, 2000);
     } catch (err) {
-      setMessage("Terjadi kesalahan server");
-      setIsError(true);
+      setIsError("Terjadi kesalahan, silakan coba lagi");
     }
   };
 
@@ -120,12 +117,12 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {message && (
+          {isError && (
             <p
               className={`text-sm text-center ${isError ? "text-red-600" : "text-gray-600"
                 }`}
             >
-              {message}
+              {isError}
             </p>
           )}
 

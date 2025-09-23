@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyPassword, generateJWT } from "@/lib/auth";
-import { arcjetUtils } from "@/utils/arcjet";
+import { arcjetUtils } from "@/utils/archjet";
+import { cookies } from "next/headers";
 
 const prisma = new PrismaClient();
 const aj = arcjetUtils();
@@ -28,7 +29,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { email, password } = await req.json();
+        const { email, password } = await req.json();
+
+
 
     if (!email || !password) {
       return NextResponse.json(
@@ -63,11 +66,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = generateJWT({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    });
+        const token = generateJWT({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+        });
+
+        (await cookies()).set({
+            name: "token",
+            value: token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/",
+            maxAge: 60 * 60, // 1 jam
+        });
+
 
     return NextResponse.json(
       {
