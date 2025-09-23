@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-   const router = useRouter();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
   // login
@@ -35,7 +35,7 @@ export default function LoginPage() {
         console.error("Login gagal:", body);
       }
 
-        // redirect ke login setelah 2 detik
+      // redirect ke login setelah 2 detik
       setTimeout(() => {
         router.push("/");
       }, 1000);
@@ -45,8 +45,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
-
 
   return (
     <div
@@ -64,12 +62,16 @@ export default function LoginPage() {
 
       {/* Login card */}
       <div className="bg-white/90 rounded-2xl shadow-xl w-96 p-8 relative z-10">
-        <h1 className="text-2xl font-bold text-center text-black">XcodeVideo</h1>
+        <h1 className="text-2xl font-bold text-center text-black">
+          XcodeVideo
+        </h1>
         <p className="text-center text-black mb-6">Login Account</p>
 
         <form className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-black">Username</label>
+            <label className="block text-sm font-medium text-black">
+              Email
+            </label>
             <input
               type="text"
               className="w-full mt-1 px-3 py-2 border-2 border-gray-400 rounded-md 
@@ -81,7 +83,9 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-black">Password</label>
+            <label className="block text-sm font-medium text-black">
+              Password
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -106,7 +110,10 @@ export default function LoginPage() {
           </div>
 
           <div className="text-right text-sm">
-            <Link href={'auth/forgot-password'} className="text-black hover:underline">
+            <Link
+              href={"auth/forgot-password"}
+              className="text-black hover:underline"
+            >
               Forgot password?
             </Link>
           </div>

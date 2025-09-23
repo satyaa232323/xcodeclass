@@ -15,9 +15,9 @@ export default function ProfileLayout({
 
   const handleLogout = async () => {
     await logout();
+    localStorage.removeItem("token");
     window.location.href = "/";
- 
-  }
+  };
 
   return (
     <div className="h-screen bg-gray-50 overflow-hidden flex flex-col">
@@ -71,7 +71,10 @@ export default function ProfileLayout({
           {/* Bagian bawah: Logout */}
           <div className="w-full">
             <ul className="text-center lg:text-left">
-              <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer" onClick={handleLogout}>
+              <li
+                className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer"
+                onClick={handleLogout}
+              >
                 Keluar
               </li>
             </ul>

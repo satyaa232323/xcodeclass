@@ -7,6 +7,7 @@ interface Course {
   mentor: string;
   description: string;
   videos: string[];
+  thumbnail?: string;
 }
 
 export default function CoursesPage() {
@@ -102,31 +103,44 @@ export default function CoursesPage() {
 
       {/* Cards mirip dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {courses.length === 0 ? (
-          <p className="text-gray-600">Belum ada course ditambahkan.</p>
-        ) : (
-          courses.map((c) => (
-            <div
-              key={c.id}
-              className="bg-white shadow rounded-xl p-4 flex flex-col gap-3"
-            >
-              <h3 className="text-lg font-semibold text-red-600">{c.title}</h3>
-              <p className="text-sm text-gray-600">Mentor: {c.mentor}</p>
-              <p className="text-gray-600">{c.description}</p>
-              <div className="flex overflow-x-auto gap-3 pb-2">
-                {c.videos.map((video, idx) => (
-                  <video
-                    key={idx}
-                    controls
-                    className="rounded-lg w-64 flex-shrink-0"
-                  >
-                    <source src={video} type="video/mp4" />
-                  </video>
-                ))}
-              </div>
-            </div>
-          ))
-        )}
+{courses.length === 0 ? (
+  <p className="text-gray-600">Belum ada course ditambahkan.</p>
+) : (
+  courses.map((c) => (
+    <div
+      key={c.id}
+      className="bg-white shadow-lg hover:shadow-xl rounded-2xl overflow-hidden transition transform hover:-translate-y-1"
+    >
+      {/* Thumbnail */}
+      <div className="relative h-40 bg-gray-200">
+        <img
+          src={c.thumbnail || "/default-thumb.jpg"}
+          alt={c.title}
+          className="w-full h-full object-cover"
+        />
+        <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-md">
+          New
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 flex flex-col gap-2">
+        <h3 className="text-lg font-semibold text-gray-800">{c.title}</h3>
+        <p className="text-sm text-gray-500">👨‍🏫 {c.mentor}</p>
+        <p className="text-gray-600 text-sm line-clamp-2">{c.description}</p>
+
+        {/* Action */}
+        <div className="mt-3 flex justify-between items-center">
+          <button className="bg-red-500 text-white text-sm px-3 py-1 rounded-lg hover:bg-red-600 transition">
+            Detail
+          </button>
+          <span className="text-gray-500 text-xs">{c.videos.length} Video</span>
+        </div>
+      </div>
+    </div>
+  ))
+)}
+
       </div>
 
      {/* Modal Tambah Course */}
@@ -144,7 +158,7 @@ export default function CoursesPage() {
 
               {/* Upload Thumbnail */}
               <div
-                className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 transition"
+                className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-red-400 transition"
                 onClick={() =>
                   document.getElementById("thumbnail-upload")?.click()
                 }
@@ -163,7 +177,7 @@ export default function CoursesPage() {
                 ) : (
                   <div className="text-gray-500 text-sm">
                     Drop your image here, or{" "}
-                    <span className="text-blue-500">browse</span>
+                    <span className="text-red-500">browse</span>
                   </div>
                 )}
               </div>
@@ -172,7 +186,7 @@ export default function CoursesPage() {
               <div className="flex flex-col">
                 <label className="text-sm text-gray-800 mb-1">Judul Kelas</label>
                 <input
-                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Masukkan judul kelas..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -183,7 +197,7 @@ export default function CoursesPage() {
               <div className="flex flex-col">
                 <label className="text-sm text-gray-800 mb-1">Mentor</label>
                 <input
-                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Nama mentor..."
                   value={mentor}
                   onChange={(e) => setMentor(e.target.value)}
@@ -195,7 +209,7 @@ export default function CoursesPage() {
                 <label className="text-sm text-gray-800 mb-1">Deskripsi</label>
                 <textarea
                   rows={3}
-                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Tuliskan deskripsi course..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -207,7 +221,7 @@ export default function CoursesPage() {
                 <label className="text-sm text-gray-800 mb-1">Harga</label>
                 <input
                   type="number"
-                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 bg-white text-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Masukkan harga course..."
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
@@ -257,7 +271,7 @@ export default function CoursesPage() {
                         <div className="flex gap-2">
                           <button
                             type="button"
-                            className="text-blue-500 hover:text-blue-700 text-sm"
+                            className="text-red-500 hover:text-red-700 text-sm"
                             onClick={() => editVideo(i)}
                           >
                             Edit
