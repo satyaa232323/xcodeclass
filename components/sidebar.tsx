@@ -29,7 +29,7 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
-            className="text-3xl font-extrabold tracking-wide text-white font-[Inter]"
+            className="text-3xl font-semibold text-white font-[Nunito]"
           >
             XcodeAdmin
           </motion.h1>
