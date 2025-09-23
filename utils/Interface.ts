@@ -8,13 +8,12 @@ interface Class {
 }
 
 interface OrderItem {
-  id: string;
+   id: string;
   orderId: string;
   classId: string;
   price: number;
-  class: Class;
+  classObj: Class ;
   date: Date;
-  status: "COMPELETED" | "PENDING" | "FAILED";
 }
 
 interface Order {
@@ -23,6 +22,8 @@ interface Order {
   totalAmount: number;
   createdAt: string;
   orderItems: OrderItem[];
+  date: Date;
+
 }
 
 interface Video {

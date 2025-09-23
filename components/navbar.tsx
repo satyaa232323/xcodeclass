@@ -9,15 +9,26 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<null | any>(null);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState("");
+
+  // make order
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setUser(null);
-          setLoading(false);
-          return;
+
+        const token = localStorage.getItem("token") || "";
+        setToken(token);
+
+        if (token) {
+          const res = await Userprofile(token);
+
+          if (res.ok) {
+            const data = await res.json();
+            setUser(data);
+          } else {
+            setUser(null);
+          }
         }
 
         const response = await Userprofile(token);
@@ -25,9 +36,8 @@ const Navbar = () => {
         setUser(response); // Assuming response contains user data
         setLoading(false);
       } catch (err) {
-        console.error("Auth check failed:", err);
+        console.error("Fetch user error:", err);
         setUser(null);
-        setLoading(false);
       }
     };
 

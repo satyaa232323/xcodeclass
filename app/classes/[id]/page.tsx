@@ -3,17 +3,27 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { fetchClassDetails, fetchClasses } from "@/utils/api";
+import { useParams, useRouter } from "next/navigation";
+import { createOrder, fetchClassDetails, fetchClasses } from "@/utils/api";
 
 export default function DetailClass() {
     const { id } = useParams();
-
+    const router = useRouter();
     const [detailClass, setDetailClass] = useState<DetailClass | null>(null);
     const [classes, setClass] = useState<Class[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                setIsAuthenticated(true);
+            }
+        };
+        checkAuth();
+    }, []);
 
     useEffect(() => {
         const detailData = async () => {
@@ -46,6 +56,37 @@ export default function DetailClass() {
         fetchClass();
         detailData();
     }, [id],);
+
+
+    const handleClick = async () => {
+
+
+        try {
+
+            setLoading(true);
+            const token = localStorage.getItem("token");
+            setIsAuthenticated(!!token);
+            if (!token || !isAuthenticated) {
+                alert("Silakan login terlebih dahulu untuk membeli kelas.");
+                router.push("/auth/login");
+            }
+
+            const response = await createOrder(token as string, id as string);
+
+            if (response?.data?.redirectUrl) {
+                router.push(response.data.redirectUrl);
+            } else {
+                alert('Pembelian kelas berhasil!');
+                router.push('/profile/history');
+            }
+
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -88,7 +129,7 @@ export default function DetailClass() {
                                 height={300}
                                 className="rounded-lg w-full object-cover h-48 md:h-60 lg:h-72"
                             />
-                            <button className="mt-auto py-2 px-6 bg-white text-red-500 rounded-lg hover:bg-gray-200 transition font-semibold w-full">
+                            <button onClick={handleClick}  className="mt-auto py-2 px-6 bg-white text-red-500 rounded-lg hover:bg-gray-200 transition font-semibold w-full">
                                 Beli
                             </button>
                         </div>
@@ -130,9 +171,9 @@ export default function DetailClass() {
 
                         <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-auto overflow-y-hidden h-80 md:h-100">
                             {/* Card Video */}
-                            {classes.map((cls) => (
+                            {classes.slice(0, 4).map((cls) => (
                                 <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]" key={cls.id}>
-                                    ``     <Image
+                                    <Image
                                         src={cls.thumbnailUrl}
                                         alt="Thumbnail Video"
                                         width={380}
@@ -147,143 +188,15 @@ export default function DetailClass() {
                                             </p>
                                         </div>
                                         <span className="font-bold text-sm mb-2">{cls.price}</span>
-                                        <button className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
+
+                                        <button 
+                                        className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
+                                        
                                             Beli
                                         </button>
                                     </div>
                                 </div>
                             ))}
-
-                            {/* Card Video Kedua */}
-                            {/* <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]">
-                                <Image
-                                    src="/images/foto_vid.png"
-                                    alt="Thumbnail Video"
-                                    width={380}
-                                    height={180}
-                                    className="object-cover w-full h-32 md:h-40 lg:h-44"
-                                />
-                                <div className="flex flex-col flex-1 p-3 gap-2">
-                                    <div>
-                                        <h2 className="font-bold text-base mb-1">Judul Kelas</h2>
-                                        <p className="font-extralight text-xs mb-2 line-clamp-1">
-                                            deskripsi
-                                        </p>
-                                    </div>
-                                    <span className="font-bold text-sm mb-2">10.000</span>
-                                    <button className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                                        Beli
-                                    </button>
-                                </div>
-                            </div> */}
-                            {/* Card Video Ketiga */}
-                            {/* <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow- shadow-md w-full min-h-[220px] md:min-h-[250px]">
-                                <Image
-                                    src="/images/foto_vid.png"
-                                    alt="Thumbnail Video"
-                                    width={380}
-                                    height={180}
-                                    className="object-cover w-full h-32 md:h-40 lg:h-44"
-                                />
-                                <div className="flex flex-col flex-1 p-3 gap-2">
-                                    <div>
-                                        <h2 className="font-bold text-base mb-1">Judul Kelas</h2>
-                                        <p className="font-extralight text-xs mb-2 line-clamp-1">
-                                            deskripsi
-                                        </p>
-                                    </div>
-                                    <span className="font-bold text-sm mb-2">10.000</span>
-                                    <button className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                                        Beli
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]">
-                                <Image
-                                    src="/images/foto_vid.png"
-                                    alt="Thumbnail Video"
-                                    width={380}
-                                    height={180}
-                                    className="object-cover w-full h-32 md:h-40 lg:h-44"
-                                />
-                                <div className="flex flex-col flex-1 p-3 gap-2">
-                                    <div>
-                                        <h2 className="font-bold text-base mb-1">Judul Kelas</h2>
-                                        <p className="font-extralight text-xs mb-2 line-clamp-1">
-                                            deskripsi
-                                        </p>
-                                    </div>
-                                    <span className="font-bold text-sm mb-2">10.000</span>
-                                    <button className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                                        Beli
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]">
-                                <Image
-                                    src="/images/foto_vid.png"
-                                    alt="Thumbnail Video"
-                                    width={380}
-                                    height={180}
-                                    className="object-cover w-full h-32 md:h-40 lg:h-44"
-                                />
-                                <div className="flex flex-col flex-1 p-3 gap-2">
-                                    <div>
-                                        <h2 className="font-bold text-base mb-1">Judul Kelas</h2>
-                                        <p className="font-extralight text-xs mb-2 line-clamp-1">
-                                            deskripsi
-                                        </p>
-                                    </div>
-                                    <span className="font-bold text-sm mb-2">10.000</span>
-                                    <button className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                                        Beli
-                                    </button>
-                                </div>
-                            </div> */}
-
-
-                            {/* <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]">
-                                <Image
-                                    src="/images/foto_vid.png"
-                                    alt="Thumbnail Video"
-                                    width={380}
-                                    height={180}
-                                    className="object-cover w-full h-32 md:h-40 lg:h-44"
-                                />
-                                <div className="flex flex-col flex-1 p-3 gap-2">
-                                    <div>
-                                        <h2 className="font-bold text-base mb-1">Judul Kelas</h2>
-                                        <p className="font-extralight text-xs mb-2 line-clamp-1">
-                                            deskripsi
-                                        </p>
-                                    </div>
-                                    <span className="font-bold text-sm mb-2">10.000</span>
-                                    <button className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                                        Beli
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]">
-                                <Image
-                                    src="/images/foto_vid.png"
-                                    alt="Thumbnail Video"
-                                    width={380}
-                                    height={180}
-                                    className="object-cover w-full h-32 md:h-40 lg:h-44"
-                                />
-                                <div className="flex flex-col flex-1 p-3 gap-2">
-                                    <div>
-                                        <h2 className="font-bold text-base mb-1">Judul Kelas</h2>
-                                        <p className="font-extralight text-xs mb-2 line-clamp-1">
-                                            deskripsi
-                                        </p>
-                                    </div>
-                                    <span className="font-bold text-sm mb-2">10.000</span>
-                                    <button className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                                        Beli
-                                    </button>
-                                </div>
-                            </div> */}
                         </div>
                     </div>
 
@@ -292,8 +205,9 @@ export default function DetailClass() {
                         <Footer />
                     </div>
                 </main>
-            )}
+            )
+            }
 
-        </div>
+        </div >
     );
 }

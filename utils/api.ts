@@ -72,7 +72,7 @@ export const fetchOrders = (token: string) =>
     apiRequest("/orders", "GET", token);
 
 export const createOrder = (token: string, classId: string) =>
-    apiRequest("/orders", "POST", token, { classId });
+    apiRequest(`/orders/${classId}`, "POST", token);
 
 export const initiatePayment = (token: string, orderId: string) =>
     apiRequest(`/payment/${orderId}`, "POST", token);

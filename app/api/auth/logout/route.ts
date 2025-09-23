@@ -14,6 +14,9 @@ export async function POST() {
             expires: new Date(0) // langsung kadaluarsa
         })
 
+
+        const token = localStorage.removeItem("token");
+
         return NextResponse.json({ message: "Logged out successfully" }, { status: 200 });
 
     } catch (error) {
