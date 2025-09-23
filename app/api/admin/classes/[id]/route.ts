@@ -40,10 +40,6 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-
-
-
-
   try {
 
     const user = await verifyAuth(req, "ADMIN");

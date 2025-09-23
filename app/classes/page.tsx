@@ -1,19 +1,49 @@
 "use client";
 
 import Navbar from "@/components/navbar";
+import { fetchClasses } from "@/utils/api";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+
 
 export default function ClassesPage() {
-  // Dummy data kelas (bisa diganti dengan data dari API)
-  const kelasList = [
-    { id: 1, title: "Judul kelas", desc: "deskripsi", price: "10.000" },
-    { id: 2, title: "Judul kelas 2", desc: "deskripsi", price: "20.000" },
-    { id: 3, title: "Judul kelas 3", desc: "deskripsi", price: "30.000" },
-    { id: 4, title: "Judul kelas 4", desc: "deskripsi", price: "40.000" },
-    { id: 5, title: "Judul kelas 5", desc: "deskripsi", price: "50.000" },
-    // ...tambahkan data lain jika perlu
-  ];
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetchClasses();
+        setClasses(res.data);
+        setError("");
+      } catch (err) {
+        setError("Gagal memuat data kelas");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-lg text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-lg text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -27,27 +57,31 @@ export default function ClassesPage() {
           didesain untuk pembelajaran praktis dan siap kerja!
         </p>
 
+
         <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
-          {kelasList.map((kelas) => (
+          {classes.map((item) => (
             <div
-              key={kelas.id}
-              className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full max-w-xs mx-auto"
+              key={item.id}
+              className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md"
             >
               <Image
-                src="/images/foto_vid.png"
-                alt="Thumbnail Video"
+                src={item.thumbnailUrl || "/images/foto_vid.png"}
+                alt={`${item.title} Thumbnail`}
                 width={400}
                 height={220}
                 className="object-cover w-full h-48"
               />
               <div className="flex flex-col flex-1 p-4 gap-2">
                 <div>
-                  <h2 className="font-bold text-lg mb-1">{kelas.title}</h2>
-                  <p className="font-extralight text-sm mb-2 line-clamp-1">
-                    {kelas.desc}
+                  <h2 className="font-bold text-lg mb-1">{item.title}</h2>
+                  <p className="font-extralight text-sm mb-2 line-clamp-2">
+                    {item.description}
                   </p>
+                  <p className="text-sm text-gray-600">Mentor: {item.mentor}</p>
                 </div>
-                <span className="font-bold text-base mb-4">{kelas.price}</span>
+                <span className="font-bold text-base mb-4">
+                  Rp {item.price.toLocaleString('id-ID')}
+                </span>
                 <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
                   Beli
                 </button>

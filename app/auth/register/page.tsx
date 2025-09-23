@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { register } from "@/utils/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -10,50 +11,41 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
+  const [isError, setIsError] = useState("");
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!username || !email || !password) {
-      setMessage("Semua field wajib diisi");
-      setIsError(true);
+      setIsError("Semua field wajib diisi");
       return;
     }
 
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
 
-      const data = await res.json();
+      const res = await register( username, email, password );
 
-      if (!res.ok) {
-        setMessage(data.message || "Register gagal");
-        setIsError(true);
+
+      if (!res) {
+        setIsError("Register gagal");
         return;
       }
+      else{
+              setIsError("Akun berhasil dibuat");
 
-      setMessage("Akun berhasil dibuat");
-      setIsError(false);
-
+      }
+      
       // redirect ke login setelah 2 detik
       setTimeout(() => {
-        router.push("/login");
+        router.push("/auth/login");
       }, 2000);
     } catch (err) {
-      setMessage("Terjadi kesalahan server");
-      setIsError(true);
+      setIsError("Terjadi kesalahan, silakan coba lagi");
     }
   };
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: "url('/images/bg-login.png')" }}
     >
 
       {/* Tombol Back */}
@@ -125,12 +117,12 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {message && (
+          {isError && (
             <p
               className={`text-sm text-center ${isError ? "text-red-600" : "text-gray-600"
                 }`}
             >
-              {message}
+              {isError}
             </p>
           )}
 
