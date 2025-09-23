@@ -4,28 +4,50 @@ import Navbar from "@/components/navbar";
 import Image from "next/image";
 import Footer from "@/components/footer";
 import ReviewMarquee from "@/components/ReviewMarquee";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUserTie, FaBookOpen, FaUsers, FaInfinity } from "react-icons/fa";
+import { fetchClasses } from "@/utils/api";
+import Link from "next/link";
 import { motion } from "motion/react";
 
 export default function HomePage() {
+
+  // fecth classes 4 aja
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetchClasses();
+        setClasses(res.data);
+        setError("");
+      } catch (err) {
+        setError("Gagal memuat data kelas");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+
+
+
+
+
+
   const handleScroll = () => {
     const element = document.getElementById("class");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" }); // animasi smooth
     }
   };
-  // Dummy data kelas (bisa diganti dengan data dari API)
-  const kelasList = [
-    { id: 1, title: "Judul kelas", desc: "deskripsi", price: "10.000" },
-    { id: 2, title: "Judul kelas 2", desc: "deskripsi", price: "20.000" },
-    { id: 3, title: "Judul kelas 3", desc: "deskripsi", price: "30.000" },
-    { id: 4, title: "Judul kelas 4", desc: "deskripsi", price: "40.000" },
-    { id: 5, title: "Judul kelas 5", desc: "deskripsi", price: "50.000" },
-    // ...tambahkan data lain jika perlu
-  ];
-  const visibleKelas = kelasList.slice(0, 4);
-  // Keunggulan card data
+
   const keunggulanCards = [
     {
       icon: <FaUserTie className="w-7 h-7 text-red-500" />,
@@ -109,15 +131,40 @@ export default function HomePage() {
             </p>
           </div>
 
+
+
           {/* Video Class */}
-          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
-            {visibleKelas.map((kelas) => (
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
+            {loading && (
+              <div className="flex flex-col gap-4 w-full mt-4">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="animate-pulse bg-white p-6 rounded-xl shadow-sm border border-gray-300"
+                  >
+                    <div className="h-4 bg-gray-200 mb-2 rounded"></div>
+                    <div className="h-3 bg-gray-200 mb-4 rounded"></div>
+                    <div className="flex space-x-2">
+                      <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                      <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* cek error */}
+            {error && !loading && (
+                <div className="mt-4 text-red-600 font-semibold">{error}</div>
+            )}
+
+            {classes.slice(0, 4).map((item) => (
               <div
-                key={kelas.id}
-                className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md transition-transform duration-300 hover:scale-105"
+                key={item.id}
+                className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md"
               >
                 <Image
-                  src="/images/foto_vid.png"
+                  src={item.thumbnailUrl || `/images/foto_vid.png`}
                   alt="Thumbnail Video"
                   width={400}
                   height={220}
@@ -125,28 +172,33 @@ export default function HomePage() {
                 />
                 <div className="flex flex-col flex-1 p-4 gap-2">
                   <div>
-                    <h2 className="font-bold text-lg mb-1">{kelas.title}</h2>
+                    <h2 className="font-bold text-lg mb-1">{item.title}</h2>
                     <p className="font-extralight text-sm mb-2 line-clamp-1">
-                      {kelas.desc}
+                      {item.description}
                     </p>
                   </div>
                   <span className="font-bold text-base mb-4">
-                    {kelas.price}
+                    Rp {item.price.toLocaleString('id-ID')}
                   </span>
                   <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
-                    Beli
+                    <Link
+                      key={item.id}
+                      href={`/classes/${item.id}`}
+                    >
+                      Beli
+                    </Link>
                   </button>
                 </div>
               </div>
             ))}
           </div>
           <div className="flex justify-center mt-6">
-            <a
+            <Link
               href="/classes"
               className="px-8 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition text-lg shadow"
             >
               Lihat Semua Kelas
-            </a>
+            </Link>
           </div>
         </div>
         <hr className="border-t-2 border-gray-200 my-4 w-full" />
