@@ -57,10 +57,10 @@ export default function ProfileLayout({
             {/* Menu */}
             <ul className="w-full text-center lg:text-left ">
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
-                Dashboard
+                <Link href="/profile">Dashboard</Link>
               </li>
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
-                <Link href="/profile">Profile</Link>
+                <Link href="/profile/payment">Payment</Link>
               </li>
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
                 <Link href="/profile/history">History</Link>
