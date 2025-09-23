@@ -1,11 +1,42 @@
-import React, { useState } from "react";
+'use client';
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { verifyJWT } from "@/lib/auth";
+import { Userprofile } from "@/utils/api";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  // Simulasi status login, ganti dengan state/auth dari context jika sudah ada
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // default: belum login
+  const [user, setUser] = useState<null | any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
+        const response = await Userprofile(token);
+        setUser(response); // Assuming response contains user data
+        setLoading(false);
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        setUser(null);
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+
+
+
+  // default: belum login
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow flex items-center justify-between px-6 py-3 border-b-1 z-50">
@@ -38,7 +69,7 @@ const Navbar = () => {
       {/* Kanan: Tombol */}
       <div className="flex-1 flex justify-end items-center gap-3">
         <div className="hidden sm:flex gap-3">
-          {isLoggedIn ? (
+          {user ? (
             <Image
               src="/images/profile.svg"
               alt="Profile"
@@ -48,12 +79,12 @@ const Navbar = () => {
             />
           ) : (
             <>
-              <Link href="/login">
+              <Link href="/auth/login">
                 <button className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition cursor-pointer">
                   Masuk
                 </button>
               </Link>
-              <Link href="/register">
+              <Link href="/auth/register">
                 <button className="px-5 py-1.5 bg-red-500 border rounded-xl text-white hover:bg-red-600 transition cursor-pointer">
                   Daftar
                 </button>
@@ -104,11 +135,10 @@ const Navbar = () => {
 
       {/* Fullscreen menu for small screens */}
       <div
-        className={`fixed inset-0 w-full h-full bg-white z-40 flex flex-col items-center justify-center sm:hidden transition-transform duration-300 ease-in-out ${
-          menuOpen
-            ? "translate-x-0 pointer-events-auto"
-            : "translate-x-full pointer-events-none"
-        }`}
+        className={`fixed inset-0 w-full h-full bg-white z-40 flex flex-col items-center justify-center sm:hidden transition-transform duration-300 ease-in-out ${menuOpen
+          ? "translate-x-0 pointer-events-auto"
+          : "translate-x-full pointer-events-none"
+          }`}
         style={{ willChange: "transform" }}
       >
         {/* Tombol X */}

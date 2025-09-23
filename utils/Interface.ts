@@ -7,6 +7,23 @@ interface Class {
   mentor: string;
 }
 
+interface OrderItem {
+  id: string;
+  orderId: string;
+  classId: string;
+  price: number;
+  class: Class;
+  date: Date;
+  status: "COMPELETED" | "PENDING" | "FAILED";
+}
+
+interface Order {
+  id: string;
+  userId: string;
+  totalAmount: number;
+  createdAt: string;
+  orderItems: OrderItem[];
+}
 
 interface Video {
   id: string;
@@ -23,4 +40,11 @@ interface DetailClass {
   price: number;
   videos: Video[];
   class: Class;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: "ADMIN" | "USER";
 }

@@ -46,6 +46,9 @@ export const login = (email: string, password: string): Promise<AuthResponse> =>
 export const register = (name: string, email: string, password: string): Promise<AuthResponse> =>
     apiRequest("/auth/register", "POST", undefined, { name, email, password });
 
+export const logout = () =>
+    apiRequest("/auth/logout", "POST");
+
 export const requestPasswordReset = (email: string) =>
     apiRequest("/auth/forgot-password/request-reset", "POST", undefined, { email });
 
@@ -58,7 +61,7 @@ export const fetchClasses = () => apiRequest("/classes", "GET");
 export const fetchClassDetails = (id: string) =>
     apiRequest(`/classes/${id}`, "GET");
 
-export const fetchMyClasses = (token: string) =>
+export const myClasses = (token: string) =>
     apiRequest("/my-classes", "GET", token);
 
 export const fetchMyClassVideos = (token: string, classId: string) =>
@@ -73,6 +76,10 @@ export const createOrder = (token: string, classId: string) =>
 
 export const initiatePayment = (token: string, orderId: string) =>
     apiRequest(`/payment/${orderId}`, "POST", token);
+
+
+export const Userprofile = (token: string) =>
+    apiRequest("/me", "GET", token); 
 
 // ---------------------- ADMIN CLASSES ----------------------
 export const fetchAllClasses = (token: string) =>
