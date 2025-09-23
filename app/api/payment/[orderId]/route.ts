@@ -10,9 +10,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { orderId: string } }
 ) {
-    try {
-        // 🔑 Verify JWT token
-
+  try {
+    // 🔑 Verify JWT token
 
     const decision = await aj.protect(request, { requested: 1 });
 

@@ -31,6 +31,10 @@ const Navbar = () => {
           }
         }
 
+        const response = await Userprofile(token);
+        console.log("User object from API:", response); // DEBUG LOG
+        setUser(response); // Assuming response contains user data
+        setLoading(false);
       } catch (err) {
         console.error("Fetch user error:", err);
         setUser(null);
@@ -39,8 +43,6 @@ const Navbar = () => {
 
     checkAuth();
   }, []);
-
-
 
   // default: belum login
 
@@ -77,13 +79,11 @@ const Navbar = () => {
         <div className="hidden sm:flex gap-3">
           {user ? (
             <Link href="/profile">
-              <Image
-                src="/images/profile.svg"
-                alt="Profile"
-                width={40}
-                height={40}
-                className="rounded-full w-10 h-10 object-cover border-2 border-gray-300"
-              />
+              <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center cursor-pointer">
+                <span className="text-white font-bold text-lg">
+                  {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                </span>
+              </div>
             </Link>
           ) : (
             <>
