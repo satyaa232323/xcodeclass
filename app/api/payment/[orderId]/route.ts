@@ -14,8 +14,6 @@ export async function POST(
         // 🔑 Verify JWT token
 
 
-
-
         const decision = await aj.protect(request, { requested: 1 });
 
         if (decision.isDenied()) {

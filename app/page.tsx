@@ -155,7 +155,7 @@ export default function HomePage() {
 
             {/* cek error */}
             {error && !loading && (
-                <div className="mt-4 text-red-600 font-semibold">{error}</div>
+              <div className="mt-4 text-red-600 font-semibold">{error}</div>
             )}
 
             {classes.slice(0, 4).map((item) => (
@@ -180,14 +180,14 @@ export default function HomePage() {
                   <span className="font-bold text-base mb-4">
                     Rp {item.price.toLocaleString('id-ID')}
                   </span>
-                  <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
-                    <Link
-                      key={item.id}
-                      href={`/classes/${item.id}`}
-                    >
+                  <Link
+                    key={item.id}
+                    href={`/classes/${item.id}`}
+                  >
+                    <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
                       Beli
-                    </Link>
-                  </button>
+                    </button>
+                  </Link>
                 </div>
               </div>
             ))}

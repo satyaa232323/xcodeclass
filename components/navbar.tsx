@@ -9,30 +9,36 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<null | any>(null);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState("");
+
+  // make order
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setUser(null);
-          setLoading(false);
-          return;
+
+        const token = localStorage.getItem("token") || "";
+        setToken(token);
+
+        if (token) {
+          const res = await Userprofile(token);
+
+          if (res.ok) {
+            const data = await res.json();
+            setUser(data);
+          } else {
+            setUser(null);
+          }
         }
 
-        const response = await Userprofile(token);
-        setUser(response); // Assuming response contains user data
-        setLoading(false);
       } catch (err) {
-        console.error("Auth check failed:", err);
+        console.error("Fetch user error:", err);
         setUser(null);
-        setLoading(false);
       }
     };
 
     checkAuth();
   }, []);
-
 
 
 
@@ -70,13 +76,15 @@ const Navbar = () => {
       <div className="flex-1 flex justify-end items-center gap-3">
         <div className="hidden sm:flex gap-3">
           {user ? (
-            <Image
-              src="/images/profile.svg"
-              alt="Profile"
-              width={40}
-              height={40}
-              className="rounded-full w-10 h-10 object-cover border-2 border-gray-300"
-            />
+            <Link href="/profile">
+              <Image
+                src="/images/profile.svg"
+                alt="Profile"
+                width={40}
+                height={40}
+                className="rounded-full w-10 h-10 object-cover border-2 border-gray-300"
+              />
+            </Link>
           ) : (
             <>
               <Link href="/auth/login">

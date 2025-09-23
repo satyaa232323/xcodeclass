@@ -7,7 +7,7 @@ import Link from "next/link";
 import { NextRequest } from "next/server";
 import { useEffect, useState } from "react";
 
-export default function ProfilePage(req: NextRequest) {
+export default function ProfilePage() {
 
   const [classes, setClasses] = useState<Class[]>([]);
   const [isLoading, setIsLoading] = useState(false);

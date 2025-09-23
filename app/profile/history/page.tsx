@@ -1,41 +1,57 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchOrders as Orders } from "@/utils/api";
-export default function History() {
+import { fetchOrders } from "@/utils/api";
 
-  const [orders, setOrders] = useState<OrderItem[]>([]);
+export default function History() {
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [token, setToken] = useState("");
-  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchOrderHistory = async () => {
       setIsLoading(true);
-      const token = localStorage.getItem("token") || "";
-      setToken(token);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Please login to view your order history");
+        setIsLoading(false);
+        return;
+      }
 
       try {
-        const response = await Orders(token);
-        setOrders(response);
-
+        const response = await fetchOrders(token);
+        if (response.orders) {
+          // Format dates for each order and orderItem
+          const formattedOrders = response.orders.map((order: Order) => ({
+            ...order,
+            createdAt: new Date(order.createdAt).toLocaleDateString("id-ID"),
+            orderItems: order.orderItems.map(item => ({
+              ...item,
+              date: new Date(item.date).toLocaleDateString("id-ID")
+            }))
+          }));
+          setOrders(formattedOrders);
+        }
       } catch (err) {
         setError("Gagal memuat history. Silakan coba lagi.");
+        console.error("Error fetching orders:", err);
       } finally {
         setIsLoading(false);
       }
+    };
 
-    }
-  })
+    fetchOrderHistory();
+  }, []);
+
   return (
     <div className="flex p-2 sm:p-4 gap-2 sm:gap-4 flex-col w-full">
       <h1 className="font-bold text-xl sm:text-2xl text-black">
-        Berikut history pembayaran anda
+        History Pembayaran
       </h1>
-      <h1 className="font-medium text-base sm:text-lg text-gray-600">
+      <p className="font-medium text-base sm:text-lg text-gray-600">
         Berikut history pembayaran anda
-      </h1>
+      </p>
 
       {isLoading && (
         <div className="flex flex-col gap-4 w-full mt-4">
@@ -65,29 +81,29 @@ export default function History() {
         </div>
       )}
 
-    {orders.map((order => (
       <div className="flex flex-col gap-2 sm:gap-4 max-h-none md:max-h-[600px] overflow-y-auto no-scrollbar w-full">
-        {/* Card */}
-        <div className="flex flex-col sm:flex-row border-2 justify-between items-start sm:items-center border-gray-200 rounded-2xl shadow-md p-3 sm:p-4 bg-white w-full">
-          <h1 className="font-bold text-base sm:text-xl text-gray-600 mb-2 sm:mb-0">
-            {order.class.title}
-          </h1>
-          <div className="flex flex-col sm:items-end justify-between">
-            <h1 className="text-xs sm:text-sm font-medium text-gray-400">
-              {order.date?.toLocaleDateString("id-ID")}
-            </h1>
-            <h1 className="text-base sm:text-lg font-bold text-black">
-                    Rp {order.price.toLocaleString('id-ID')}
-            </h1>
-            <h1 className="text-xs sm:text-sm font-medium text-gray-400">
-              {order.status}
-            </h1>
+        {orders.map((order) => (
+          <div key={order.id} className="border-2 border-gray-200 rounded-2xl shadow-md p-4 bg-white">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold text-gray-500 text-lg">Order #{order.id.slice(-6)}</h2>
+              <span className="text-gray-500">{order.createdAt}</span>
+            </div>
+
+            {order.orderItems.map((item) => (
+              <div key={item.id} className="flex justify-between items-center border-t border-gray-100 py-3">
+                <div>
+                  <h3 className="font-semibold text-gray-500">{item.classObj.title}</h3>
+                  <p className="text-gray-500 text-sm">Mentor: {item.classObj.mentor}</p>
+                </div>
+              </div>
+            ))}
+            <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2">
+              <span className="font-semibold text-gray-500">Total</span>
+              <span className="font-bold text-lg text-gray-700">Rp {order.totalAmount.toLocaleString('id-ID')}</span>
+            </div>
           </div>
-        </div>
-        
+        ))}
       </div>
-    )))}
     </div>
-    
   );
 }

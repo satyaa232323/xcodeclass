@@ -13,24 +13,7 @@ export async function GET(req: Request) {
 
         const decision = await aj.protect(req, { requested: 1 });
 
-        if (decision.isDenied()) {
-            if (decision.reason.isRateLimit()) {
-                return NextResponse.json(
-                    { error: "Too Many Requests", reason: decision.reason },
-                    { status: 429 },
-                );
-            } else if (decision.reason.isBot()) {
-                return NextResponse.json(
-                    { error: "No bots allowed", reason: decision.reason },
-                    { status: 403 },
-                );
-            } else {
-                return NextResponse.json(
-                    { error: "Forbidden", reason: decision.reason },
-                    { status: 403 },
-                );
-            }
-        }
+      
 
         const classes = await prisma.class.findMany({
             select: {
