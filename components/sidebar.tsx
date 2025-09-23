@@ -23,13 +23,13 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
       bg-gradient-to-b from-red-700 to-red-900"
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-500 p-5 flex justify-between items-center">
+      <div className="bg-gradient-to-r from-red-600 to-red-500 p-4 flex justify-between items-center">
         {!isMinimized && (
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
-            className="text-3xl font-extrabold tracking-wide text-white font-[Inter]"
+            className="text-2xl font-extrabold tracking-wide text-white font-[Inter]"
           >
             XcodeAdmin
           </motion.h1>
@@ -39,7 +39,7 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
           onClick={() => setIsMinimized(!isMinimized)}
           className="text-white"
         >
-          <Menu size={30} />
+          <Menu size={31} />
         </motion.button>
       </div>
 
