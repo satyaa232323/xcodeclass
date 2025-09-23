@@ -64,6 +64,8 @@ export default function DashboardPage() {
               <td className="py-2">Rp 500.000</td>
               <td className="py-2">16 Sept 2025</td>
             </tr>
+            <tr className="text-gray-700 border-b">
+            </tr>
           </tbody>
         </table>
       </div>
