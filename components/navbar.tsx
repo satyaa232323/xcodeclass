@@ -16,25 +16,23 @@ const Navbar = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-
         const token = localStorage.getItem("token") || "";
         setToken(token);
 
-        if(!token){
+        if (!token) {
           setUser(null);
           setLoading(false);
           return;
         }
-       
-          const res = await Userprofile(token);
 
-          if (res.ok) {
-            const data = await res.json();
-            setUser(data);
-          } else {
-            setUser(null);
-          }
-        
+        const res = await Userprofile(token);
+
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        } else {
+          setUser(null);
+        }
 
         const response = await Userprofile(token);
         console.log("User object from API:", response); // DEBUG LOG
@@ -86,7 +84,7 @@ const Navbar = () => {
             <Link href="/profile">
               <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center cursor-pointer">
                 <span className="text-white font-bold text-lg">
-                  {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                  {user.name ? user.name.charAt(0).toUpperCase() : ""}
                 </span>
               </div>
             </Link>
