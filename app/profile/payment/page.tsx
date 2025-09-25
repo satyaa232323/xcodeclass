@@ -1,47 +1,97 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import confetti from "canvas-confetti";
+import { fetchOrders, myClasses } from "@/utils/api";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function PaymentPage() {
-  const videos = [
-    { id: 1, title: "Belajar React Dasar", price: 75000, thumbnail: "/thumb1.jpg", duration: "2j 15m" },
-    { id: 2, title: "Next.js Fullstack Tutorial", price: 120000, thumbnail: "/thumb2.jpg", duration: "4j 30m" },
-    { id: 3, title: "Tailwind CSS Mastery", price: 60000, thumbnail: "/thumb3.jpg", duration: "1j 45m" },
-    { id: 4, title: "Laravel x Livewire Crash Course", price: 95000, thumbnail: "/thumb4.jpg", duration: "3j 20m" },
-  ];
-
-  const [selected, setSelected] = useState<number[]>([]);
+  const router = useRouter();
   const [isPaying, setIsPaying] = useState(false);
+  const [error, setError] = useState("");
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [purchasedClasses, setPurchasedClasses] = useState<Set<string>>(new Set());
 
-  const toggleSelect = (id: number) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
+  useEffect(() => {
+    const fetchOrder = async () => {
+      const token = localStorage.getItem("token");
 
-  const selectedVideos = videos.filter((v) => selected.includes(v.id));
-  const total = selectedVideos.reduce((acc, v) => acc + v.price, 0);
+      if (!token) {
+        setError("Please login to view your order history");
+        return;
+      }
 
-  const handlePay = () => {
-    if (selected.length === 0) {
-      alert("Pilih minimal 1 video untuk dibayar!");
-      return;
-    }
+      try {
+        const response = await fetchOrders(token);
+        // Filter only PENDING orders
+        const pendingOrders = response.orders.filter(
+          (order: Order) => order.status === "PENDING"
+        );
+        setOrders(pendingOrders);
+
+        // Fetch purchased classes
+        const purchasedResponse = await myClasses(token);
+        setPurchasedClasses(
+          new Set(purchasedResponse.data.map((item: Class) => item.id))
+        );
+      } catch (error) {
+        console.error("Error fetching order:", error);
+        setError("Terjadi kesalahan memuat Data");
+      }
+    };
+
+    fetchOrder();
+  }, []);
+
+  const handlePay = async (orderId: string) => {
     setIsPaying(true);
+    setError("");
 
-    setTimeout(() => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/auth/login");
+        return;
+      }
+
+      // Check if class is already purchased
+      const orderClass = orders.find(order => order.id === orderId)?.orderItems[0].classObj;
+      if (orderClass && purchasedClasses.has(orderClass.id)) {
+        setError("You have already purchased this class");
+        return;
+      }
+
+      const response = await fetch(`/api/payment/${orderId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Payment initiation failed");
+      }
+
+      if (data.redirectUrl) {
+        // Remove the paid order from the list
+        setOrders(prev => prev.filter(order => order.id !== orderId));
+        // Redirect to Midtrans payment page
+        window.location.href = data.redirectUrl;
+      }
+
+    } catch (error: any) {
+      console.error("Payment error:", error);
+      setError(error.message || "Terjadi kesalahan saat memproses pembayaran");
+    } finally {
       setIsPaying(false);
-      confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
-      alert(`Pembayaran berhasil untuk ${selectedVideos.length} video! 🎉`);
-      setSelected([]);
-    }, 2000);
+    }
   };
 
   return (
     <div className="min-h-screen bg-white p-6 flex flex-col gap-6 max-w-7xl mx-auto">
-      {/* Header */}
       <motion.h1
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -50,89 +100,69 @@ export default function PaymentPage() {
       >
         Checkout Video
       </motion.h1>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="text-gray-500 text-sm mb-2"
-      >
-        Pilih video yang ingin dibayar lalu lanjutkan checkout.
-      </motion.p>
 
-      {/* List Video dengan Framer Motion */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl shadow-md divide-y overflow-hidden">
         <AnimatePresence>
-          {videos.map((video, index) => (
+          {orders.map((item, index) => (
             <motion.div
-              key={video.id}
+              key={item.id}
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className={`flex gap-4 p-4 items-center transition transform hover:scale-[1.02] hover:shadow-md ${
-                selected.includes(video.id) ? "bg-red-50 border-l-4 border-red-400" : ""
-              }`}
+              className="flex gap-4 p-4 items-center transition transform hover:scale-[1.02] hover:shadow-md bg-red-50 border-l-4 border-red-400"
             >
-              <input
-                type="checkbox"
-                checked={selected.includes(video.id)}
-                onChange={() => toggleSelect(video.id)}
-                className="w-5 h-5 accent-red-500 transition-transform duration-200 ease-in-out transform hover:scale-110"
-              />
-              <img
-                src={video.thumbnail}
-                alt={video.title}
+              <Image
+                src={item.orderItems[0].classObj.thumbnailUrl}
+                alt={item.orderItems[0].classObj.title}
+                width={50}
+                height={50}
                 className="w-28 h-20 rounded-lg object-cover shadow-sm"
               />
               <div className="flex flex-col flex-1">
-                <h2 className="font-semibold text-gray-800">{video.title}</h2>
-                <p className="text-xs text-gray-500">Durasi: {video.duration}</p>
+                <h2 className="font-semibold text-gray-800">
+                  {item.orderItems[0].classObj.title}
+                </h2>
                 <span className="text-red-600 font-bold mt-1">
-                  Rp {video.price.toLocaleString("id-ID")}
+                  Rp {item.totalAmount.toLocaleString("id-ID")}
                 </span>
+                <span className="text-red-600 font-bold mt-1">
+                 {item.status}
+                </span>
+                {purchasedClasses.has(item.orderItems[0].classObj.id) && (
+                  <span className="text-yellow-600 text-sm mt-1">
+                    You already own this class
+                  </span>
+                )}
               </div>
+
+              <button
+                onClick={() => handlePay(item.id)}
+                disabled={isPaying || purchasedClasses.has(item.orderItems[0].classObj.id)}
+                className={`px-6 py-3 rounded-xl font-bold text-white transition ${isPaying || purchasedClasses.has(item.orderItems[0].classObj.id)
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600"
+                  }`}
+              >
+                {isPaying ? "Processing..." : "Bayar"}
+              </button>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
 
-      {/* Sticky Checkout Bar dengan animasi slide-up */}
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 80, damping: 15 }}
-        className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-lg"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex flex-col flex-1 items-end">
-            <span className="text-sm text-gray-500">
-              {selectedVideos.length} video dipilih
-            </span>
-            <span className="text-lg font-bold text-gray-800">
-              Total: Rp {total.toLocaleString("id-ID")}
-            </span>
-          </div>
-          <button
-            onClick={handlePay}
-            disabled={isPaying || selected.length === 0}
-            className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition ${
-              isPaying || selected.length === 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-red-500 hover:bg-red-600"
-            }`}
-          >
-            {isPaying ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-              />
-            ) : (
-              <>Bayar</>
-            )}
-          </button>
+      {orders.length === 0 && !error && (
+        <div className="text-center text-gray-500 mt-8">
+          No pending orders found
         </div>
-      </motion.div>
+      )}
     </div>
   );
 }
+ 

@@ -15,7 +15,8 @@ export function middleware(request: NextRequest) {
   const adminRoutes = [
     "/admin",
     "/admin/dashboard",
-    "/admin/courses"
+    "/admin/courses",
+    "admin/transactions"
   ];
 
   const { pathname } = request.nextUrl;

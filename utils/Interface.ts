@@ -7,6 +7,15 @@ interface Class {
   mentor: string;
 }
 
+interface UserClassVideo {
+  id: string;
+  userId: string;
+  classId: string;
+  purchaseDate: string;
+  classObj: Class;   // 👈 sudah bener
+}
+
+
 interface OrderItem {
    id: string;
   orderId: string;
@@ -23,13 +32,16 @@ interface Order {
   createdAt: string;
   orderItems: OrderItem[];
   date: Date;
+  status: "PENDING" | "COMPLETED" | "FAILED";
 
 }
 
 interface Video {
-  id: string;
+ id?: string;
   title: string;
   videoUrl: string;
+  duration: number;
+  order: number;
 }
 
 interface DetailClass {

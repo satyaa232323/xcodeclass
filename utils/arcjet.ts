@@ -1,4 +1,3 @@
-// lib/arcjet.ts
 import arcjet, { detectBot, shield, tokenBucket } from "@arcjet/next";
 
 export const arcjetUtils = () => {
