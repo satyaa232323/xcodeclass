@@ -11,7 +11,9 @@ export default function PaymentPage() {
   const [isPaying, setIsPaying] = useState(false);
   const [error, setError] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
-  const [purchasedClasses, setPurchasedClasses] = useState<Set<string>>(new Set());
+  const [purchasedClasses, setPurchasedClasses] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -56,7 +58,8 @@ export default function PaymentPage() {
       }
 
       // Check if class is already purchased
-      const orderClass = orders.find(order => order.id === orderId)?.orderItems[0].classObj;
+      const orderClass = orders.find((order) => order.id === orderId)
+        ?.orderItems[0].classObj;
       if (orderClass && purchasedClasses.has(orderClass.id)) {
         setError("You have already purchased this class");
         return;
@@ -77,11 +80,10 @@ export default function PaymentPage() {
 
       if (data.redirectUrl) {
         // Remove the paid order from the list
-        setOrders(prev => prev.filter(order => order.id !== orderId));
+        setOrders((prev) => prev.filter((order) => order.id !== orderId));
         // Redirect to Midtrans payment page
         window.location.href = data.redirectUrl;
       }
-
     } catch (error: any) {
       console.error("Payment error:", error);
       setError(error.message || "Terjadi kesalahan saat memproses pembayaran");
@@ -91,15 +93,13 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-6 flex flex-col gap-6 max-w-7xl mx-auto">
-      <motion.h1
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="font-bold text-3xl text-gray-800"
-      >
+    <div className="flex p-2 sm:p-4 gap-2 sm:gap-4 flex-col w-full min-h-screen bg-white max-w-7xl mx-auto">
+      <h1 className="font-bold text-xl sm:text-2xl text-black">
         Checkout Video
-      </motion.h1>
+      </h1>
+      <p className="font-medium text-base sm:text-lg text-gray-600">
+        Berikut pesanan yang belum dibayar
+      </p>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -108,53 +108,73 @@ export default function PaymentPage() {
       )}
 
       <div className="bg-white rounded-2xl shadow-md divide-y overflow-hidden">
-        <AnimatePresence>
-          {orders.map((item, index) => (
-            <motion.div
+        <div className="flex flex-col gap-2 sm:gap-4 max-h-none md:max-h-[600px] overflow-y-auto no-scrollbar w-full">
+          {orders.map((item) => (
+            <div
               key={item.id}
-              initial={{ opacity: 0, x: -40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 40 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="flex gap-4 p-4 items-center transition transform hover:scale-[1.02] hover:shadow-md bg-red-50 border-l-4 border-red-400"
+              className="border-2 border-gray-200 rounded-2xl shadow-md p-4 bg-white"
             >
-              <Image
-                src={item.orderItems[0].classObj.thumbnailUrl}
-                alt={item.orderItems[0].classObj.title}
-                width={50}
-                height={50}
-                className="w-28 h-20 rounded-lg object-cover shadow-sm"
-              />
-              <div className="flex flex-col flex-1">
-                <h2 className="font-semibold text-gray-800">
-                  {item.orderItems[0].classObj.title}
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="font-bold text-gray-500 text-lg">
+                  Order #{item.id.slice(-6)}
                 </h2>
-                <span className="text-red-600 font-bold mt-1">
-                  Rp {item.totalAmount.toLocaleString("id-ID")}
+                <span className="text-gray-500">
+                  {new Date(item.createdAt).toLocaleDateString("id-ID")}
                 </span>
-                <span className="text-red-600 font-bold mt-1">
-                 {item.status}
-                </span>
-                {purchasedClasses.has(item.orderItems[0].classObj.id) && (
-                  <span className="text-yellow-600 text-sm mt-1">
-                    You already own this class
-                  </span>
-                )}
               </div>
-
-              <button
-                onClick={() => handlePay(item.id)}
-                disabled={isPaying || purchasedClasses.has(item.orderItems[0].classObj.id)}
-                className={`px-6 py-3 rounded-xl font-bold text-white transition ${isPaying || purchasedClasses.has(item.orderItems[0].classObj.id)
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-red-500 hover:bg-red-600"
+              <div className="flex items-center gap-4">
+                <Image
+                  src={item.orderItems[0].classObj.thumbnailUrl}
+                  alt={item.orderItems[0].classObj.title}
+                  width={50}
+                  height={50}
+                  className="w-28 h-20 rounded-lg object-cover shadow-sm"
+                />
+                <div className="flex flex-col flex-1">
+                  <h3 className="font-semibold text-gray-500">
+                    {item.orderItems[0].classObj.title}
+                  </h3>
+                  {purchasedClasses.has(item.orderItems[0].classObj.id) && (
+                    <span className="text-yellow-600 text-sm mt-1">
+                      You already own this class
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2">
+                <div className="flex flex-col justify-between">
+                  <span className="font-bold text-lg text-gray-700">
+                    Rp {item.totalAmount.toLocaleString("id-ID")}
+                  </span>
+                  <span
+                    className={`font-bold text-sm 
+                      ${item.status === 'PENDING' ? 'text-gray-500' : ''}
+                      ${item.status === 'COMPLETED' ? 'text-green-600' : ''}
+                      ${item.status === 'FAILED' ? 'text-red-600' : ''}
+                    `}
+                  >
+                    {item.status}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handlePay(item.id)}
+                  disabled={
+                    isPaying ||
+                    purchasedClasses.has(item.orderItems[0].classObj.id)
+                  }
+                  className={`px-6 py-3 rounded-xl font-bold text-white transition ${
+                    isPaying ||
+                    purchasedClasses.has(item.orderItems[0].classObj.id)
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-red-500 hover:bg-red-600"
                   }`}
-              >
-                {isPaying ? "Processing..." : "Bayar"}
-              </button>
-            </motion.div>
+                >
+                  {isPaying ? "Processing..." : "Bayar"}
+                </button>
+              </div>
+            </div>
           ))}
-        </AnimatePresence>
+        </div>
       </div>
 
       {orders.length === 0 && !error && (
@@ -165,4 +185,3 @@ export default function PaymentPage() {
     </div>
   );
 }
- 

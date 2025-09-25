@@ -144,7 +144,7 @@ export default function DetailClass() {
                                 height={300}
                                 className="rounded-lg w-full object-cover h-48 md:h-60 lg:h-72"
                             />
-                            <button onClick={handleClick} className="mt-auto py-2 px-6 bg-white text-red-500 rounded-lg hover:bg-gray-200 transition font-semibold w-full">
+                            <button onClick={handleClick} className="mt-auto py-2 px-6 bg-white text-red-500 rounded-lg hover:bg-gray-200 transition font-semibold w-full cursor-pointer">
                                 Beli
                             </button>
                         </div>
