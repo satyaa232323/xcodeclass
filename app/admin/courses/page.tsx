@@ -92,7 +92,7 @@ export default function CoursesPage() {
     <main className="p-6">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-600">Daftar Courses</h1>
+        <h1 className="text-2xl font-bold text-red-700">Daftar Courses</h1>
         <button
           onClick={() => setShowModal(true)}
           className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-800"

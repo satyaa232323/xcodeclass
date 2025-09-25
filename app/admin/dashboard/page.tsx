@@ -1,11 +1,29 @@
+"use client";
 import { Wallet, Receipt, BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow flex items-center gap-4">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0, y: 20 },
+          visible: {
+            opacity: 1,
+            y: 0,
+            transition: { staggerChildren: 0.2 },
+          },
+        }}
+      >
+        {/* Card 1 */}
+        <motion.div
+          className="bg-white p-6 rounded-xl shadow flex items-center gap-4"
+          variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+        >
           <div className="p-3 bg-green-100 rounded-full">
             <Wallet className="w-6 h-6 text-green-600" />
           </div>
@@ -14,9 +32,13 @@ export default function DashboardPage() {
             <p className="text-2xl font-bold text-green-600">Rp 12.500.000</p>
             <span className="text-sm text-gray-400">+12% dibanding bulan lalu</span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-xl shadow flex items-center gap-4">
+        {/* Card 2 */}
+        <motion.div
+          className="bg-white p-6 rounded-xl shadow flex items-center gap-4"
+          variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+        >
           <div className="p-3 bg-blue-100 rounded-full">
             <Receipt className="w-6 h-6 text-blue-600" />
           </div>
@@ -25,9 +47,13 @@ export default function DashboardPage() {
             <p className="text-2xl font-bold text-blue-600">320</p>
             <span className="text-sm text-gray-400">+5% dibanding bulan lalu</span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-xl shadow flex items-center gap-4">
+        {/* Card 3 */}
+        <motion.div
+          className="bg-white p-6 rounded-xl shadow flex items-center gap-4"
+          variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+        >
           <div className="p-3 bg-red-100 rounded-full">
             <BookOpen className="w-6 h-6 text-red-600" />
           </div>
@@ -36,19 +62,22 @@ export default function DashboardPage() {
             <p className="text-2xl font-bold text-red-600">25</p>
             <span className="text-sm text-gray-400">+2 courses baru bulan ini</span>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Recent Transactions */}
-     <div className="bg-white p-6 rounded-xl shadow">
-  {/* Header */}
-  <div className="flex justify-between items-center mb-4">
-    <h3 className="font-semibold text-red-800 text-lg">Recent Transactions</h3>
-    <button className="text-sm text-blue-500 hover:underline">View All</button>
-  </div>
+      <motion.div
+        className="bg-white p-6 rounded-xl shadow"
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold text-red-800 text-lg">Recent Transactions</h3>
+          <button className="text-sm text-blue-500 hover:underline">View All</button>
+        </div>
 
-    {/* Table */}
-      <div className="overflow-x-auto">
+        <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="text-gray-500 text-sm border-b">
@@ -88,11 +117,15 @@ export default function DashboardPage() {
             </tbody>
           </table>
         </div>
-      </div>
-
+      </motion.div>
 
       {/* Recent Class Added */}
-      <div className="bg-white p-6 rounded-xl shadow">
+      <motion.div
+        className="bg-white p-6 rounded-xl shadow"
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+      >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-red-800 font-semibold text-lg">Recent Course Added</h3>
           <button className="text-sm text-blue-500">View All</button>
@@ -100,14 +133,18 @@ export default function DashboardPage() {
         <ul className="space-y-3">
           <li className="border-b pb-2">
             <p className="text-gray-700 font-medium">Next.js for Beginners</p>
-            <span className="text-sm text-gray-500">by Muhammad Ridho • 15 Sept 2025</span>
+            <span className="text-sm text-gray-500">
+              by Muhammad Ridho • 15 Sept 2025
+            </span>
           </li>
           <li className="border-b pb-2">
             <p className="text-gray-700 font-medium">UI/UX Design Fundamentals</p>
-            <span className="text-sm text-gray-500">by Casandra Putri • 14 Sept 2025</span>
+            <span className="text-sm text-gray-500">
+              by Casandra Putri • 14 Sept 2025
+            </span>
           </li>
         </ul>
-      </div>
+      </motion.div>
     </div>
   );
 }
