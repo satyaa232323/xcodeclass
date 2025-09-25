@@ -1,45 +1,72 @@
 "use client";
 
 import Navbar from "@/components/navbarclass";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useParams } from "next/navigation";
+import { fetchMyClassVideos } from "@/utils/api";
 
 export default function IsiVideoPage() {
-  // Data video
-  const videos = [
-    {
-      id: 1,
-      title: "Memperbesar kekuatan spiritual, elemen api",
-      desc: "Video ini menjelaskan cara memperbesar kekuatan spiritual dengan elemen api.",
-      thumbnail: "/thumbnail/thumbnail1.jpeg",
-      src: "/videos/contoh1.mp4",
-    },
-    {
-      id: 2,
-      title: "Meditasi energi alam",
-      desc: "Belajar menyerap energi dari alam untuk memperkuat tubuh dan pikiran.",
-      thumbnail: "/thumbnail/thumbnail2.jpeg",
-      src: "/videos/contoh2.mp4",
-    },
-    {
-      id: 3,
-      title: "Latihan fokus tingkat lanjut",
-      desc: "Tutorial latihan fokus untuk meningkatkan konsentrasi dan kontrol diri.",
-      thumbnail: "/thumbnail/thumbnail3.jpeg",
-      src: "/videos/contoh3.mp4",
-    },
-    {
-      id: 4,
-      title: "Mengendalikan elemen air",
-      desc: "Cara melatih tubuh dan pikiran agar bisa beradaptasi dengan elemen air.",
-      thumbnail: "/thumbnail/thumbnail4.jpeg",
-      src: "/videos/contoh4.mp4",
-    },
-  ];
-
-  // State video yang lagi diputar
-  const [selectedVideo, setSelectedVideo] = useState(videos[0]);
+  const { id } = useParams();
+  const [videos, setVideos] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const token = localStorage.getItem("token") || "";
+        if (!token) {
+          setError("Silakan login untuk mengakses kelas ini.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetchMyClassVideos(token, id as string);
+        setVideos(response.data);
+        console.log("Fetched class videos:", response);
+        // Set initial selected video to first video in list
+        if (response.data?.classObj?.videos?.length > 0) {
+          setSelectedVideo(response.data.classObj.videos[0]);
+        }
+      } catch (err) {
+        setError("Gagal memuat video. Silakan coba lagi.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-screen">
+        <Navbar />
+        <div className="flex items-center justify-center flex-1">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-screen">
+        <Navbar />
+        <div className="flex items-center justify-center flex-1 text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  if (!videos || !selectedVideo) {
+    return (
+      <div className="flex flex-col h-screen">
+        <Navbar />
+        <div className="flex items-center justify-center flex-1">No videos available</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen">
@@ -63,7 +90,7 @@ export default function IsiVideoPage() {
                   onClick={() => setPlaying(true)}
                 >
                   <Image
-                    src={selectedVideo.thumbnail}
+                    src={selectedVideo.videoUrl}
                     alt="Video Thumbnail"
                     fill
                     className="object-cover"
@@ -79,13 +106,13 @@ export default function IsiVideoPage() {
                   controls
                   autoPlay
                   className="w-full h-full object-cover"
-                  src={selectedVideo.src}
+                  src={selectedVideo.videoUrl}
                 />
               )}
             </div>
 
             <p className="text-base sm:text-lg font-bold mb-6 text-black">
-              {selectedVideo.desc}
+              {videos.classObj.description}
             </p>
 
             {/* Info creator + laporkan */}
@@ -114,10 +141,7 @@ export default function IsiVideoPage() {
             {/* Description */}
             <div className="bg-gray-200 p-4 sm:p-6 rounded-lg shadow w-full">
               <p className="text-sm sm:text-base leading-relaxed text-black">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed ut
-                perspiciatis unde omnis iste natus error sit voluptatem
-                accusantium doloremque laudantium. Nemo enim ipsam voluptatem
-                quia voluptas sit aspernatur aut odit aut fugit.
+                {videos.classObj.description}
               </p>
             </div>
           </div>
@@ -125,23 +149,22 @@ export default function IsiVideoPage() {
 
         {/* SIDEBAR VIDEO LIST */}
         <aside className="bg-black-500 w-full md:w-1/4 p-4 md:p-9 space-y-4 md:space-y-8 overflow-y-auto">
-          {videos.map((video) => (
+          {videos.classObj.videos.map((video: Video, index: number) => (
             <div
               key={video.id}
               onClick={() => {
                 setSelectedVideo(video);
                 setPlaying(false); // reset biar muncul thumbnail dulu
               }}
-              className={`bg-white rounded-lg overflow-hidden shadow cursor-pointer border-3 ${
-                selectedVideo.id === video.id
+              className={`bg-white rounded-lg overflow-hidden shadow cursor-pointer border-3 ${selectedVideo.id === video.id
                   ? "border-gray-600"
                   : "border-transparent"
-              }`}
+                }`}
             >
               {/* Thumbnail sidebar juga 16:9 */}
               <div className="w-full aspect-video bg-black relative">
                 <Image
-                  src={video.thumbnail}
+                  src={video.videoUrl}
                   alt="Thumbnail"
                   fill
                   className="object-cover"
@@ -152,7 +175,7 @@ export default function IsiVideoPage() {
                   {video.title}
                 </h3>
                 <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-2">
-                  {video.desc}
+                  {video.title} - Part {index + 1}
                 </p>
               </div>
             </div>

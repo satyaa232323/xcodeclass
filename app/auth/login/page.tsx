@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import { login } from "@/utils/api";
+import { login, Userprofile } from "@/utils/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [token, setToken] = useState("");
+  const [user, setUser] = useState(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +24,13 @@ export default function LoginPage() {
     setError("");
 
     try {
+
+
+      const user = await Userprofile(token);
+      setUser(user);
+
+
+
       const body = await login(email, password); // langsung dapet JSON
 
       if (body.token) {
@@ -36,9 +44,14 @@ export default function LoginPage() {
       }
 
       // redirect ke login setelah 2 detik
-      setTimeout(() => {
+
+
+      if (body.user.role === "ADMIN") {
+        router.push("/admin/dashboard");
+      } else {
+
         router.push("/");
-      }, 1000);
+      }
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan");
     } finally {

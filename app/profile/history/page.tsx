@@ -21,6 +21,7 @@ export default function History() {
 
       try {
         const response = await fetchOrders(token);
+        console.log("Fetched orders:", response);
         if (response.orders) {
           // Format dates for each order and orderItem
           const formattedOrders = response.orders.map((order: Order) => ({
@@ -93,14 +94,15 @@ export default function History() {
               <div key={item.id} className="flex justify-between items-center border-t border-gray-100 py-3">
                 <div>
                   <h3 className="font-semibold text-gray-500">{item.classObj.title}</h3>
-                  <p className="text-gray-500 text-sm">Mentor: {item.classObj.mentor}</p>
+                  {/* <p className="text-gray-500 text-sm">Staty{order.status}</p> */}
                 </div>
               </div>
             ))}
             <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2">
-              <span className="font-semibold text-gray-500">Total</span>
               <span className="font-bold text-lg text-gray-700">Rp {order.totalAmount.toLocaleString('id-ID')}</span>
+              <span className="font-bold text-lg text-gray-700">{order.status}</span>
             </div>
+          
           </div>
         ))}
       </div>

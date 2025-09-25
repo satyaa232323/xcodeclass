@@ -20,7 +20,12 @@ const Navbar = () => {
         const token = localStorage.getItem("token") || "";
         setToken(token);
 
-        if (token) {
+        if(!token){
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+       
           const res = await Userprofile(token);
 
           if (res.ok) {
@@ -29,7 +34,7 @@ const Navbar = () => {
           } else {
             setUser(null);
           }
-        }
+        
 
         const response = await Userprofile(token);
         console.log("User object from API:", response); // DEBUG LOG

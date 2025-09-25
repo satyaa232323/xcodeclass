@@ -78,6 +78,10 @@ export const initiatePayment = (token: string, orderId: string) =>
     apiRequest(`/payment/${orderId}`, "POST", token);
 
 
+// export const initiateBulkPayment = (token: string, orderIds: string[], totalAmount: number) =>
+//     apiRequest("/payment", "POST", token, { orderIds, totalAmount });
+
+
 export const Userprofile = (token: string) =>
     apiRequest("/me", "GET", token); 
 

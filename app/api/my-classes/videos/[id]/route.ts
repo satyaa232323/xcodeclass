@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const prisma = new PrismaClient();
-
+        const { id } = await params;
 
         const user = await verifyAuth(req, "USER")
 
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         const boughtVideo = await prisma.userClassVideo.findFirst({
             where: {
                 AND: [
-                    { classId: params.id },
+                    { classId: id },
                     { userId: (user as { id: string }).id } // Ensure the user owns this entry
                 ]
             },
