@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
         </form>
 
         <div className="mt-4 text-center">
-          <a href="/login" className="text-red-600 hover:underline">
+          <a href="/auth/login" className="text-red-600 hover:underline">
             ← Kembali ke Login
           </a>
         </div>

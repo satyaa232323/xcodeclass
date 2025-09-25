@@ -4,7 +4,7 @@ import Footer from "@/components/footer";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { createOrder, fetchClassDetails, fetchClasses } from "@/utils/api";
+import { createOrder, fetchClassDetails, fetchClasses, myClasses } from "@/utils/api";
 
 export default function DetailClass() {
     const { id } = useParams();
@@ -14,6 +14,7 @@ export default function DetailClass() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [order, setOrder] = useState<Order | null>(null);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -65,20 +66,34 @@ export default function DetailClass() {
 
             setLoading(true);
             const token = localStorage.getItem("token");
+
+            if (!token || !isAuthenticated) {
+
+            }
             setIsAuthenticated(!!token);
             if (!token || !isAuthenticated) {
                 alert("Silakan login terlebih dahulu untuk membeli kelas.");
                 router.push("/auth/login");
             }
 
-            const response = await createOrder(token as string, id as string);
 
-            if (response?.data?.redirectUrl) {
-                router.push(response.data.redirectUrl);
-            } else {
-                alert('Pembelian kelas berhasil!');
-                router.push('/profile/history');
+            const myClassesResponse = await myClasses(token as string);
+            const purchasedClasses = myClassesResponse.data;
+
+            const alreadyPurchased = purchasedClasses.some((cls: UserClassVideo) => cls.classId === id);
+            // Redirect to payment gateway if needed
+            if (alreadyPurchased) {
+
+                alert("Anda sudah membeli kelas ini.");
+                return;
             }
+
+            const response = await createOrder(token as string, id as string);
+            alert("Kelas berhasil ditambahkan ke keranjang. Silakan lanjutkan ke pembayaran.");
+            router.push("/profile/payment");
+            setOrder(response.data);
+            return;
+
 
         } catch (err) {
             console.log(err);
@@ -129,7 +144,7 @@ export default function DetailClass() {
                                 height={300}
                                 className="rounded-lg w-full object-cover h-48 md:h-60 lg:h-72"
                             />
-                            <button onClick={handleClick}  className="mt-auto py-2 px-6 bg-white text-red-500 rounded-lg hover:bg-gray-200 transition font-semibold w-full">
+                            <button onClick={handleClick} className="mt-auto py-2 px-6 bg-white text-red-500 rounded-lg hover:bg-gray-200 transition font-semibold w-full">
                                 Beli
                             </button>
                         </div>
@@ -189,9 +204,9 @@ export default function DetailClass() {
                                         </div>
                                         <span className="font-bold text-sm mb-2">{cls.price}</span>
 
-                                        <button 
-                                        className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
-                                        
+                                        <button
+                                            className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
+
                                             Beli
                                         </button>
                                     </div>

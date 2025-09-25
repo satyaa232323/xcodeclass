@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { logout } from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 export default function ProfileLayout({
   children,
@@ -59,7 +60,7 @@ export default function ProfileLayout({
                 <Link href="/profile">Dashboard</Link>
               </li>
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
-                <Link href="/profile/payment">Payment</Link>
+                <Link href={`/profile/payment`}>Payment</Link>
               </li>
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
                 <Link href="/profile/history">History</Link>

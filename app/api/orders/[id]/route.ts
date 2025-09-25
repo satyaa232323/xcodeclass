@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyAuth } from "@/lib/authMiddleware";
-import { arcjetUtils } from "@/utils/archjet";
+import { arcjetUtils } from "@/utils/arcjet";
 
 const prisma = new PrismaClient();
 const aj = arcjetUtils();
 
-export async function POST(req: NextRequest, {params}: {params: {id: string}}) {
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
     try {
 
         const decision = await aj.protect(req, { requested: 1 });
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest, {params}: {params: {id: string}}) {
 
 
 
-       const { id } = await params;
+        const { id } = await params;
         console.log("Class ID from params:", id);
 
 
@@ -84,6 +84,26 @@ export async function POST(req: NextRequest, {params}: {params: {id: string}}) {
             );
         }
 
+        const alreadyOrdered = await prisma.orderItem.findFirst({
+            where: {
+                classId: classes.id,
+                order: {
+                    is: {
+                        userId: user.id,
+                        status: { in: ["PENDING", "COMPLETED"] },
+
+                    }
+                },
+            },
+        });
+
+
+        if (alreadyOrdered) {
+            return NextResponse.json(
+                { error: "You have already ordered this class" },
+                { status: 400 }
+            );
+        }
 
 
 

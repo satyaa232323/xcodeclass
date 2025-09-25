@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
 
-  const [classes, setClasses] = useState<Class[]>([]);
+  const [classes, setClasses] = useState<UserClassVideo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState("");
@@ -25,6 +25,7 @@ export default function ProfilePage() {
 
         const response = await myClasses(token);
         setClasses(response.data);
+        console.log(response.data);
       } catch (err) {
         setError("Gagal memuat kelas. Silakan coba lagi.");
       } finally {
@@ -103,24 +104,25 @@ export default function ProfilePage() {
                 <div className="h-48 sm:h-full sm:w-1/3 min-w-[220px] max-w-[340px] flex-shrink-0">
                   <div className="relative w-full h-full min-h-[220px]">
                     <Image
-                      src={item.thumbnailUrl || "/images/thumbnail.png"}
+                      src={item.classObj.thumbnailUrl || "/images/thumbnail.png"}
                       alt="Kelas"
                       fill
                       className="object-cover object-center rounded-t-xl sm:rounded-tl-xl sm:rounded-bl-xl sm:rounded-tr-none"
                       sizes="(max-width: 768px) 100vw, 240px"
                     />
                   </div>
+
                 </div>
 
                 <div className="flex flex-col flex-1 justify-center p-8 text-center sm:text-left">
                   <div className="font-bold text-2xl text-black mb-2">
-                    {item.title}
+                    {item.classObj.title}
                   </div>
                   <div className="text-base text-gray-600 mb-4">
-                    {item.description}
+                    {item.classObj.description}
                   </div>
                   <Link
-                    href={`/class/${item.id}?token=${encodeURIComponent(token)}`}
+                    href={`/profile/myclass/${item.classId}?token=${encodeURIComponent(token)}`}
                   >
                     <button className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition w-max mx-auto sm:mx-0 text-base font-bold">
                       Lanjutkan Belajar

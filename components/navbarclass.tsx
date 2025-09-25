@@ -58,7 +58,7 @@ const Navbar = () => {
       {/* Kanan: Tombol Masuk & Daftar, hidden on small */}
       <div className="flex-1 flex justify-end items-center gap-3">
         <div className="hidden sm:flex gap-3">
-          <Link href="/login">
+          <Link href="/auth/login">
             <button className="px-5 py-1.5 bg-transparent border border-gray-400 rounded-xl text-gray-400 hover:text-red-500 transition cursor-pointer">
               Masuk
             </button>
@@ -143,7 +143,7 @@ const Navbar = () => {
         <span className="text-2xl font-bold text-gray-900 mb-8">
           <span className="text-red-500">X</span>CodeClass
         </span>
-        <Link href="/login" className="w-3/4 max-w-xs">
+        <Link href="/auth/login" className="w-3/4 max-w-xs">
           <button className="w-full px-5 py-3 mb-4 text-lg bg-gray-100 rounded-xl text-gray-700 border-b border-gray-200 hover:bg-gray-200 transition">
             Masuk
           </button>
