@@ -65,6 +65,9 @@ export default function ProfileLayout({
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
                 <Link href="/profile/history">History</Link>
               </li>
+              <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
+                <Link href="/">Kembali</Link>
+              </li>
             </ul>
           </div>
 
