@@ -2,23 +2,24 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// interface Class {
-//   id: string;
-//   title: string;
-//   description: string;
-//   price: number;
-//   thumbnailUrl: string;
-//   mentor: string;
-//   videos?: Video[];
-// }
+interface Class {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  thumbnailUrl: string;
+  mentor: string;
+  videos?: Video[];
+}
 
-// interface Video {
-//   id?: string;
-//   title: string;
-//   videoUrl: string;
-//   duration: number;
-//   order: number;
-// }
+interface Video {
+  id?: string;
+  title: string;
+  duration: number;
+  order: number;
+  file?: File | null;
+  thumbnail?: File | null;
+}
 
 export default function CoursesPage() {
   const router = useRouter();
@@ -35,7 +36,6 @@ export default function CoursesPage() {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [videos, setVideos] = useState<Video[]>([]);
 
-  // Fetch classes on mount
   useEffect(() => {
     fetchClasses();
   }, []);
@@ -49,9 +49,7 @@ export default function CoursesPage() {
       }
 
       const response = await fetch("/api/admin/classes", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) throw new Error("Failed to fetch classes");
@@ -74,25 +72,33 @@ export default function CoursesPage() {
         return;
       }
 
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("price", price);
+      formData.append("mentor", mentor);
+      formData.append("thumbnailUrl", thumbnailUrl);
+
+      videos.forEach((video, i) => {
+        formData.append(`videos[${i}][title]`, video.title);
+        formData.append(`videos[${i}][duration]`, String(video.duration));
+        formData.append(`videos[${i}][order]`, String(video.order));
+        if (video.file) {
+          formData.append(`videos[${i}][file]`, video.file);
+        }
+        if (video.thumbnail) {
+          formData.append(`videos[${i}][thumbnail]`, video.thumbnail);
+        }
+      });
+
       const response = await fetch("/api/admin/classes", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title,
-          description,
-          price: Number(price),
-          thumbnailUrl,
-          mentor,
-          videos,
-        }),
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Failed to create class");
 
-      // Refresh classes list
       await fetchClasses();
       setShowModal(false);
       resetForm();
@@ -113,13 +119,13 @@ export default function CoursesPage() {
   const addVideo = () => {
     setVideos([
       ...videos,
-      { title: "", videoUrl: "", duration: 0, order: videos.length + 1 },
+      { title: "", duration: 0, order: videos.length + 1, file: null, thumbnail: null },
     ]);
   };
 
-  const updateVideo = (index: number, field: keyof Video, value: string | number) => {
+  const updateVideo = (index: number, field: keyof Video, value: any) => {
     const newVideos = [...videos];
-    newVideos[index] = { ...newVideos[index], [field]: value };
+    (newVideos[index] as any)[field] = value;
     setVideos(newVideos);
   };
 
@@ -160,9 +166,7 @@ export default function CoursesPage() {
       {/* Add Course Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-800/40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-lg border border-gray-200 
-                          animate-[fadeIn_0.2s_ease-out] scale-95">
-            {/* Header */}
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-lg border border-gray-200">
             <div className="flex justify-between items-center border-b p-4">
               <h2 className="text-xl font-bold text-gray-800">Add New Course</h2>
               <button
@@ -173,135 +177,190 @@ export default function CoursesPage() {
               </button>
             </div>
 
-            {/* Form Content with limited scroll */}
-            <div className="p-6 max-h-[70vh] overflow-y-auto custom-scroll">
-              <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="p-6 max-h-[70vh] overflow-y-auto space-y-5">
+              {/* Title */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Title</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full border border-gray-300 p-3 rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+                  placeholder="Enter course title"
+                  required
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Description</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full border border-gray-300 p-3 rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+                  placeholder="Enter course description"
+                  rows={3}
+                  required
+                />
+              </div>
+
+              {/* Price & Mentor */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">Title</label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Price</label>
+                  <input
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="w-full border border-gray-300 p-3 rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+                    placeholder="Enter price"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Mentor</label>
                   <input
                     type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none text-gray-800"
+                    value={mentor}
+                    onChange={(e) => setMentor(e.target.value)}
+                    className="w-full border border-gray-300 p-3 rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+                    placeholder="Enter mentor name"
                     required
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">Description</label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none text-gray-800"
-                    rows={3}
-                    required
-                  />
+              {/* Videos Section */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="font-semibold text-gray-700">Videos</label>
+                  <button
+                    type="button"
+                    onClick={addVideo}
+                    className="text-sm font-medium text-red-500 hover:text-red-600"
+                  >
+                    + Add Video
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">Price</label>
-                    <input
-                      type="number"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none text-gray-800"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">Mentor</label>
+                {videos.map((video, index) => (
+                  <div
+                    key={index}
+                    className="space-y-3 mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50"
+                  >
+                    {/* Video Title */}
                     <input
                       type="text"
-                      value={mentor}
-                      onChange={(e) => setMentor(e.target.value)}
-                      className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none text-gray-800"
+                      placeholder="Video Title"
+                      value={video.title}
+                      onChange={(e) => updateVideo(index, "title", e.target.value)}
+                      className="w-full border border-gray-300 p-2 rounded text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
                       required
                     />
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">Thumbnail URL</label>
-                  <input
-                    type="url"
-                    value={thumbnailUrl}
-                    onChange={(e) => setThumbnailUrl(e.target.value)}
-                    className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none text-gray-800"
-                    required
-                  />
-                </div>
+                    {/* Upload Video */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">
+                        Upload Video
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="video/*"
+                          id={`video-${index}`}
+                          onChange={(e) =>
+                            updateVideo(index, "file", e.target.files ? e.target.files[0] : null)
+                          }
+                          className="hidden"
+                          required
+                        />
+                        <label
+                          htmlFor={`video-${index}`}
+                          className="cursor-pointer px-4 py-2 bg-red-500 text-white text-sm rounded-lg shadow hover:bg-red-600 inline-block"
+                        >
+                          Choose Video
+                        </label>
+                      </div>
+                      {video.file && (
+                        <video
+                          src={URL.createObjectURL(video.file)}
+                          controls
+                          className="mt-2 rounded-lg w-full max-h-48 shadow"
+                        />
+                      )}
+                    </div>
 
-                {/* Videos Section */}
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <label className="font-semibold text-gray-700">Videos</label>
-                    <button
-                      type="button"
-                      onClick={addVideo}
-                      className="text-sm font-medium text-red-500 hover:text-red-600"
-                    >
-                      + Add Video
-                    </button>
-                  </div>
+                    {/* Upload Thumbnail */}
+                    <div>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">
+                        Upload Thumbnail
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          id={`thumbnail-${index}`}
+                          onChange={(e) =>
+                            updateVideo(
+                              index,
+                              "thumbnail",
+                              e.target.files ? e.target.files[0] : null
+                            )
+                          }
+                          className="hidden"
+                          required
+                        />
+                        <label
+                          htmlFor={`thumbnail-${index}`}
+                          className="cursor-pointer px-4 py-2 bg-blue-500 text-white text-sm rounded-lg shadow hover:bg-blue-600 inline-block"
+                        >
+                          Choose Thumbnail
+                        </label>
+                      </div>
+                      {video.thumbnail && (
+                        <img
+                          src={URL.createObjectURL(video.thumbnail)}
+                          alt="Video Thumbnail"
+                          className="mt-2 rounded-lg w-32 h-20 object-cover shadow"
+                        />
+                      )}
+                    </div>
 
-                  {videos.map((video, index) => (
-                    <div
-                      key={index}
-                      className="space-y-3 mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50"
-                    >
-                      <input
-                        type="text"
-                        placeholder="Video Title"
-                        value={video.title}
-                        onChange={(e) => updateVideo(index, "title", e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-red-400 focus:outline-none"
-                        required
-                      />
-                      <input
-                        type="url"
-                        placeholder="Video URL"
-                        value={video.videoUrl}
-                        onChange={(e) => updateVideo(index, "videoUrl", e.target.value)}
-                        className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-red-400 focus:outline-none"
-                        required
-                      />
+                    {/* Duration */}
+                    <div>
                       <input
                         type="number"
                         placeholder="Duration (minutes)"
-                        value={video.duration}
-                        onChange={(e) =>
-                          updateVideo(index, "duration", Number(e.target.value))
-                        }
-                        className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-red-400 focus:outline-none"
+                        value={video.duration === 0 ? "" : video.duration}
+                        onChange={(e) => updateVideo(index, "duration", Number(e.target.value))}
+                        className="w-full border border-gray-300 p-2 rounded text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
                         required
                       />
                     </div>
-                  ))}
-                </div>
-              </form>
-            </div>
+                  </div>
+                ))}
+              </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3 border-t p-4">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
-              >
-                Save Course
-              </button>
-            </div>
+              {/* Footer */}
+              <div className="flex justify-end gap-3 border-t pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                >
+                  Save Course
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
-
     </div>
   );
 }
