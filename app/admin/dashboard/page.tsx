@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 h-screen overflow-y-auto custom-scroll">
       {/* Summary Cards */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-3 gap-6"
