@@ -272,7 +272,7 @@ const handleEditCourse = async (e: React.FormEvent) => {
   return (
     <div className="p-6">
       <div className="flex justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-700">Courses Management</h1>
+        <h1 className="text-3xl font-bold text-red-700">Courses Management</h1>
         <button onClick={openAddModal} className="bg-red-500 text-white px-4 py-2 rounded">
           Add New Course
         </button>
@@ -541,6 +541,7 @@ function CourseModal({
 
             {videos.map((video, index) => (
               <div key={index} className="space-y-3 mb-4 p-4 border rounded-lg bg-gray-50">
+                {/* Judul video */}
                 <input 
                   type="text" 
                   placeholder="Masukkan judul video" 
@@ -550,9 +551,9 @@ function CourseModal({
                   required 
                 />
 
+                {/* Upload Video */}
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">Upload Video</label>
-                  
                   <label className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600 w-fit">
                     <span>Pilih File</span>
                     <input
@@ -572,7 +573,31 @@ function CourseModal({
                   )}
                 </div>
 
+                {/* Upload Thumbnail */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Upload Thumbnail *</label>
+                    <label className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 w-fit">
+                      <span>Pilih Thumbnail</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        required
+                        onChange={(e) => updateVideo(index, "thumbnail", e.target.files ? e.target.files[0] : null)}
+                        className="hidden"
+                      />
+                    </label>
 
+                    {video.thumbnail && (
+                      <img
+                        src={URL.createObjectURL(video.thumbnail)}
+                        alt="Thumbnail Preview"
+                        className="mt-3 rounded-lg w-full max-h-48 object-contain shadow-md border"
+                      />
+                    )}
+                  </div>
+
+
+                {/* Durasi */}
                 <input 
                   type="number" 
                   placeholder="Masukkan durasi (menit)" 
@@ -583,6 +608,7 @@ function CourseModal({
                 />
               </div>
             ))}
+
           </div>
 
           <div className="flex justify-end gap-3 border-t pt-4">
