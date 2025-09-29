@@ -11,11 +11,11 @@ import Link from "next/link";
 import { motion } from "motion/react";
 
 export default function HomePage() {
-
   // fecth classes 4 aja
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,12 +34,9 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-
-
-
-
-
-
+  const filteredClasses = classes.filter((item) =>
+    item.title.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
 
   const handleScroll = () => {
     const element = document.getElementById("class");
@@ -84,7 +81,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 pt-22">
       {/* Navbar */}
-      <Navbar />
+      <Navbar onSearchChange={setSearchKeyword} />
 
       <main className=" py-4 lg:py-6 space-y-6 lg:space-y-8">
         <div className="flex flex-col gap-10 w-full">
@@ -131,8 +128,6 @@ export default function HomePage() {
             </p>
           </div>
 
-
-
           {/* Video Class */}
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
             {loading && (
@@ -158,7 +153,7 @@ export default function HomePage() {
               <div className="mt-4 text-red-600 font-semibold">{error}</div>
             )}
 
-            {classes.slice(0, 4).map((item) => (
+            {filteredClasses.slice(0, 4).map((item) => (
               <div
                 key={item.id}
                 className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md"
@@ -178,12 +173,9 @@ export default function HomePage() {
                     </p>
                   </div>
                   <span className="font-bold text-base mb-4">
-                    Rp {item.price.toLocaleString('id-ID')}
+                    Rp {item.price.toLocaleString("id-ID")}
                   </span>
-                  <Link
-                    key={item.id}
-                    href={`/classes/${item.id}`}
-                  >
+                  <Link key={item.id} href={`/classes/${item.id}`}>
                     <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
                       Beli
                     </button>

@@ -5,47 +5,40 @@ import Link from "next/link";
 import { verifyJWT } from "@/lib/auth";
 import { Userprofile } from "@/utils/api";
 
-const Navbar = () => {
+type NavbarProps = {
+  onSearchChange?: (keyword: string) => void;
+};
+
+const Navbar: React.FC<NavbarProps> = ({ onSearchChange }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<null | any>(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState("");
 
-  // make order
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      setLoading(false);
+      return;
+    }
+    setToken(storedToken);
+  }, []);
 
   useEffect(() => {
+    if (!token) return; // jangan panggil kalau token belum ada
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem("token") || "";
-        setToken(token);
-
-        if (!token) {
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-
-        const res = await Userprofile(token);
-
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-        } else {
-          setUser(null);
-        }
-
-        const response = await Userprofile(token);
-        console.log("User object from API:", response); // DEBUG LOG
-        setUser(response); // Assuming response contains user data
-        setLoading(false);
+        const userData = await Userprofile(token);
+        setUser(userData);
       } catch (err) {
-        console.error("Fetch user error:", err);
+        console.error(err);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
     };
-
     checkAuth();
-  }, []);
+  }, [token]);
 
   // default: belum login
 
@@ -72,7 +65,8 @@ const Navbar = () => {
       <div className="flex-1 flex justify-center">
         <input
           type="text"
-          placeholder="Cari..."
+          placeholder="Cari kelas..."
+          onChange={(e) => onSearchChange?.(e.target.value)}
           className="w-full text-gray-400 max-w-md px-4 py-1.5 border border-gray-400 rounded-3xl focus:outline-none focus:ring-1 focus:ring-gray-500"
         />
       </div>
