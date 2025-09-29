@@ -230,6 +230,19 @@ export default function CoursesPage() {
                 </div>
               </div>
 
+              {/* Thumbnail URL */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Thumbnail URL</label>
+                <input
+                  type="url"
+                  value={thumbnailUrl}
+                  onChange={(e) => setThumbnailUrl(e.target.value)}
+                  className="w-full border border-gray-300 p-3 rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-400 focus:outline-none"
+                  placeholder="Enter thumbnail URL"
+                  required
+                />
+              </div>
+
               {/* Videos Section */}
               <div>
                 <div className="flex justify-between items-center mb-3">
@@ -286,42 +299,6 @@ export default function CoursesPage() {
                           src={URL.createObjectURL(video.file)}
                           controls
                           className="mt-2 rounded-lg w-full max-h-48 shadow"
-                        />
-                      )}
-                    </div>
-
-                    {/* Upload Thumbnail */}
-                    <div>
-                      <label className="block mb-1 text-sm font-medium text-gray-700">
-                        Upload Thumbnail
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          id={`thumbnail-${index}`}
-                          onChange={(e) =>
-                            updateVideo(
-                              index,
-                              "thumbnail",
-                              e.target.files ? e.target.files[0] : null
-                            )
-                          }
-                          className="hidden"
-                          required
-                        />
-                        <label
-                          htmlFor={`thumbnail-${index}`}
-                          className="cursor-pointer px-4 py-2 bg-blue-500 text-white text-sm rounded-lg shadow hover:bg-blue-600 inline-block"
-                        >
-                          Choose Thumbnail
-                        </label>
-                      </div>
-                      {video.thumbnail && (
-                        <img
-                          src={URL.createObjectURL(video.thumbnail)}
-                          alt="Video Thumbnail"
-                          className="mt-2 rounded-lg w-32 h-20 object-cover shadow"
                         />
                       )}
                     </div>
