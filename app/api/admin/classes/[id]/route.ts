@@ -36,27 +36,24 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const id = params.id;
+  const formData = await req.formData();
 
-    const user = await verifyAuth(req, "ADMIN");
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const price = Number(formData.get("price"));
+  const mentor = formData.get("mentor") as string;
+  const thumbnailUrl = formData.get("thumbnailUrl") as string;
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  // kalau ada file upload
+  const file = formData.get("file"); // bisa null
+  // handle file saving di sini kalau perlu
 
-
-    const id = params.id;
-    const body = await req.json();
-    const { title, description, price, thumbnailUrl, mentor } = body;
-
-    const updatedClass = await prisma.class.update({
-      where: { id },
-      data: { title, description, price, thumbnailUrl, mentor },
-    });
+  const updatedClass = await prisma.class.update({
+    where: { id },
+    data: { title, description, price, mentor, thumbnailUrl },
+  });
 
 
     return NextResponse.json(
@@ -64,13 +61,7 @@ export async function PUT(
       { status: 200 }
     );
 
-  } catch (error) {
-    console.error("PUT /api/admin/classes/[id] error:", error);
-    return NextResponse.json(
-      { error: error || "Failed to update class" },
-      { status: 500 }
-    );
-  }
+  
 }
 
 export async function DELETE(
