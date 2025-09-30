@@ -5,6 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ArrowUpRight, ArrowDownRight, TrendingUp, Wallet, BarChart3 } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { fetchAllOrders } from "@/utils/api";
 
 const stats = {
   totalTransactions: 120,
