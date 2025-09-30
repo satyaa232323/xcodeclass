@@ -81,7 +81,7 @@ export default function DetailClass() {
             const myClassesResponse = await myClasses(token as string);
             const purchasedClasses = myClassesResponse.data;
 
-            const alreadyPurchased = purchasedClasses.some((cls: UserClassVideo) => cls.classId === id);
+            const alreadyPurchased = purchasedClasses.some((cls: UserClassVideo) => cls.classObj.id === id);
             // Redirect to payment gateway if needed
             if (alreadyPurchased) {
 
@@ -187,7 +187,7 @@ export default function DetailClass() {
                             {classes.slice(0, 4).map((cls) => (
                                 <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]" key={cls.id}>
                                     <Image
-                                        src={cls.thumbnailUrl}
+                                        src={cls.thumbnailUrl || ""}
                                         alt="Thumbnail Video"
                                         width={380}
                                         height={180}

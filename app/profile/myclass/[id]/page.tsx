@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { fetchMyClassVideos } from "@/utils/api";
-import type { UserClassVideo, Video } from "@/utils/Interface";
 
 export default function IsiVideoPage() {
   const { id } = useParams();

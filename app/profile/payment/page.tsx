@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { fetchOrders, myClasses } from "@/utils/api";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Class } from "@/app/generated/prisma";
 
 export default function PaymentPage() {
   const router = useRouter();
@@ -122,7 +123,7 @@ export default function PaymentPage() {
               className="flex gap-4 p-4 items-center transition transform hover:scale-[1.02] hover:shadow-md bg-red-50 border-l-4 border-red-400"
             >
               <Image
-                src={item.orderItems[0].classObj.thumbnailUrl}
+                src={item.orderItems[0].classObj.thumbnailUrl || "/images/thumbnail.png"}
                 alt={item.orderItems[0].classObj.title}
                 width={50}
                 height={50}

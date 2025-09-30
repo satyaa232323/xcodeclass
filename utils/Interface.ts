@@ -1,4 +1,4 @@
-export interface Class {
+interface Class {
   id: string;
   title: string;
   description: string | null;
@@ -8,8 +8,7 @@ export interface Class {
   mentor?: string; // Made optional
   videos: Video[];
 }
-
-export interface UserClassVideo {
+interface UserClassVideo {
   id: string;
   purchaseDate: string;
   classObj: {
@@ -24,8 +23,7 @@ export interface UserClassVideo {
   };
 }
 
-
-export interface OrderItem {
+interface OrderItem {
   id: string;
   orderId: string;
   classId: string;
@@ -33,8 +31,7 @@ export interface OrderItem {
   classObj: Class;
   date: Date;
 }
-
-export interface Order {
+interface Order {
   id: string;
   userId: string;
   totalAmount: number;
@@ -44,8 +41,7 @@ export interface Order {
   status: "PENDING" | "COMPLETED" | "FAILED";
   user?: User;
 }
-
-export interface Video {
+interface Video {
   id?: string;
   title: string;
   videoUrl: string;
@@ -53,8 +49,7 @@ export interface Video {
   duration: number;
   order: number;
 }
-
-export interface DetailClass {
+interface DetailClass {
   id: string;
   thumbnailUrl: string;
   title: string;
@@ -64,15 +59,13 @@ export interface DetailClass {
   videos: Video[];
   class: Class;
 }
-
-export interface User {
+interface User {
   id: string;
   name: string;
   email: string;
   role: "ADMIN" | "USER";
 }
-
-export interface ClassData {
+interface ClassData {
   title: string;
   description: string;
   price: number;
