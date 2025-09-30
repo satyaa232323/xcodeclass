@@ -1,17 +1,24 @@
 "use client";
 import Link from "next/link";
 import { Home, BookOpen, LogOut, Menu, CreditCard } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { logout } from "@/utils/api";
 
 export default function Sidebar({ isMinimized, setIsMinimized }: any) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    localStorage.removeItem("token");
+    window.location.href = "/";
+  };
 
   const menuItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: Home },
     { href: "/admin/courses", label: "Courses", icon: BookOpen },
     { href: "/admin/transactions", label: "Transactions", icon: CreditCard },
-    { href: "/", label: "Sign Out", icon: LogOut },
   ];
 
   return (
@@ -55,7 +62,6 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
                 transition-all duration-200
                 ${isActive ? "bg-white/20 text-white shadow-lg" : "hover:bg-white/10"}`}
             >
-              {/* Active indicator */}
               {isActive && (
                 <motion.div
                   layoutId="activeIndicator"
@@ -64,7 +70,6 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
                 />
               )}
 
-              {/* Icon micro-interaction */}
               <motion.div
                 whileHover={{ scale: 1.2, rotate: 5 }}
                 whileTap={{ scale: 0.9, rotate: -5 }}
@@ -73,7 +78,6 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
                 <Icon size={22} className="shrink-0" />
               </motion.div>
 
-              {/* Text micro-interaction */}
               {!isMinimized && (
                 <motion.span
                   whileHover={{ y: -2 }}
@@ -86,6 +90,16 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
             </Link>
           );
         })}
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-4 px-4 py-3 rounded-xl font-semibold tracking-wide text-lg
+          hover:bg-white/10 text-white transition-all duration-200 cursor-pointer"
+        >
+          <LogOut size={22} />
+          {!isMinimized && <span>Sign Out</span>}
+        </button>
       </nav>
     </motion.aside>
   );

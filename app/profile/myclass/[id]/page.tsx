@@ -1,14 +1,14 @@
 "use client";
 
-import Navbar from "@/components/navbarclass";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { fetchMyClassVideos } from "@/utils/api";
+import type { UserClassVideo, Video } from "@/utils/Interface";
 
 export default function IsiVideoPage() {
   const { id } = useParams();
-  const [videos, setVideos] = useState<any | null>(null);
+  const [classData, setClassData] = useState<UserClassVideo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
@@ -25,7 +25,7 @@ export default function IsiVideoPage() {
         }
 
         const response = await fetchMyClassVideos(token, id as string);
-        setVideos(response.data);
+        setClassData(response.data);
         console.log("Fetched class videos:", response);
         // Set initial selected video to first video in list
         if (response.data?.classObj?.videos?.length > 0) {
@@ -44,7 +44,6 @@ export default function IsiVideoPage() {
   if (loading) {
     return (
       <div className="flex flex-col h-screen">
-        <Navbar />
         <div className="flex items-center justify-center flex-1">Loading...</div>
       </div>
     );
@@ -53,16 +52,14 @@ export default function IsiVideoPage() {
   if (error) {
     return (
       <div className="flex flex-col h-screen">
-        <Navbar />
         <div className="flex items-center justify-center flex-1 text-red-500">{error}</div>
       </div>
     );
   }
 
-  if (!videos || !selectedVideo) {
+  if (!classData?.classObj?.videos?.length || !selectedVideo) {
     return (
       <div className="flex flex-col h-screen">
-        <Navbar />
         <div className="flex items-center justify-center flex-1">No videos available</div>
       </div>
     );
@@ -71,7 +68,6 @@ export default function IsiVideoPage() {
   return (
     <div className="flex flex-col h-screen">
       {/* NAVBAR */}
-      <Navbar />
 
       {/* CONTENT */}
       <div className="flex flex-1 flex-col md:flex-row">
@@ -90,7 +86,7 @@ export default function IsiVideoPage() {
                   onClick={() => setPlaying(true)}
                 >
                   <Image
-                    src={selectedVideo.videoUrl}
+                    src={selectedVideo.thumbnailUrl || "/images/thumbnail.png"}
                     alt="Video Thumbnail"
                     fill
                     className="object-cover"
@@ -106,20 +102,20 @@ export default function IsiVideoPage() {
                   controls
                   autoPlay
                   className="w-full h-full object-cover"
-                  src={selectedVideo.videoUrl}
+                  src={selectedVideo.videoUrl || ""}
                 />
               )}
             </div>
 
             <p className="text-base sm:text-lg font-bold mb-6 text-black">
-              {videos.classObj.description}
+              {classData.classObj.description}
             </p>
 
             {/* Info creator + laporkan */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/images/ctokurniawan.png"
+                  src={classData.classObj.mentorProfileUrl || "/images/profile.svg"}
                   alt="Avatar"
                   width={40}
                   height={40}
@@ -141,7 +137,7 @@ export default function IsiVideoPage() {
             {/* Description */}
             <div className="bg-gray-200 p-4 sm:p-6 rounded-lg shadow w-full">
               <p className="text-sm sm:text-base leading-relaxed text-black">
-                {videos.classObj.description}
+                {classData.classObj.description}
               </p>
             </div>
           </div>
@@ -149,7 +145,7 @@ export default function IsiVideoPage() {
 
         {/* SIDEBAR VIDEO LIST */}
         <aside className="bg-black-500 w-full md:w-1/4 p-4 md:p-9 space-y-4 md:space-y-8 overflow-y-auto">
-          {videos.classObj.videos.map((video: Video, index: number) => (
+          {classData.classObj.videos.map((video: Video, index: number) => (
             <div
               key={video.id}
               onClick={() => {
@@ -157,8 +153,8 @@ export default function IsiVideoPage() {
                 setPlaying(false); // reset biar muncul thumbnail dulu
               }}
               className={`bg-white rounded-lg overflow-hidden shadow cursor-pointer border-3 ${selectedVideo.id === video.id
-                  ? "border-gray-600"
-                  : "border-transparent"
+                ? "border-gray-600"
+                : "border-transparent"
                 }`}
             >
               {/* Thumbnail sidebar juga 16:9 */}

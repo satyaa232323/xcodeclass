@@ -4,81 +4,49 @@ import { verifyAuth } from "@/lib/authMiddleware";
 
 const prisma = new PrismaClient();
 
+// GET all classes
 export async function GET(req: NextRequest) {
-
   try {
-
     const user = await verifyAuth(req, "ADMIN");
-
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const classes = await prisma.class.findMany({
-      select: {
-        id: true,
-        thumbnailUrl: true,
-        title: true,
-        description: true,
-        price: true,
-        mentor: true,
-      },
+      include: {
+        videos: {
+          select: {
+            id: true,
+            title: true,
+            videoUrl: true,
+            duration: true,
+            order: true
+          }
+        }
+      }
     });
+
     return NextResponse.json({ data: classes }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Failed to fetch classes", detail: error || error },
+      { error: "Failed to fetch classes", detail: error },
       { status: 500 }
     );
   }
 }
 
-
+// POST new class
 export async function POST(req: NextRequest) {
   try {
-    // 🔒 Hanya ADMIN
     const user = await verifyAuth(req, "ADMIN");
-    if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized - only admins can create classes" },
-        { status: 401 }
-      );
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 🔹 Ambil body request
     const body = await req.json();
-    const { title, description, price, thumbnailUrl, mentor, videos } = body;
+    const { title, description, price, thumbnailUrl, mentor, mentorProfileUrl, videos } = body;
 
-    // 🔹 Validasi fields
-    if (!title || !price || !thumbnailUrl || !mentor) {
-      return NextResponse.json({
-        error: "Fields 'title', 'price', 'thumbnailUrl', and 'mentor' are required"
-      }, { status: 400 });
-    }
-
-    if (videos && !Array.isArray(videos)) {
-      return NextResponse.json({
-        error: "Videos must be an array"
-      }, { status: 400 });    
-    }
-
-    // 🔹 Validasi tiap video (jika ada)
-    if (videos) {
-      for (const [index, v] of videos.entries()) {
-        if (!v.title || !v.videoUrl || !v.duration || typeof v.order !== "number") {
-          return NextResponse.json(
-            {
-              error: `Invalid video data at index ${index}`,
-              expected: { title: "string", videoUrl: "string", duration: "number", order: "number" }
-            },
-            { status: 400 }
-          );
-        }
-      }
-    }
-
-    // 🔹 Simpan ke DB (nested create videos kalau ada)
     const newClass = await prisma.class.create({
       data: {
         title,
@@ -86,11 +54,20 @@ export async function POST(req: NextRequest) {
         price,
         thumbnailUrl,
         mentor,
-        videos: {}
+        mentorProfileUrl,
+        videos: {
+          create: videos.map((video: any, index: number) => ({
+            title: video.title,
+            videoUrl: video.videoUrl,
+            thumbnailUrl: video.thumbnailUrl || "",
+            duration: video.duration || 0,
+            order: video.order || index + 1
+          }))
+        }
       },
       include: {
-        videos: true, // supaya langsung kelihatan
-      },
+        videos: true
+      }
     });
 
     return NextResponse.json(
@@ -99,12 +76,12 @@ export async function POST(req: NextRequest) {
     );
   } catch (error: any) {
     console.error("Error creating class:", error);
-
     return NextResponse.json(
-       {
-          error: "Failed to create class",
-          detail: error?.message || "Unexpected error",
-        }, { status: 500 });
-   
+      {
+        error: "Failed to create class",
+        detail: error?.message || "Unexpected error",
+      },
+      { status: 500 }
+    );
   }
 }

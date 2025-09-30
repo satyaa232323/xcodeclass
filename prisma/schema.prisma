@@ -28,54 +28,54 @@ model User {
   userClassVideos UserClassVideo[]
 
   // reset password
-  resetPasswordToken String? // token untuk reset password
+  resetPasswordToken  String? // token untuk reset password
   resetPasswordExpiry DateTime? // waktu kadaluarsa token
-  passwordChangedAt    DateTime? // waktu terakhir password diubah
+  passwordChangedAt   DateTime? // waktu terakhir password diubah
 }
 
 model Class {
-  id              String           @id @default(cuid())
-  title           String
-  description     String?
-  price           Int
-  thumbnailUrl    String
-  mentor          String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  videos          Video[]
-  orders          OrderItem[]
-  userClassVideos UserClassVideo[]
+  id               String           @id @default(cuid())
+  title            String
+  description      String?
+  price            Int
+  thumbnailUrl     String
+  mentor           String
+  mentorProfileUrl String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  videos           Video[]
+  orders           OrderItem[]
+  userClassVideos  UserClassVideo[]
 }
 
 model Video {
-  id        String   @id @default(cuid())
-  classId   String
-  title     String
-  videoUrl  String
-  duration  Int      // durasi dalam menit
-  order     Int      // urutan video dalam kelas
-  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  id           String @id @default(cuid())
+  classId      String
+  title        String
+  thumbnailUrl String
+  videoUrl     String
+  duration     Int // durasi dalam menit
+  order        Int // urutan video dalam kelas
+  class        Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  userId      String
-  totalAmount Int 
-  status      OrderStatus @default(PENDING)
-  midtransOrderId String?    @unique // <--- ID transaksi dari Midtrans
-  orderNumber Int         @default(autoincrement())
-  user        User        @relation(fields: [userId], references: [id],  onDelete: Cascade) 
-  orderItems  OrderItem[]
-  createdAt   DateTime    @default(now())
+  id              String      @id @default(cuid())
+  userId          String
+  totalAmount     Int
+  status          OrderStatus @default(PENDING)
+  midtransOrderId String?     @unique // <--- ID transaksi dari Midtrans
+  orderNumber     Int         @default(autoincrement())
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems      OrderItem[]
+  createdAt       DateTime    @default(now())
 }
 
-
 model PaymentLog {
-  id           String    @id @default(cuid())
+  id        String   @id @default(cuid())
   orderId   String
   rawBody   Json
-  createdAt DateTime @default(now())  
-
+  createdAt DateTime @default(now())
 }
 
 model OrderItem {
@@ -83,24 +83,20 @@ model OrderItem {
   orderId  String
   classId  String
   price    Int
-  order    Order  @relation(fields: [orderId], references: [id],  onDelete: Cascade)
-  classObj Class  @relation(fields: [classId], references: [id],  onDelete: Cascade)
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  classObj Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
 }
 
 model UserClassVideo {
-  id           String     @id @default(cuid())
+  id           String   @id @default(cuid())
   userId       String
   classId      String
-  purchaseDate DateTime   @default(now())
-  user         User       @relation(fields: [userId], references: [id],  onDelete: Cascade)
-  classObj     Class      @relation(fields: [classId], references: [id],  onDelete: Cascade)
+  purchaseDate DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classObj     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
 
   @@unique([userId, classId])
 }
-
-
-
-
 
 enum role {
   USER

@@ -2,30 +2,110 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { fetchAllOrders } from "@/utils/api";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 
-const stats = {
-  totalTransactions: 120,
-  totalAmount: 125000000,
-  growth: 8.5,
-};
-
-const transactions = [
-  { id: 1, client: "Byan Hacim", amount: 2500000, date: "2025-09-05" },
-  { id: 2, client: "Rido Saja", amount: 3500000, date: "2025-09-07" },
-  { id: 3, client: "Teguh Waardhani", amount: 1500000, date: "2025-09-08" },
-];
-
-const chartData = [
-  { month: "Mei", amount: 40000000 },
-  { month: "Jun", amount: 52000000 },
-  { month: "Jul", amount: 60000000 },
-  { month: "Agu", amount: 70000000 },
-  { month: "Sep", amount: 65000000 },
-];
-
 export default function TransactionsPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("User not authenticated");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetchAllOrders(token);
+        setOrders(response.data || []);
+        setLoading(false);
+      } catch (err: any) {
+        setError("Failed to fetch transactions");
+        console.log(err);
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+
+  // Process data for chart
+  const chartData = useMemo(() => {
+    const monthlyData: Record<string, number> = {};
+
+    orders.forEach(order => {
+      if (!order.createdAt) return;
+
+      const date = new Date(order.createdAt);
+
+      if (isNaN(date.getTime())) return;
+
+
+      const monthYear = date.toLocaleString('id-ID', {
+        month: 'short',
+        year: '2-digit'
+      });
+
+      monthlyData[monthYear] = (monthlyData[monthYear] || 0) + order.totalAmount;
+    });
+
+    // Convert to array and sort by date
+    return Object.entries(monthlyData).map(([month, amount]) => ({
+      month,
+      amount,
+    }));
+  }, [orders]);
+
+  const growth = useMemo(() => {
+    if (chartData.length < 2) return 0; // butuh minimal 2 bulan
+
+    const last = chartData[chartData.length - 1].amount;
+    const prev = chartData[chartData.length - 2].amount;
+
+    if (prev === 0) return 100; // hindari pembagian nol
+
+    return ((last - prev) / prev) * 100;
+  }, [chartData]);
+
+
+  // Calculate stats from real data
+  const stats = useMemo(() => ({
+    totalTransactions: orders.length,
+    totalAmount: orders.reduce((sum, order) => sum + order.totalAmount, 0),
+    growth: growth,  // use the calculated growth
+  }), [orders]);
+
+
+
+
+  // Get recent transactions
+  const recentTransactions = useMemo(() =>
+    [...orders]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 4),
+    [orders]
+  );
+
+
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       {/* HEADER */}
@@ -72,28 +152,27 @@ export default function TransactionsPage() {
           <CardTitle className="text-gray-700">Tren Transaksi</CardTitle>
         </CardHeader>
         <CardContent className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
-                <XAxis dataKey="month" stroke="#6b7280" />
-                <YAxis
+              <XAxis dataKey="month" stroke="#6b7280" />
+              <YAxis
                 stroke="#6b7280"
                 tickFormatter={(value) =>
-                    `Rp ${value >= 1000000 ? value / 1000000 + " jt" : value}`
+                  `Rp ${value >= 1_000_000 ? value / 1_000_000 + " jt" : value}`
                 }
-                />
-                <Tooltip
-                formatter={(value) => `Rp ${Number(value).toLocaleString("id-ID")}`}
-                />
-                <Line
+              />
+              <Tooltip
+                formatter={(value: any) => `Rp ${Number(value).toLocaleString("id-ID")}`}
+              />
+              <Line
                 type="monotone"
                 dataKey="amount"
                 stroke="#ef4444"
                 strokeWidth={3}
-                dot={{ r: 5 }}
-                />
+                dot={{ r: 4 }}
+              />
             </LineChart>
-            </ResponsiveContainer>
-
+          </ResponsiveContainer>
         </CardContent>
       </Card>
 
@@ -108,21 +187,32 @@ export default function TransactionsPage() {
               <TableRow>
                 <TableHead className="text-gray-600">Nama Klien</TableHead>
                 <TableHead className="text-gray-600">Jumlah</TableHead>
+                <TableHead className="text-gray-600">Status</TableHead>
                 <TableHead className="text-gray-600">Tanggal</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.map((tx) => (
+              {recentTransactions.map((order) => (
                 <TableRow
-                  key={tx.id}
+                  key={order.id}
                   className="hover:bg-gray-100 transition-colors cursor-pointer"
                 >
-                  <TableCell className="text-gray-800">{tx.client}</TableCell>
                   <TableCell className="text-gray-800">
-                    Rp {tx.amount.toLocaleString("id-ID")}
+                    {order.user?.name || "Unknown"}
                   </TableCell>
                   <TableCell className="text-gray-800">
-                    {new Date(tx.date).toLocaleDateString("id-ID", {
+                    Rp {order.totalAmount.toLocaleString("id-ID")}
+                  </TableCell>
+                  <TableCell className="text-gray-800">
+                    <span className={`px-2 py-1 rounded-full text-sm ${order.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                      order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                      {order.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-gray-800">
+                    {new Date(order.createdAt).toLocaleDateString("id-ID", {
                       day: "2-digit",
                       month: "long",
                       year: "numeric",

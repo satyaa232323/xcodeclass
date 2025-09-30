@@ -139,3 +139,78 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         await prisma.$disconnect();
     }
 }
+
+
+export async function DELETE(params: { id: string }, request: NextRequest) {
+    try {
+        const decision = await aj.protect(request, { requested: 1 });
+
+        if (decision.isDenied()) {
+            if (decision.reason.isRateLimit()) {
+                return NextResponse.json(
+                    { error: "Too Many Requests", reason: decision.reason },
+                    { status: 429 },
+                );
+            } else if (decision.reason.isBot()) {
+                return NextResponse.json(
+                    { error: "No bots allowed", reason: decision.reason },
+                    { status: 403 },
+                );
+            } else {
+                return NextResponse.json(
+                    { error: "Forbidden", reason: decision.reason },
+                    { status: 403 },
+                );
+            }
+        }
+
+
+        const user = await verifyAuth(request, "USER");
+
+        if (!user) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
+
+        const { id } = await params;
+        if (!id) {
+            return NextResponse.json(
+                { error: "Order ID is required" },
+                { status: 400 }
+            );
+        }
+
+
+        // Check if order exists and belongs to user
+        const order = await prisma.order.findFirst({
+            where: {
+                id: id,
+                userId: user.id,
+            },
+        });
+
+        if (!order) {
+            return NextResponse.json(
+                { error: "Order not found or cannot be deleted" },
+                { status: 404 }
+            );
+        }
+
+        // delete order
+        await prisma.order.delete({
+            where: {
+                id: id,
+            },
+        });
+
+    } catch (error) {
+        console.error("Delete order error:", error);
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 }
+        );
+    }
+}

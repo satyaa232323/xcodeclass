@@ -1,25 +1,42 @@
 "use client";
-import { useState, useEffect } from "react";
+
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import {
+  createClass,
+  updateClass,
+  deleteClass,
+  fetchAllClasses,
+  uploadImageToCloudinary,
+  uploadVideoToCloudinary,
+} from "@/utils/api";
+import { PencilIcon, TrashIcon } from "lucide-react";
 
-// interface Class {
-//   id: string;
-//   title: string;
-//   description: string;
-//   price: number;
-//   thumbnailUrl: string;
-//   mentor: string;
-//   videos?: Video[];
-// }
 
-// interface Video {
-//   id?: string;
-//   title: string;
-//   videoUrl: string;
-//   duration: number;
-//   order: number;
-// }
+// ===================== TYPES =====================
+interface Video {
+  id?: string;
+  title: string;
+  videoUrl: string;
+  file?: File;
+  duration: number;
+  order: number;
+  thumbnailUrl?: string;
+  originalUrl?: string;  // Store original URL when editing
+}
 
+interface Class {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  thumbnailUrl: string;
+  mentor: string;
+  mentorProfileUrl?: string;
+  videos: Video[];
+}
+
+// ===================== MAIN COMPONENT =====================
 export default function CoursesPage() {
   const router = useRouter();
   const [classes, setClasses] = useState<Class[]>([]);
@@ -32,10 +49,21 @@ export default function CoursesPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [mentor, setMentor] = useState("");
+  const [mentorProfileUrl, setMentorProfileUrl] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [videos, setVideos] = useState<Video[]>([]);
 
-  // Fetch classes on mount
+
+  // Edit states
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Upload states
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [uploadingVideos, setUploadingVideos] = useState<Record<number, boolean>>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // ===================== FETCH DATA =====================
   useEffect(() => {
     fetchClasses();
   }, []);
@@ -43,21 +71,10 @@ export default function CoursesPage() {
   const fetchClasses = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/auth/login");
-        return;
-      }
+      if (!token) return router.push("/auth/login");
 
-      const response = await fetch("/api/admin/classes", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch classes");
-
-      const data = await response.json();
-      setClasses(data.data);
+      const response = await fetchAllClasses(token);
+      setClasses(response.data);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -65,49 +82,123 @@ export default function CoursesPage() {
     }
   };
 
+  // ===================== HANDLE SUBMIT =====================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/auth/login");
-        return;
+      if (!token) return router.push("/auth/login");
+
+      // Upload thumbnail if file is provided
+      let finalThumbnailUrl = thumbnailUrl;
+      if (thumbnailFile) {
+        setUploadingThumbnail(true);
+        try {
+          const uploadResult = await uploadImageToCloudinary(token, thumbnailFile);
+          finalThumbnailUrl = uploadResult.secure_url;
+        } catch (error) {
+          console.error('Error uploading thumbnail:', error);
+          setError('Failed to upload thumbnail');
+          return;
+        } finally {
+          setUploadingThumbnail(false);
+        }
       }
 
-      const response = await fetch("/api/admin/classes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title,
-          description,
-          price: Number(price),
-          thumbnailUrl,
-          mentor,
-          videos,
-        }),
-      });
+      // Process videos
+      const processedVideos = [];
+      for (let i = 0; i < videos.length; i++) {
+        const video = videos[i];
+        setUploadingVideos(prev => ({ ...prev, [i]: true }));
 
-      if (!response.ok) throw new Error("Failed to create class");
+        try {
+          if (video.file) {
+            const uploadResult = await uploadVideoToCloudinary(token, video.file);
+            if (!uploadResult.secure_url) {
+              throw new Error("Failed to upload video");
+            }
 
-      // Refresh classes list
+            processedVideos.push({
+              title: video.title,
+              videoUrl: uploadResult.secure_url,
+              thumbnailUrl: finalThumbnailUrl, // Use the same thumbnail as the course
+              duration: uploadResult.duration, // Use duration from Cloudinary
+              order: i + 1
+            });
+          } else if (video.videoUrl) {
+            // If we already have a video URL (editing case)
+            processedVideos.push({
+              title: video.title,
+              videoUrl: video.videoUrl,
+              thumbnailUrl: video.thumbnailUrl || finalThumbnailUrl,
+              duration: video.duration,
+              order: i + 1
+            });
+          }
+        } catch (error) {
+          console.error(`Error processing video ${i + 1}:`, error);
+          setError(`Failed to process video ${i + 1}`);
+          return;
+        } finally {
+          setUploadingVideos(prev => ({ ...prev, [i]: false }));
+        }
+      }
+
+      // Create the class data object with videos
+      const classData = {
+        title,
+        description,
+        price: Number(price),
+        thumbnailUrl: finalThumbnailUrl,
+        mentor,
+        mentorProfileUrl,
+        videos: processedVideos
+      };
+
+      if (editingId) {
+        // Update existing class
+        await updateClass(token, editingId, classData);
+      } else {
+        // Create new class
+        await createClass(token, classData);
+      }
+
       await fetchClasses();
-      setShowModal(false);
       resetForm();
+      setShowModal(false);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // ===================== HANDLE DELETE =====================
+  const handleDelete = async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return router.push("/auth/login");
+
+      const response = await deleteClass(token, id);
+
+      fetchClasses();
     } catch (err: any) {
       setError(err.message);
     }
   };
 
+  // ===================== HELPERS =====================
   const resetForm = () => {
     setTitle("");
     setDescription("");
     setPrice("");
     setMentor("");
     setThumbnailUrl("");
+    setThumbnailFile(null);
     setVideos([]);
+    setEditingId(null);
   };
 
   const addVideo = () => {
@@ -117,14 +208,31 @@ export default function CoursesPage() {
     ]);
   };
 
-  const updateVideo = (index: number, field: keyof Video, value: string | number) => {
+  const updateVideo = (index: number, field: keyof Video, value: string | number | File) => {
     const newVideos = [...videos];
     newVideos[index] = { ...newVideos[index], [field]: value };
     setVideos(newVideos);
   };
 
+  const removeVideo = (index: number) => {
+    const newVideos = videos.filter((_, i) => i !== index);
+    setVideos(newVideos);
+  };
+
+  const handleEditClick = (course: Class) => {
+    setEditingId(course.id);
+    setTitle(course.title);
+    setDescription(course.description || "");
+    setPrice(course.price.toString());
+    setMentor(course.mentor);
+    setMentorProfileUrl(course.mentorProfileUrl || "");
+    setThumbnailUrl(course.thumbnailUrl);
+    setShowModal(true);
+  };
+
+  // ===================== RENDER =====================
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
     <div className="p-6">
@@ -153,127 +261,173 @@ export default function CoursesPage() {
               <span className="font-bold">Rp {course.price.toLocaleString()}</span>
               <span className="text-gray-500">{course.mentor}</span>
             </div>
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => handleEditClick(course)}
+                className="p-2 rounded hover:bg-gray-100"
+              >
+                <PencilIcon />
+              </button>
+              <button
+                onClick={() => handleDelete(course.id)}
+                className="p-2 rounded hover:bg-gray-100"
+              >
+                <TrashIcon />
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Add Course Modal */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Add New Course</h2>
+            <h2 className="text-xl font-bold mb-4">
+              {editingId ? "Edit Course" : "Add New Course"}
+            </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 text-black">
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Title"
+                className="w-full border p-2 rounded"
+                required
+              />
+
+
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Description"
+                className="w-full border p-2 rounded"
+                required
+              />
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="Price"
+                className="w-full border p-2 rounded"
+                required
+              />
+
+              {/* Thumbnail Upload */}
               <div>
-                <label className="block mb-1  text-black">Title</label>
+                <label className="block mb-1 font-medium">Thumbnail</label>
                 <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full border p-2 rounded text-black"
-                  required
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                  className="w-full border p-2 rounded"
                 />
-              </div>
-
-              <div>
-                <label className="block mb-1">Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full border p-2 rounded text-black"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1">Price</label>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full border p-2 rounded text-black"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1">Thumbnail URL</label>
+                {uploadingThumbnail && <p className="text-blue-500 text-sm mt-1">Uploading thumbnail...</p>}
+                {thumbnailUrl && (
+                  <img src={thumbnailUrl} alt="Thumbnail preview" className="mt-2 w-32 h-32 object-cover rounded" />
+                )}
                 <input
                   type="url"
                   value={thumbnailUrl}
                   onChange={(e) => setThumbnailUrl(e.target.value)}
-                  className="w-full border p-2 rounded text-black"
-                  required
+                  placeholder="Or paste thumbnail URL"
+                  className="w-full border p-2 rounded mt-2"
                 />
               </div>
 
-              <div>
-                <label className="block mb-1">Mentor</label>
-                <input
-                  type="text"
-                  value={mentor}
-                  onChange={(e) => setMentor(e.target.value)}
-                  className="w-full border p-2 rounded text-black"
-                  required
-                />
-              </div>
+              <input
+                type="text"
+                value={mentor}
+                onChange={(e) => setMentor(e.target.value)}
+                placeholder="Mentor"
+                className="w-full border p-2 rounded"
+                required
+              />
 
-              {/* Videos Section */}
+              <input
+                type="file"
+                accept="image/*"
+                value={mentorProfileUrl}
+                onChange={(e) => setMentorProfileUrl(e.target.value)}
+                placeholder="Mentor"
+                className="w-full border p-2 rounded"
+                required
+              />
+
+              {/* Videos */}
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="font-bold">Videos</label>
                   <button
                     type="button"
                     onClick={addVideo}
-                    className="text-blue-500 text-black"
+                    className="text-blue-500 hover:underline"
                   >
                     + Add Video
                   </button>
                 </div>
 
                 {videos.map((video, index) => (
-                  <div key={index} className="space-y-2 mb-4 p-4 border rounded">
+                  <div key={index} className="space-y-2 mb-4 p-4 border rounded bg-gray-50">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Video {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeVideo(index)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+
                     <input
                       type="text"
                       placeholder="Video Title"
                       value={video.title}
                       onChange={(e) => updateVideo(index, "title", e.target.value)}
-                      className="w-full border p-2 rounded text-black"
+                      className="w-full border p-2 rounded"
                       required
                     />
+
                     <input
-                      type="url"
-                      placeholder="Video URL text-black"
-                      value={video.videoUrl}
-                      onChange={(e) => updateVideo(index, "videoUrl", e.target.value)}
-                      className="w-full border p-2 rounded text-black"
+                      type="file"
+                      accept="video/*"
+                      onChange={(e) => updateVideo(index, "file", e.target.files?.[0] || new File([], ""))}
+                      className="w-full border p-2 rounded"
                       required
                     />
-                    <input
-                      type="number"
-                      placeholder="Duration (minutes)"
-                      value={video.duration}
-                      onChange={(e) => updateVideo(index, "duration", Number(e.target.value))}
-                      className="w-full border p-2 rounded text-black"
-                      required
-                    />
+
+                    {uploadingVideos[index] && (
+                      <p className="text-blue-500 text-sm">Uploading video...</p>
+                    )}
+
+                    {video.videoUrl && (
+                      <video src={video.videoUrl} controls className="w-full h-32 rounded" />
+                    )}
                   </div>
                 ))}
               </div>
 
+              {/* Actions */}
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 border rounded text-black"
+                  onClick={() => {
+                    setShowModal(false);
+                    resetForm();
+                  }}
+                  className="px-4 py-2 border rounded hover:bg-gray-50"
+                  disabled={submitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-red-500 text-white rounded"
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                  disabled={submitting || uploadingThumbnail || Object.values(uploadingVideos).some(Boolean)}
                 >
-                  Save Course
+                  {submitting ? "Saving..." : "Save Course"}
                 </button>
               </div>
             </form>

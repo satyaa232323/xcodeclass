@@ -44,6 +44,7 @@ export default function DetailClass() {
             try {
                 const response = await fetchClasses();
                 setClass(response?.data);
+                console.log(response.data); 
             } catch (err) {
                 setError("gagal memuat data");
                 console.log(err);
@@ -106,7 +107,6 @@ export default function DetailClass() {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
-                <Navbar />
                 <div className="text-gray-500">Loading...</div>
             </div>
         );
@@ -115,7 +115,6 @@ export default function DetailClass() {
     if (error) {
         return (
             <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
-                <Navbar />
                 <div>Error: {error}</div>
             </div>
         );
@@ -124,7 +123,6 @@ export default function DetailClass() {
     return (
         <div className="min-h-screen bg-gray-50 pt-20">
             {/* Navbar */}
-            <Navbar />
             {detailClass && (
                 <main className="p-0 m-0 flex flex-col gap-6" key={detailClass.id}>
                     {/* Header Section */}
@@ -202,7 +200,7 @@ export default function DetailClass() {
                                                 deskripsi
                                             </p>
                                         </div>
-                                        <span className="font-bold text-sm mb-2">{cls.price}</span>
+                                        <span className="font-bold text-sm mb-2">Rp {cls.price.toLocaleString("id-ID")}</span>
 
                                         <button
                                             className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">

@@ -1,31 +1,40 @@
-interface Class {
+export interface Class {
   id: string;
   title: string;
   description: string | null;
   price: number;
-  thumbnailUrl: string;
-  mentor: string;
+  thumbnailUrl?: string; // Made optional
+  mentorProfileUrl?: string;
+  mentor?: string; // Made optional
+  videos: Video[];
 }
 
-interface UserClassVideo {
+export interface UserClassVideo {
   id: string;
-  userId: string;
-  classId: string;
   purchaseDate: string;
-  classObj: Class;   // 👈 sudah bener
+  classObj: {
+    id: string;
+    title: string;
+    description: string;
+    price: number;
+    createdAt: string;
+    updatedAt: string;
+    videos: Video[];
+    mentorProfileUrl?: string;
+  };
 }
 
 
-interface OrderItem {
-   id: string;
+export interface OrderItem {
+  id: string;
   orderId: string;
   classId: string;
   price: number;
-  classObj: Class ;
+  classObj: Class;
   date: Date;
 }
 
-interface Order {
+export interface Order {
   id: string;
   userId: string;
   totalAmount: number;
@@ -33,18 +42,19 @@ interface Order {
   orderItems: OrderItem[];
   date: Date;
   status: "PENDING" | "COMPLETED" | "FAILED";
-
+  user?: User;
 }
 
-interface Video {
- id?: string;
+export interface Video {
+  id?: string;
   title: string;
   videoUrl: string;
+  thumbnailUrl?: string; // Made optional
   duration: number;
   order: number;
 }
 
-interface DetailClass {
+export interface DetailClass {
   id: string;
   thumbnailUrl: string;
   title: string;
@@ -55,9 +65,25 @@ interface DetailClass {
   class: Class;
 }
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
   role: "ADMIN" | "USER";
+}
+
+export interface ClassData {
+  title: string;
+  description: string;
+  price: number;
+  thumbnailUrl: string;
+  mentor: string;
+  mentorProfileUrl?: string;
+  videos: {
+    title: string;
+    videoUrl: string;
+    thumbnailUrl: string;
+    duration: number;
+    order: number;
+  }[];
 }

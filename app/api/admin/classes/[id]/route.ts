@@ -1,104 +1,143 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyAuth } from "@/lib/authMiddleware";
+
 const prisma = new PrismaClient();
 
+// GET single class
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-
   try {
-
     const user = await verifyAuth(req, "ADMIN");
-
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = params.id;
-    console.log(id);
-
     const classData = await prisma.class.findUnique({
-      where: { id },
-      include: { videos: true },
+      where: { id: params.id },
+      include: {
+        videos: true
+      }
     });
 
     if (!classData) {
       return NextResponse.json({ error: "Class not found" }, { status: 404 });
     }
+
     return NextResponse.json({ data: classData }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch class" },
+      { error: "Failed to fetch class", detail: error },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(
+// PATCH update class
+export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-
+    const { id } = await params;
     const user = await verifyAuth(req, "ADMIN");
-
-    if (!user) {
+    if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
 
-    const id = params.id;
     const body = await req.json();
-    const { title, description, price, thumbnailUrl, mentor } = body;
+    const videosData = body.videos || [];
 
+
+    const existingClass = await prisma.class.findUnique({
+      where: { id },
+      include: { videos: true },
+    });
+
+    if (!existingClass) {
+      return NextResponse.json({ error: "Class not found" }, { status: 404 });
+    }
+
+    // pisahkan data class & videos
     const updatedClass = await prisma.class.update({
       where: { id },
-      data: { title, description, price, thumbnailUrl, mentor },
+      data: {
+        title: body.title,
+        description: body.description,
+        price: body.price,
+        mentor: body.mentor,
+        mentorProfileUrl: body.mentorProfileUrl,
+        thumbnailUrl: body.thumbnailUrl,
+        videos: {
+          // 🔹 Update video lama
+          update: videosData
+            .filter((v: any) => v.id) // hanya yg punya id
+            .map((v: any) => ({
+              where: { id: v.id },
+              data: {
+                title: v.title,
+                thumbnailUrl: v.thumbnailUrl,
+                videoUrl: v.videoUrl,
+                duration: v.duration,
+                order: v.order,
+              },
+            })),
+
+          // 🔹 Tambah video baru
+          create: videosData
+            .filter((v: any) => !v.id) // hanya yg belum punya id
+            .map((v: any) => ({
+              title: v.title,
+              thumbnailUrl: v.thumbnailUrl,
+              videoUrl: v.videoUrl,
+              duration: v.duration,
+              order: v.order,
+            })),
+        },
+      },
+      include: { videos: true },
     });
 
 
-    return NextResponse.json(
-      { message: "Class updated successfully", class: updatedClass },
-      { status: 200 }
-    );
-
+    return NextResponse.json({ data: updatedClass }, { status: 200 });
   } catch (error) {
-    console.error("PUT /api/admin/classes/[id] error:", error);
+    console.error("PATCH error:", error);
     return NextResponse.json(
-      { error: error || "Failed to update class" },
+      { error: "Failed to update class", detail: error },
       { status: 500 }
     );
   }
 }
 
+
+// DELETE class
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
 
     const user = await verifyAuth(req, "ADMIN");
-
-    if (!user) {
+    if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-
     await prisma.class.delete({
-      where: { id },
+      where: { id: id }
     });
+
     return NextResponse.json(
       { message: "Class deleted successfully" },
       { status: 200 }
     );
-
-
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
-      { error: error || "Failed to delete class" },
+      { error: "", detail: error },
       { status: 500 }
     );
   }

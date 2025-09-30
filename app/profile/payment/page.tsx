@@ -13,35 +13,38 @@ export default function PaymentPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [purchasedClasses, setPurchasedClasses] = useState<Set<string>>(new Set());
 
+  const fetchOrder = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Please login to view your order history");
+      return;
+    }
+
+    try {
+      const response = await fetchOrders(token);
+      // Filter hanya order dengan status PENDING
+      const pendingOrders = response.orders.filter(
+        (order: Order) => order.status === "PENDING"
+      );
+      setOrders(pendingOrders);
+
+      // Fetch purchased classes
+      const purchasedResponse = await myClasses(token);
+      setPurchasedClasses(
+        new Set(purchasedResponse.data.map((item: Class) => item.id))
+      );
+    } catch (error) {
+      console.error("Error fetching order:", error);
+      setError("Terjadi kesalahan memuat Data");
+    }
+  };
+
+  // Refresh data setiap 5 detik
   useEffect(() => {
-    const fetchOrder = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setError("Please login to view your order history");
-        return;
-      }
-
-      try {
-        const response = await fetchOrders(token);
-        // Filter only PENDING orders
-        const pendingOrders = response.orders.filter(
-          (order: Order) => order.status === "PENDING"
-        );
-        setOrders(pendingOrders);
-
-        // Fetch purchased classes
-        const purchasedResponse = await myClasses(token);
-        setPurchasedClasses(
-          new Set(purchasedResponse.data.map((item: Class) => item.id))
-        );
-      } catch (error) {
-        console.error("Error fetching order:", error);
-        setError("Terjadi kesalahan memuat Data");
-      }
-    };
-
     fetchOrder();
+    const interval = setInterval(fetchOrder, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handlePay = async (orderId: string) => {
@@ -133,7 +136,7 @@ export default function PaymentPage() {
                   Rp {item.totalAmount.toLocaleString("id-ID")}
                 </span>
                 <span className="text-red-600 font-bold mt-1">
-                 {item.status}
+                  {item.status}
                 </span>
                 {purchasedClasses.has(item.orderItems[0].classObj.id) && (
                   <span className="text-yellow-600 text-sm mt-1">
@@ -146,8 +149,8 @@ export default function PaymentPage() {
                 onClick={() => handlePay(item.id)}
                 disabled={isPaying || purchasedClasses.has(item.orderItems[0].classObj.id)}
                 className={`px-6 py-3 rounded-xl font-bold text-white transition ${isPaying || purchasedClasses.has(item.orderItems[0].classObj.id)
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-red-500 hover:bg-red-600"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-500 hover:bg-red-600"
                   }`}
               >
                 {isPaying ? "Processing..." : "Bayar"}
@@ -165,4 +168,3 @@ export default function PaymentPage() {
     </div>
   );
 }
- 

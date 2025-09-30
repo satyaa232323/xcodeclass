@@ -1,4 +1,3 @@
-import { verifyJWT } from "@/lib/auth";
 import { PrismaClient } from "@/app/generated/prisma";
 import { verifyAuth } from "@/lib/authMiddleware";
 import { NextRequest, NextResponse } from "next/server";

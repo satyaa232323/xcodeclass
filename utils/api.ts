@@ -1,4 +1,3 @@
-
 const API_BASE_URL = "http://localhost:3000/api";
 
 export interface AuthResponse {
@@ -78,87 +77,111 @@ export const initiatePayment = (token: string, orderId: string) =>
     apiRequest(`/payment/${orderId}`, "POST", token);
 
 
-// export const initiateBulkPayment = (token: string, orderIds: string[], totalAmount: number) =>
-//     apiRequest("/payment", "POST", token, { orderIds, totalAmount });
-
 
 export const Userprofile = (token: string) =>
-    apiRequest("/me", "GET", token); 
+    apiRequest("/me", "GET", token);
 
 // ---------------------- ADMIN CLASSES ----------------------
-export const fetchAllClasses = (token: string) =>
-    apiRequest("/admin/classes", "GET", token);
 
-export const createClass = (
+// Fetch all classes
+export const fetchAllClasses = async (token: string) => {
+    const response = await apiRequest("/admin/classes", "GET", token);
+    return response;
+};
+
+// Create new class
+
+export const createClass = async (
     token: string,
-    title: string,
-    description: string,
-    price: number,
-    thumbnailUrl: string,
-    mentor: string,
-    videos: []
-) =>
-    apiRequest("/admin/classes", "POST", token, {
-        title,
-        description,
-        price,
-        thumbnailUrl,
-        mentor,
-        videos,
-    });
+    data: ClassData
+) => {
+    const response = await apiRequest("/admin/classes", "POST", token, data);
+    return response;
+}
 
-export const editClass = (
+// Get single class details
+export const getClassDetails = async (token: string, id: string) => {
+    const response = await apiRequest(`/admin/classes/${id}`, "GET", token);
+    return response;
+};
+
+// Update class
+export const updateClass = async (
     token: string,
     id: string,
-    title: string,
-    description: string,
-    price: number,
-    thumbnailUrl: string,
-    mentor: string,
-    videos: []
-) =>
-    apiRequest(`/admin/classes/${id}`, "PUT", token, {
-        title,
-        description,
-        price,
-        thumbnailUrl,
-        mentor,
-        videos,
+    data: ClassData
+) => {
+    const response = await apiRequest(`/admin/classes/${id}`, "PATCH", token, data);
+    return response;
+};
+
+
+
+// Delete class
+export const deleteClass = async (
+    token: string,
+    id: string,
+) => {
+    const response = await apiRequest(`/admin/classes/${id}`, "DELETE", token);
+    return response;
+};
+
+
+
+// Handle image uploads to Cloudinary
+export const uploadImageToCloudinary = async (token: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/upload/image`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        body: formData
     });
 
-export const deleteClass = (token: string, id: string) =>
-    apiRequest(`/admin/classes/${id}`, "DELETE", token);
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Image upload failed');
+    }
 
-// ---------------------- VIDEOS ----------------------
-export const addVideoToClass = (
-    token: string,
-    classId: string,
-    title: string,
-    videoUrl: string,
-    duration: number
-) =>
-    apiRequest(`/admin/classes/${classId}/videos`, "POST", token, {
-        title,
-        videoUrl,
-        duration,
+    return response.json();
+};
+
+// Handle video uploads to Cloudinary with chunking and progress tracking
+export const uploadVideoToCloudinary = async (token: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/upload/video`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
     });
 
-export const editVideo = (
-    token: string,
-    classId: string,
-    videoId: string,
-    title: string,
-    videoUrl: string,
-    duration: number
-) =>
-    apiRequest(`/admin/classes/${classId}/video/${videoId}`, "PUT", token, {
-        title,
-        videoUrl,
-        duration,
-    });
+    if (!response.ok) {
+        const error = await response.json();
+        console.error("Video upload error response:", error);
+        throw new Error(error.message || 'Video upload failed');
+    }
 
-export const deleteVideo = (
-    token: string,
-    classId: string,
-    videoId: string
-) => apiRequest(`/admin/classes/${classId}/video/${videoId}`, "DELETE", token);
+    const result = await response.json();
+    if (!result.secure_url) {
+        throw new Error('No URL received from upload');
+    }
+
+    return {
+        secure_url: result.secure_url,
+        duration: result.duration || 0,
+        public_id: result.public_id
+    };
+};
+
+
+export const fetchAllOrders = (token: string) =>
+    apiRequest("/admin/show-order", "GET", token);
+
+

@@ -131,7 +131,7 @@ async function processSuccessfulPayment(order: any) {
     // 1. Update order status
     await updateOrderStatus(order.id, "COMPLETED");
 
-    // 2. Tambahkan user ke kelas (UserClassVideo)
+
     const createPromises = order.orderItems.map(async (item: any) => {
       const existingEntry = await prisma.userClassVideo.upsert({
         where: {

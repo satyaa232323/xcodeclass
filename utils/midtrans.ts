@@ -12,7 +12,7 @@ export const createMidtransTransaction = async (
   }
 
   // Gunakan orderNumber (autoincrement) untuk order_id Midtrans
-  const midtransOrderId = `APP-${orderNumber}`;
+  const midtransOrderId = `APP-${orderNumber}-${Date.now()}`;
 
   const snap = new midtransClient.Snap({
     // gunakan NODE_ENV atau variable khusus untuk production

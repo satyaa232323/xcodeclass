@@ -3,16 +3,27 @@ import { NextResponse } from "next/server";
 
 export async function POST() {
 
-    try{
+    try {
 
+
+        (await cookies()).set({
+            name: "refreshToken",
+            value: "",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/",
+            sameSite: "strict",
+            expires: new Date(0),
+        });
         (await cookies()).set({
             name: "token",
             value: "",
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/",
-            expires: new Date(0) // langsung kadaluarsa
-        })
+            sameSite: "strict",
+            expires: new Date(0), // expired
+        });
 
 
 
