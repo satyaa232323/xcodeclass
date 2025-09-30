@@ -19,7 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.23.16",
+    "framer-motion": "^12.23.21",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.542.0",
     "midtrans-client": "^1.4.3",

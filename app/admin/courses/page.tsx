@@ -42,9 +42,16 @@ export default function CoursesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
 
-  // Form states
+  // modal flags
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // selected course (for edit/detail)
+  const [selectedCourse, setSelectedCourse] = useState<Class | null>(null);
+
+  // shared form state (will be reset when opening Add)
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -76,7 +83,7 @@ export default function CoursesPage() {
       const response = await fetchAllClasses(token);
       setClasses(response.data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -201,10 +208,155 @@ export default function CoursesPage() {
     setEditingId(null);
   };
 
+  // Build FormData (used for add & edit)
+  const buildFormData = () => {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("mentor", mentor);
+    formData.append("thumbnailUrl", thumbnailUrl);
+
+    videos.forEach((video, i) => {
+      formData.append(`videos[${i}][title]`, video.title);
+      formData.append(`videos[${i}][duration]`, String(video.duration));
+      formData.append(`videos[${i}][order]`, String(video.order));
+      if (video.file) formData.append(`videos[${i}][file]`, video.file);
+      if (video.thumbnail) formData.append(`videos[${i}][thumbnail]`, video.thumbnail);
+    });
+
+    return formData;
+  };
+
+  // ADD
+  const handleAddCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return router.push("/auth/login");
+      const formData = buildFormData();
+      const res = await fetch("/api/admin/classes", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Failed to create class");
+      await fetchClasses();
+      setShowAddModal(false);
+      resetForm();
+    } catch (err: any) {
+      setError(err.message || "Add failed");
+    }
+  };
+
+  // EDIT
+  // ganti fungsi handleEditCourse yang sekarang dengan yang ini
+const handleEditCourse = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!selectedCourse) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return router.push("/auth/login");
+
+    // buat FormData sekali (kita akan clone/rebuild jika perlu)
+    let formData = buildFormData();
+
+    // helper untuk membaca detail error dari response
+    const readError = async (res: Response) => {
+      const ct = res.headers.get("content-type") || "";
+      try {
+        if (ct.includes("application/json")) {
+          const j = await res.json();
+          return j?.message || JSON.stringify(j);
+        } else {
+          return await res.text();
+        }
+      } catch (err) {
+        return `Status ${res.status}`;
+      }
+    };
+
+    // coba PUT dulu
+    let res = await fetch(`/api/admin/classes/${selectedCourse.id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // IMPORTANT: jangan set Content-Type di sini, biarkan browser handle boundary
+      },
+      body: formData,
+    });
+
+    // kalau PUT gagal karena metode/multipart tidak didukung, coba PATCH, lalu fallback POST dengan _method
+    if (!res.ok && (res.status === 405 || res.status === 415 || res.status === 400)) {
+      // coba PATCH (beberapa API terima PATCH)
+      res = await fetch(`/api/admin/classes/${selectedCourse.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+    }
+
+    // fallback terakhir: POST + _method override (untuk server yang tidak menerima PUT multipart)
+    if (!res.ok) {
+      // rebuild formData (safety) and append override
+      formData = buildFormData();
+      formData.append("_method", "PUT");
+      res = await fetch(`/api/admin/classes/${selectedCourse.id}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+    }
+
+    // jika masih gagal, baca detail error dan tampilkan
+    if (!res.ok) {
+      const detail = await readError(res);
+      console.error("Update course failed:", res.status, detail);
+      setError(typeof detail === "string" ? detail : JSON.stringify(detail));
+      return;
+    }
+
+    // sukses
+    await fetchClasses();
+    setShowEditModal(false);
+    // jangan clear selectedCourse sebelum sukses (kita pake resetForm setelah success)
+    resetForm();
+  } catch (err: any) {
+    console.error("handleEditCourse error:", err);
+    setError(err?.message || "Update failed (client)");
+  }
+};
+
+
+  // DELETE (with modal)
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteCourseId, setDeleteCourseId] = useState<string | null>(null);
+
+    const handleDeleteCourse = async () => {
+      if (!deleteCourseId) return;
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return router.push("/auth/login");
+        const res = await fetch(`/api/admin/classes/${deleteCourseId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to delete class");
+        await fetchClasses();
+        setShowDeleteModal(false);
+        setDeleteCourseId(null);
+      } catch (err: any) {
+        setError(err.message || "Delete failed");
+      }
+    };
+
+
+  // helpers for videos
   const addVideo = () => {
-    setVideos([
-      ...videos,
-      { title: "", videoUrl: "", duration: 0, order: videos.length + 1 },
+    setVideos((prev) => [
+      ...prev,
+      { title: "", duration: 0, order: prev.length + 1, file: null, thumbnail: null },
     ]);
   };
 
@@ -237,27 +389,20 @@ export default function CoursesPage() {
   return (
     <div className="p-6">
       <div className="flex justify-between mb-6">
-        <h1 className="text-2xl font-bold">Courses Management</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-red-500 text-white px-4 py-2 rounded"
-        >
+        <h1 className="text-3xl font-bold text-red-700">Courses Management</h1>
+        <button onClick={openAddModal} className="bg-red-500 text-white px-4 py-2 rounded">
           Add New Course
         </button>
       </div>
 
-      {/* Courses Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-600">
         {classes.map((course) => (
-          <div key={course.id} className="bg-white p-4 rounded-lg shadow">
-            <img
-              src={course.thumbnailUrl}
-              alt={course.title}
-              className="w-full h-48 object-cover rounded mb-4"
-            />
+          <div key={course.id} className="bg-white p-4 rounded-lg shadow relative">
+            <img src={course.thumbnailUrl} alt={course.title} className="w-full h-48 object-cover rounded mb-4" />
             <h3 className="font-bold text-lg mb-2">{course.title}</h3>
-            <p className="text-gray-600 mb-2">{course.description}</p>
-            <div className="flex justify-between items-center">
+            <p className="text-gray-600 mb-2 line-clamp-2">{course.description}</p>
+            <div className="flex justify-between items-center mb-2">
               <span className="font-bold">Rp {course.price.toLocaleString()}</span>
               <span className="text-gray-500">{course.mentor}</span>
             </div>
@@ -437,3 +582,4 @@ export default function CoursesPage() {
     </div>
   );
 }
+

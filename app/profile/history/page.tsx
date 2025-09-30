@@ -27,10 +27,10 @@ export default function History() {
           const formattedOrders = response.orders.map((order: Order) => ({
             ...order,
             createdAt: new Date(order.createdAt).toLocaleDateString("id-ID"),
-            orderItems: order.orderItems.map(item => ({
+            orderItems: order.orderItems.map((item) => ({
               ...item,
-              date: new Date(item.date).toLocaleDateString("id-ID")
-            }))
+              date: new Date(item.date).toLocaleDateString("id-ID"),
+            })),
           }));
           setOrders(formattedOrders);
         }
@@ -84,25 +84,44 @@ export default function History() {
 
       <div className="flex flex-col gap-2 sm:gap-4 max-h-none md:max-h-[600px] overflow-y-auto no-scrollbar w-full">
         {orders.map((order) => (
-          <div key={order.id} className="border-2 border-gray-200 rounded-2xl shadow-md p-4 bg-white">
+          <div
+            key={order.id}
+            className="border-2 border-gray-200 rounded-2xl shadow-md p-4 bg-white"
+          >
             <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold text-gray-500 text-lg">Order #{order.id.slice(-6)}</h2>
+              <h2 className="font-bold text-gray-500 text-lg">
+                Order #{order.id.slice(-6)}
+              </h2>
               <span className="text-gray-500">{order.createdAt}</span>
             </div>
 
             {order.orderItems.map((item) => (
-              <div key={item.id} className="flex justify-between items-center border-t border-gray-100 py-3">
+              <div
+                key={item.id}
+                className="flex justify-between items-center border-t border-gray-100 py-3"
+              >
                 <div>
-                  <h3 className="font-semibold text-gray-500">{item.classObj.title}</h3>
+                  <h3 className="font-semibold text-gray-500">
+                    {item.classObj.title}
+                  </h3>
                   {/* <p className="text-gray-500 text-sm">Staty{order.status}</p> */}
                 </div>
               </div>
             ))}
             <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2">
-              <span className="font-bold text-lg text-gray-700">Rp {order.totalAmount.toLocaleString('id-ID')}</span>
-              <span className="font-bold text-lg text-gray-700">{order.status}</span>
+              <span className="font-bold text-lg text-gray-700">
+                Rp {order.totalAmount.toLocaleString("id-ID")}
+              </span>
+              <span
+                className={`font-bold text-lg 
+                      ${order.status === "PENDING" ? "text-gray-500" : ""}
+                      ${order.status === "COMPLETED" ? "text-green-400" : ""}
+                      ${order.status === "FAILED" ? "text-red-500" : ""}
+                    `}
+              >
+                {order.status}
+              </span>
             </div>
-          
           </div>
         ))}
       </div>
