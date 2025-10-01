@@ -20,7 +20,7 @@ export default function DetailClass() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(true);
     const [order, setOrder] = useState<Order | null>(null);
     const router = useRouter();
 
@@ -44,13 +44,83 @@ export default function DetailClass() {
 
     }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <XLoading size={120} />
-      </div>
-    );
-  }
+    const handleClick = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("Silakan login terlebih dahulu untuk membeli kelas.");
+                router.push("/auth/login");
+                return;
+            }
+
+            // Ambil list kelas user
+            const myClassesResponse = await myClasses(token);
+            const purchasedClasses = myClassesResponse?.data || [];
+
+            // Cek apakah kelas sudah dibeli
+            const alreadyPurchased = purchasedClasses.some(
+                (cls: UserClassVideo) => cls.classObj.id === id
+            );
+
+            if (alreadyPurchased) {
+                alert("Anda sudah memiliki kelas ini. Silakan buka di menu 'My Classes'.");
+                router.push("/profile/my-classes");
+                return;
+            }
+
+            // Cek orders yang sudah ada
+            const ordersResponse = await fetch("/api/orders", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            const ordersData = await ordersResponse.json();
+
+            // Cek apakah kelas sudah ada di orders tapi belum dibayar
+            const isPending = ordersData.orders?.some((order: any) =>
+                order.orderItems.some((item: any) =>
+                    item.classObj.id === id && order.status === "PENDING"
+                )
+            );
+
+            if (isPending) {
+                alert("Anda sudah memesan kelas ini. Silakan selesaikan pembayaran.");
+                router.push("/profile/payment");
+                return;
+            }
+
+            // Buat order baru jika belum ada
+            const response = await createOrder(token, id as string);
+            setOrder(response.data);
+
+            alert("Kelas berhasil ditambahkan ke keranjang. Silakan lanjutkan ke pembayaran.");
+            router.push("/profile/payment");
+
+        } catch (err: any) {
+            console.error("Gagal memproses pembelian:", err);
+
+            if (err.response?.status === 401) {
+                alert("Sesi anda telah berakhir. Silakan login kembali.");
+                router.push("/auth/login");
+            } else if (err.response?.status === 400) {
+                alert(err.response.data.error || "Terjadi kesalahan saat memproses pesanan.");
+            } else {
+                alert("Terjadi kesalahan sistem. Silakan coba beberapa saat lagi.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <XLoading size={120} />
+            </div>
+        );
+    }
 
     if (error || !detailClass) {
         return (
