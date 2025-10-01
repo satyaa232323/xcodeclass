@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/navbar";
 import { fetchClasses } from "@/utils/api";
+import XLoading from "@/components/LoadingEffect";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -35,7 +36,8 @@ export default function ClassesPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-lg text-gray-600">Loading...</p>
+        <XLoading size={100} />
+        <p className="ml-4 text-lg text-gray-600"></p>
       </div>
     );
   }

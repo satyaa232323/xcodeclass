@@ -2,6 +2,7 @@
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import Image from "next/image";
+import XLoading from "@/components/LoadingEffect";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -41,7 +42,7 @@ export default function DetailClass() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p>Loading...</p>
+        <XLoading size={120} />
       </div>
     );
   }
