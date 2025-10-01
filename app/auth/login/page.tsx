@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/ToastContext";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { login, Userprofile } from "@/utils/api";
 import Link from "next/link";
@@ -18,42 +19,34 @@ export default function LoginPage() {
   const [token, setToken] = useState("");
   const [user, setUser] = useState(null);
 
+  const toast = useToast();
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-
-
       const user = await Userprofile(token);
       setUser(user);
-
-
-
       const body = await login(email, password); // langsung dapet JSON
-
       if (body.token) {
         setToken(body.token);
-
-        // simpan token ke localStorage atau cookie
         localStorage.setItem("token", body.token);
+        toast.showToast("Login berhasil!", "success");
       } else {
         setError("Login gagal, cek email/password");
+        toast.showToast("Login gagal, cek email/password", "error");
         console.error("Login gagal:", body);
+        return;
       }
-
-      // redirect ke login setelah 2 detik
-
-
       if (body.user.role === "ADMIN") {
         router.push("/admin/dashboard");
       } else {
-
         router.push("/");
       }
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan");
+      toast.showToast(err.message || "Terjadi kesalahan", "error");
     } finally {
       setLoading(false);
     }
