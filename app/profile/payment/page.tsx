@@ -144,9 +144,9 @@ export default function PaymentPage() {
                   className="w-28 h-20 rounded-lg object-cover shadow-sm"
                 />
                 <div className="flex flex-col flex-1">
-                  <h3 className="font-semibold text-gray-500">
+                  <h2 className="font-semibold text-gray-500">
                     {item.orderItems[0].classObj.title}
-                  </h3>
+                  </h2>
                   {purchasedClasses.has(item.orderItems[0].classObj.id) && (
                     <span className="text-yellow-600 text-sm mt-1">
                       You already own this class

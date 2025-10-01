@@ -1,4 +1,3 @@
-
 const API_BASE_URL = "http://localhost:3000/api";
 
 export interface AuthResponse {
@@ -155,30 +154,39 @@ export const uploadVideoToCloudinary = async (token: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${API_BASE_URL}/upload/video`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-    });
+    try {
+        console.log('Starting video upload:', { fileName: file.name, fileSize: file.size });
 
-    if (!response.ok) {
-        const error = await response.json();
-        console.error("Video upload error response:", error);
-        throw new Error(error.message || 'Video upload failed');
+        const response = await fetch(`${API_BASE_URL}/upload/video`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            body: formData,
+        });
+
+        const result = await response.json();
+        console.log('Video upload response:', result);
+
+        if (!response.ok) {
+            console.error('Video upload failed with status:', response.status);
+            throw new Error(result.error || 'Video upload failed');
+        }
+
+        if (!result.secure_url) {
+            console.error('Missing secure_url in response:', result);
+            throw new Error('No secure URL received from video upload');
+        }
+
+        return {
+            secure_url: result.secure_url,
+            thumbnail_url: result.thumbnail_url || result.secure_url,
+            duration: result.duration || 0
+        };
+    } catch (error) {
+        console.error('Video upload error:', error);
+        throw error;
     }
-
-    const result = await response.json();
-    if (!result.secure_url) {
-        throw new Error('No URL received from upload');
-    }
-
-    return {
-        secure_url: result.secure_url,
-        duration: result.duration || 0,
-        public_id: result.public_id
-    };
 };
 
 

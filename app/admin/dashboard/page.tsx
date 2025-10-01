@@ -1,8 +1,50 @@
 "use client";
 import { Wallet, Receipt, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { fetchAllClasses, fetchAllOrders } from "@/utils/api";
+import Link from "next/link";
 
 export default function DashboardPage() {
+
+  const [recentTransactions, setRecentTransactions] = useState<Order[]>([]);
+  const [recentCourses, setRecentCourses] = useState<Class[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+
+  useEffect(() => {
+    try {
+      const fetchData = async () => {
+        setLoading(true);
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("User not authenticated");
+          setLoading(false);
+          return;
+        }
+
+        // fetch recent transactions & courses
+        const recentTransactions = await fetchAllOrders(token);
+        setRecentTransactions(recentTransactions.data || []);
+
+        const recentCourses = await fetchAllClasses(token);
+
+        setRecentCourses(recentCourses.data || []);
+        setLoading(false);
+        setError("");
+      };
+      fetchData();
+    } catch (err: any) {
+      console.error("Failed to fetch dashboard data:", err);
+      setError(err.message || "Unknown error");
+    }
+  }, [])
+
+  function totalAmount(){
+    return recentTransactions.reduce((total, transaction) => total + transaction.totalAmount, 0);
+  }
   return (
     <div className="p-6 space-y-6 h-screen overflow-y-auto custom-scroll">
       {/* Summary Cards */}
@@ -29,8 +71,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <h3 className="text-gray-500">Income Bulan Ini</h3>
-            <p className="text-2xl font-bold text-green-600">Rp 12.500.000</p>
-            <span className="text-sm text-gray-400">+12% dibanding bulan lalu</span>
+            <p className="text-2xl font-bold text-green-600">{totalAmount().toLocaleString("id-ID")}</p>
           </div>
         </motion.div>
 
@@ -44,8 +85,11 @@ export default function DashboardPage() {
           </div>
           <div>
             <h3 className="text-gray-500">Total Transaksi</h3>
-            <p className="text-2xl font-bold text-blue-600">320</p>
-            <span className="text-sm text-gray-400">+5% dibanding bulan lalu</span>
+            {recentTransactions.length > 0 ? (
+              <p className="text-2xl font-bold text-blue-600">{recentTransactions.length}</p>
+            ) : (
+              <p className="text-gray-500">Tidak ada transaksi</p>
+            )}
           </div>
         </motion.div>
 
@@ -59,8 +103,11 @@ export default function DashboardPage() {
           </div>
           <div>
             <h3 className="text-gray-500">Total Courses</h3>
-            <p className="text-2xl font-bold text-red-600">25</p>
-            <span className="text-sm text-gray-400">+2 courses baru bulan ini</span>
+            {recentCourses.length > 0 ? (
+              <p className="text-2xl font-bold text-red-600">{recentCourses.length}</p>
+            ) : (
+              <p className="text-gray-500">Tidak ada course</p>
+            )}
           </div>
         </motion.div>
       </motion.div>
@@ -74,11 +121,11 @@ export default function DashboardPage() {
       >
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-red-800 text-lg">Recent Transactions</h3>
-          <button className="text-sm text-blue-500 hover:underline">View All</button>
+          <Link href={'/admin/transactions'} className="text-sm text-blue-500 hover:underline">View All</Link>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full text-left" >
             <thead>
               <tr className="text-gray-500 text-sm border-b">
                 <th className="py-3 px-2">Nama</th>
@@ -87,35 +134,28 @@ export default function DashboardPage() {
                 <th className="py-3 px-2">Tanggal</th>
               </tr>
             </thead>
-            <tbody>
-              <tr className="border-b hover:bg-gray-50 transition">
-                <td className="flex items-center gap-3 py-3 px-2">
-                  <img
-                    src="https://ui-avatars.com/api/?name=Muhammad+Ridho"
-                    alt="Muhammad Ridho"
-                    className="w-9 h-9 rounded-full object-cover"
-                  />
-                  <span className="font-semibold text-gray-800">Muhammad Ridho</span>
-                </td>
-                <td className="py-3 px-2 text-gray-600">UI/UX Design</td>
-                <td className="py-3 px-2 text-gray-600">Rp 250.000</td>
-                <td className="py-3 px-2 text-gray-500 text-sm">17 Sept 2025</td>
-              </tr>
-              <tr className="border-b hover:bg-gray-50 transition">
-                <td className="flex items-center gap-3 py-3 px-2">
-                  <img
-                    src="https://ui-avatars.com/api/?name=Casandra+Putri"
-                    alt="Casandra Putri"
-                    className="w-9 h-9 rounded-full object-cover"
-                  />
-                  <span className="font-semibold text-gray-800">Casandra Putri</span>
-                </td>
-                <td className="py-3 px-2 text-gray-600">Web Development</td>
-                <td className="py-3 px-2 text-gray-600">Rp 500.000</td>
-                <td className="py-3 px-2 text-gray-500 text-sm">16 Sept 2025</td>
-              </tr>
-            </tbody>
+            {recentTransactions.slice(0, 3).map((transaction) => (
+              <tbody key={transaction.id}>
+                <tr className="border-b hover:bg-gray-50 transition">
+                  <td className="flex items-center gap-3 py-3 px-2">
+                    <img
+                      src="https://ui-avatars.com/api/?name=Muhammad+Ridho"
+                      alt={transaction.user?.name || "User Avatar"}
+                      className="w-9 h-9 rounded-full object-cover"
+                    />
+                    <span className="font-semibold text-gray-800">{transaction.user?.name || "Someone"}</span>
+                  </td>
+                  <td className="py-3 px-2 text-gray-600">{transaction.orderItems.map((item) => item.classObj.title).join(", ")}</td>
+                  <td className="py-3 px-2 text-gray-600">{transaction.totalAmount.toLocaleString("id-ID")}</td>
+                  <td className="py-3 px-2 text-gray-500 text-sm">{transaction.createdAt}</td>
+                </tr>
+
+              </tbody>
+            ))}
           </table>
+          {recentTransactions.length === 0 && !loading && (
+            <p className="text-gray-500 text-center py-6">Tidak ada transaksi terbaru</p>
+          )}
         </div>
       </motion.div>
 
@@ -128,22 +168,21 @@ export default function DashboardPage() {
       >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-red-800 font-semibold text-lg">Recent Course Added</h3>
-          <button className="text-sm text-blue-500">View All</button>
+          <Link href={'/admin/classes'} className="text-sm text-blue-500">View All</Link>
         </div>
-        <ul className="space-y-3">
-          <li className="border-b pb-2">
-            <p className="text-gray-700 font-medium">Next.js for Beginners</p>
-            <span className="text-sm text-gray-500">
-              by Muhammad Ridho • 15 Sept 2025
-            </span>
-          </li>
-          <li className="border-b pb-2">
-            <p className="text-gray-700 font-medium">UI/UX Design Fundamentals</p>
-            <span className="text-sm text-gray-500">
-              by Casandra Putri • 14 Sept 2025
-            </span>
-          </li>
-        </ul>
+        {recentCourses.slice(0, 3).map((course) =>
+          <ul className="space-y-3" key={course.id}>
+            <li className="border-b pb-2">
+              <p className="text-gray-700 font-medium">{course.title}</p>
+              <span className="text-sm text-gray-500">
+                by {course.mentor} • {course.createdAt}
+              </span>
+            </li>
+            {recentCourses.length === 0 && !loading && (
+              <p className="text-gray-500 text-center py-6">Tidak ada course terbaru</p>
+            )}
+          </ul>
+        )}
       </motion.div>
     </div>
   );
