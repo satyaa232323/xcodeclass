@@ -1,14 +1,22 @@
-// Video yang ada di kelas
-interface Video {
+interface User {
   id: string;
-  title: string;
-  videoUrl: string;
-  thumbnailUrl: string; // selalu ada, hasil generate dari Cloudinary
-  duration: number;
-  order: number;
+  name: string | null;
+  email: string;
+  role: "ADMIN" | "USER";
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Data umum kelas
+interface Video {
+  id: string;
+  classId: string;
+  title: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  duration: number;  // in minutes
+  order: number;    // video order in class
+}
+
 interface Class {
   id: string;
   title: string;
@@ -16,48 +24,80 @@ interface Class {
   price: number;
   thumbnailUrl: string;
   mentor: string;
-  mentorProfileUrl?: string;
+  mentorProfileUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
   videos: Video[];
 }
 
-// Data kelas yang sudah dibeli user
 interface UserClassVideo {
   id: string;
+  userId: string;
+  classId: string;
   purchaseDate: string;
   classObj: Class;
 }
 
-// Order Item
 interface OrderItem {
-  id: string;
+  id: number;
   orderId: string;
   classId: string;
   price: number;
   classObj: Class;
-  date: Date;
 }
 
-// Order
 interface Order {
   id: string;
   userId: string;
   totalAmount: number;
-  createdAt: string;
-  orderItems: OrderItem[];
-  date: Date;
   status: "PENDING" | "COMPLETED" | "FAILED";
+  midtransOrderId: string | null;
+  orderNumber: number;
+  orderItems: OrderItem[];
+  createdAt: string;
   user?: User;
 }
 
-// User
-interface User {
+interface PaymentLog {
   id: string;
-  name: string;
-  email: string;
-  role: "ADMIN" | "USER";
+  orderId: string;
+  rawBody: any;  // JSON data from payment provider
+  createdAt: string;
 }
 
-// Detail Kelas (untuk page detail)
-interface DetailClass extends Class {
-  description: string; // di sini wajib ada
+interface DetailClass extends Omit<Class, 'videos'> {
+  videos: Video[];
+}
+
+interface ClassData {
+  title: string;
+  description: string;
+  price: number;
+  thumbnailUrl: string;
+  mentor: string;
+  mentorProfileUrl?: string | null;
+  videos: {
+    title: string;
+    videoUrl: string;
+    thumbnailUrl: string;
+    duration: number;
+    order: number;
+  }[];
+}
+
+// TypeScript interfaces
+interface RegisterFormData {
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    id: string;
+    username: string;
+    email: string;
+  };
 }

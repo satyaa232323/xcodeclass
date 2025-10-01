@@ -121,7 +121,7 @@ export default function IsiVideoPage() {
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold text-black">Master Kurniawan</p>
+                  <p className="font-semibold text-black">{classData.classObj.mentor}</p>
                   <p className="text-sm text-black">Chief Technology Officer</p>
                 </div>
               </div>

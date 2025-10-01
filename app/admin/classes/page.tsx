@@ -63,6 +63,9 @@ export default function CoursesPage() {
   const [uploadingVideos, setUploadingVideos] = useState<Record<number, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  // filtered class
+  const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   // ===================== FETCH DATA =====================
   useEffect(() => {
     fetchClasses();
@@ -75,12 +78,23 @@ export default function CoursesPage() {
 
       const response = await fetchAllClasses(token);
       setClasses(response.data);
+      setFilteredClasses(response.data);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+  
+
+  useEffect(() => {
+    const result = classes.filter(item => {
+      const matchTitle = item.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchMentor = item.mentor.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchTitle || matchMentor;
+    })
+    setFilteredClasses(result);
+  }, [searchTerm, classes]);
 
   // ===================== HANDLE SUBMIT =====================
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,7 +142,7 @@ export default function CoursesPage() {
         await updateClass(token, editingId, classData);
       } else {
         // Create new class
-        await createClass(token, classData); 
+        await createClass(token, classData);
       }
 
       await fetchClasses();
@@ -147,7 +161,7 @@ export default function CoursesPage() {
       const token = localStorage.getItem("token");
       if (!token) return router.push("/auth/login");
 
-       await deleteClass(token, id);
+      await deleteClass(token, id);
 
       fetchClasses();
     } catch (err: any) {
@@ -338,7 +352,7 @@ export default function CoursesPage() {
             <h2 className="text-xl font-bold mb-4">
               {editingId ? "Edit Course" : "Add New Course"}
             </h2>
-
+            <label className="block mb-1 font-medium">Classes Title</label>
             <form onSubmit={handleSubmit} className="space-y-4 text-black">
               <input
                 type="text"
@@ -349,7 +363,7 @@ export default function CoursesPage() {
                 required
               />
 
-
+              <label className="block mb-1 font-medium">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -357,10 +371,16 @@ export default function CoursesPage() {
                 className="w-full border p-2 rounded"
                 required
               />
+
+              <label className="block mb-1 font-medium">Price (IDR)</label>
               <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                type="text"
+                value={Number(price).toLocaleString('id-ID')}
+                onChange={(e) => {
+                  // Remove non-numeric characters and convert to number
+                  const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                  setPrice(numericValue);
+                }}
                 placeholder="Price"
                 className="w-full border p-2 rounded"
                 required
@@ -368,7 +388,7 @@ export default function CoursesPage() {
 
               {/* Thumbnail Upload */}
               <div>
-                <label className="block mb-1 font-medium">Thumbnail</label>
+                <label className="block mb-1 font-medium">Thumbnail Class</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -405,6 +425,7 @@ export default function CoursesPage() {
                 )}
               </div>
 
+              <label className="block mb-1 font-medium">Mentor</label>
               <input
                 type="text"
                 value={mentor}

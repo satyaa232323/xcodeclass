@@ -22,7 +22,7 @@ export default function AdminLayout({
         }`}
       >
         {/* Header */}
-        <Header isMinimized={isMinimized} />
+        <Header isMinimized={isMinimized}  />
 
         {/* Page Content */}
         <main className="pt-20 px-6">{children}</main>

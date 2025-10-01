@@ -4,9 +4,10 @@ import React from "react";
 
 type HeaderProps = {
   isMinimized?: boolean; // opsional supaya tidak error saat dipass dari layout
+  filteredCourses?: any; // opsional supaya tidak error saat dipass dari layout
 };
 
-export default function Header({ isMinimized }: HeaderProps) {
+export default function Header({ isMinimized, filteredCourses }: HeaderProps) {
   return (
     <header
       className="fixed top-0 left-0 right-0 h-16 bg-red-500 flex items-center justify-center px-6 z-30"
