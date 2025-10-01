@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
             cloudinary.uploader.upload_stream(
                 {
                     resource_type: "video",
+                    format: "mp4",
                     folder: "xcodeclass/videos",
                     quality: "auto",
                 },
@@ -37,11 +38,17 @@ export async function POST(req: NextRequest) {
         });
 
         const result = uploadResult as any;
+        console.log('Cloudinary upload result:', result);
+
+        if (!result.secure_url) {
+            throw new Error('No secure_url received from Cloudinary');
+        }
 
         return NextResponse.json({
             secure_url: result.secure_url,
             public_id: result.public_id,
-            duration: result.duration // duration in seconds from Cloudinary
+            duration: result.duration, // duration in seconds from Cloudinary
+            thumbnail_url: result.thumbnail_url || result.secure_url
         });
 
     } catch (error) {

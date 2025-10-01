@@ -7,6 +7,7 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "rec
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { fetchAllOrders } from "@/utils/api";
+import { Order } from "@/app/generated/prisma";
 
 const stats = {
   totalTransactions: 120,

@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
                 {
                     resource_type: "image",
                     folder: "xcodeclass/thumbnails",
+                    format: "jpg",
                     transformation: [
                         { width: 800, height: 600, crop: "fill" },
                         { quality: "auto" }
@@ -41,7 +42,12 @@ export async function POST(req: NextRequest) {
 
         const result = uploadResult as any;
 
+        if (!result || !result.secure_url) {
+            throw new Error('No URL received from Cloudinary');
+        }
+
         return NextResponse.json({
+            url: result.secure_url,
             secure_url: result.secure_url,
             public_id: result.public_id
         });

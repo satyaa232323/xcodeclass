@@ -1,28 +1,33 @@
+// Video yang ada di kelas
+interface Video {
+  id: string;
+  title: string;
+  videoUrl: string;
+  thumbnailUrl: string; // selalu ada, hasil generate dari Cloudinary
+  duration: number;
+  order: number;
+}
+
+// Data umum kelas
 interface Class {
   id: string;
   title: string;
   description: string | null;
   price: number;
-  thumbnailUrl?: string; // Made optional
+  thumbnailUrl: string;
+  mentor: string;
   mentorProfileUrl?: string;
-  mentor?: string; // Made optional
   videos: Video[];
 }
+
+// Data kelas yang sudah dibeli user
 interface UserClassVideo {
   id: string;
   purchaseDate: string;
-  classObj: {
-    id: string;
-    title: string;
-    description: string;
-    price: number;
-    createdAt: string;
-    updatedAt: string;
-    videos: Video[];
-    mentorProfileUrl?: string;
-  };
+  classObj: Class;
 }
 
+// Order Item
 interface OrderItem {
   id: string;
   orderId: string;
@@ -31,6 +36,8 @@ interface OrderItem {
   classObj: Class;
   date: Date;
 }
+
+// Order
 interface Order {
   id: string;
   userId: string;
@@ -41,42 +48,16 @@ interface Order {
   status: "PENDING" | "COMPLETED" | "FAILED";
   user?: User;
 }
-interface Video {
-  id?: string;
-  title: string;
-  videoUrl: string;
-  thumbnailUrl?: string; // Made optional
-  duration: number;
-  order: number;
-}
-interface DetailClass {
-  id: string;
-  thumbnailUrl: string;
-  title: string;
-  mentor: string;
-  description: string;
-  price: number;
-  videos: Video[];
-  class: Class;
-}
+
+// User
 interface User {
   id: string;
   name: string;
   email: string;
   role: "ADMIN" | "USER";
 }
-interface ClassData {
-  title: string;
-  description: string;
-  price: number;
-  thumbnailUrl: string;
-  mentor: string;
-  mentorProfileUrl?: string;
-  videos: {
-    title: string;
-    videoUrl: string;
-    thumbnailUrl: string;
-    duration: number;
-    order: number;
-  }[];
+
+// Detail Kelas (untuk page detail)
+interface DetailClass extends Class {
+  description: string; // di sini wajib ada
 }

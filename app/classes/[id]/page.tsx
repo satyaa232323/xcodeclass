@@ -156,7 +156,7 @@ export default function DetailClass() {
                             <div className="flex gap-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 py-2" key={video.id}>
                                 {/* vid 1 */}
                                 <Image
-                                    src={video.videoUrl}
+                                    src={video.thumbnailUrl}
                                     alt="Thumbnail Video"
                                     width={380}
                                     height={180}
@@ -187,7 +187,7 @@ export default function DetailClass() {
                             {classes.slice(0, 4).map((cls) => (
                                 <div className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md w-full min-h-[220px] md:min-h-[250px]" key={cls.id}>
                                     <Image
-                                        src={cls.thumbnailUrl || ""}
+                                        src={cls.thumbnailUrl}
                                         alt="Thumbnail Video"
                                         width={380}
                                         height={180}

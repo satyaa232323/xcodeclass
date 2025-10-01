@@ -3,7 +3,7 @@ import { useState } from "react";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/Header";
 
-export default function DashboardLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -23,7 +23,6 @@ export default function DashboardLayout({
       >
         {/* Header */}
         <Header isMinimized={isMinimized} />
-
 
         {/* Page Content */}
         <main className="pt-20 px-6">{children}</main>

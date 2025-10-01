@@ -10,7 +10,7 @@ import {
   uploadImageToCloudinary,
   uploadVideoToCloudinary,
 } from "@/utils/api";
-import { Edit2, Trash2, } from "lucide-react";
+import { Edit2, Eye, PencilIcon, Trash2, TrashIcon } from "lucide-react";
 
 
 // ===================== TYPES =====================
@@ -128,7 +128,7 @@ export default function CoursesPage() {
         await updateClass(token, editingId, classData);
       } else {
         // Create new class
-        await createClass(token, classData);
+        await createClass(token, classData); 
       }
 
       await fetchClasses();
@@ -147,13 +147,19 @@ export default function CoursesPage() {
       const token = localStorage.getItem("token");
       if (!token) return router.push("/auth/login");
 
-      await deleteClass(token, id);
+       await deleteClass(token, id);
 
       fetchClasses();
     } catch (err: any) {
       setError(err.message);
     }
   };
+
+  // ===================== MODAL DETAIL =====================
+
+  const handleDetailClass = (id: string) => {
+    router.push(`/admin/classes/${id}`);
+  }
 
   // ===================== HELPERS =====================
   const resetForm = () => {
@@ -299,15 +305,15 @@ export default function CoursesPage() {
               <span className="text-gray-500">{course.mentor}</span>
             </div>
             <div className="flex justify-end gap-2">
-              {/* <button
-                onClick={() => openDetailModal(course)}
-                className="p-2 text-gray-600 hover:text-gray-800"
+              <button
+                onClick={() => handleDetailClass(course.id)}
+                className="p-2 text-gray-600 hover:text-gray-800 cursor-pointer"
               >
                 <Eye size={18} />
-              </button> */}
+              </button>
               <button
                 onClick={() => handleEditClick(course)}
-                className="p-2 text-blue-600 hover:text-blue-800"
+                className="p-2 text-blue-600 hover:text-blue-800 cursor-pointer"
               >
                 <Edit2 size={18} />
               </button>
@@ -315,7 +321,7 @@ export default function CoursesPage() {
                 onClick={() => {
                   handleDelete(course.id);
                 }}
-                className="p-2 text-red-600 hover:text-red-800"
+                className="p-2 text-red-600 hover:text-red-800 cursor-pointer"
               >
                 <Trash2 size={18} />
               </button>
@@ -323,11 +329,6 @@ export default function CoursesPage() {
           </div>
         ))}
       </div>
-
-
-
-
-
 
 
       {/* Modal */}
@@ -481,84 +482,25 @@ export default function CoursesPage() {
                       required
                     />
 
-                    {/* Video File Upload */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Video File</label>
-                      <input
-                        type="file"
-                        accept="video/*"
-                        onChange={(e) => updateVideo(index, "file", e.target.files?.[0] || new File([], ""))}
-                        className="w-full border p-2 rounded"
-                        required={!video.videoUrl} // Only required if no video URL exists
-                      />
-                    </div>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={(e) => updateVideo(index, "file", e.target.files?.[0] || new File([], ""))}
+                      className="w-full border p-2 rounded"
+                      required
+                    />
 
-                    {/* Video Thumbnail Upload */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Video Thumbnail</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            try {
-                              const token = localStorage.getItem("token");
-                              if (!token) return;
+                    {uploadingVideos[index] && (
+                      <p className="text-blue-500 text-sm">Uploading video...</p>
+                    )}
 
-                              setError("");
-                              setUploadingVideos(prev => ({ ...prev, [index]: true }));
-
-                              const uploadResult = await uploadImageToCloudinary(token, file);
-                              if (uploadResult?.secure_url) {
-                                const newVideos = [...videos];
-                                newVideos[index] = {
-                                  ...newVideos[index],
-                                  thumbnailUrl: uploadResult.secure_url
-                                };
-                                setVideos(newVideos);
-                              }
-                            } catch (error) {
-                              console.error('Error uploading video thumbnail:', error);
-                              setError('Failed to upload thumbnail: ' + (error instanceof Error ? error.message : 'Unknown error'));
-                            } finally {
-                              setUploadingVideos(prev => ({ ...prev, [index]: false }));
-                            }
-                          }
-                        }}
-                        className="w-full border p-2 rounded"
-                      />
-                    </div>
-
-                    {/* Preview Section */}
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* Video Preview */}
-                      {video.videoUrl && (
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Video Preview</label>
-                          <video
-                            src={video.videoUrl}
-                            controls
-                            className="w-full h-32 rounded"
-                          />
-                        </div>
-                      )}
-
-                      {/* Thumbnail Preview */}
-                      {video.thumbnailUrl && (
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Thumbnail Preview</label>
-                          <img
-                            src={video.thumbnailUrl}
-                            alt={`Thumbnail for ${video.title}`}
-                            className="w-full h-32 object-cover rounded"
-                          />
-                        </div>
-                      )}
-                    </div>
+                    {video.videoUrl && (
+                      <video src={video.videoUrl} controls className="w-full h-32 rounded" />
+                    )}
 
                     <div className="text-gray-600">
                       Duration: {video.duration} minutes
+                      {/* Hidden input for form validation */}
                       <input
                         type="hidden"
                         value={video.duration}
