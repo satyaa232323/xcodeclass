@@ -67,7 +67,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSearchChange }) => {
           type="text"
           placeholder="Cari kelas..."
           onChange={(e) => onSearchChange?.(e.target.value)}
-          className="w-full text-gray-400 max-w-md px-4 py-1.5 border border-gray-400 rounded-3xl focus:outline-none focus:ring-1 focus:ring-gray-500"
+          className="w-full text-gray-600 max-w-md px-4 py-1.5 border border-gray-400 rounded-3xl focus:outline-none focus:ring-1 focus:ring-gray-500"
         />
       </div>
 

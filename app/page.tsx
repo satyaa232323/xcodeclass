@@ -86,7 +86,7 @@ export default function HomePage() {
       <main className=" py-4 lg:py-6 space-y-6 lg:space-y-8">
         <div className="flex flex-col gap-10 w-full">
           {/* Call to Action */}
-          <div className="w-full bg-gray-50 flex flex-col md:flex-row items-center justify-between min-h-64 lg:min-h-[440px] px-4 md:px-10 py-10 gap-6">
+          <div id="home" className="w-full bg-gray-50 flex flex-col md:flex-row items-center justify-between min-h-64 lg:min-h-[440px] px-4 md:px-10 py-10 gap-6">
             <div className="flex-1 flex flex-col items-center md:items-start justify-center gap-4 text-black text-center md:text-left px-4 md:px-10">
               <h1 className="text-3xl lg:text-5xl font-sans font-bold mb-2">
                 Gabung Kelas XcodeClass Sekarang!
@@ -129,7 +129,7 @@ export default function HomePage() {
           </div>
 
           {/* Video Class */}
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
+          <div id="kelas" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4 md:px-20 w-full">
             {loading && (
               <div className="flex flex-col gap-4 w-full mt-4">
                 {[1, 2].map((i) => (
@@ -175,14 +175,17 @@ export default function HomePage() {
                   <span className="font-bold text-base mb-4">
                     Rp {item.price.toLocaleString("id-ID")}
                   </span>
-                  <Link key={item.id} href={`/classes/${item.id}`}>
-                    <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
-                      Beli
-                    </button>
-                  </Link>
+                  <div className="mt-auto">
+                    <Link href={`/classes/${item.id}`}>
+                      <button className="py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
+                        Beli
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
+
           </div>
           <div className="flex justify-center mt-6">
             <Link
@@ -194,7 +197,7 @@ export default function HomePage() {
           </div>
         </div>
         <hr className="border-t-2 border-gray-200 my-4 w-full" />
-        <div className="flex flex-col items-center justify-center bg-whte py-10 gap-10 px-4 md:px-20 w-full">
+        <div id="mentor" className="flex flex-col items-center justify-center bg-whte py-10 gap-10 px-4 md:px-20 w-full">
           <h1 className="text-3xl text-black font-bold">Mentor Kami</h1>
           <div className="flex flex-col lg:flex-row justify-center items-center gap-10 lg:gap-20 border-2 border-gray-200 rounded-xl p-6 md:p-14 w-full max-w-full mx-auto bg-white">
             <Image
@@ -237,8 +240,8 @@ export default function HomePage() {
             {keunggulanCards.map((item, idx) => (
               <motion.button
                 key={idx}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
                 onHoverStart={() => console.log("hover started!")}
               >
                 <div className="min-w-[220px] max-w-xl bg-white rounded-xl shadow-lg p-12 flex flex-col gap-3 relative">

@@ -58,3 +58,109 @@ body {
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+/* loading effect */
+/* X loader styles - paste di globals.css */
+
+/* wrapper: slow rotate + glow */
+.xloader-wrapper {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  animation: x-rotate 6s linear infinite;
+  filter: drop-shadow(0 6px 18px rgba(220,38,38,0.12));
+}
+
+/* svg sizing (keperluan responsive) */
+.xloader-svg {
+  display: block;
+}
+
+/* subtle breathing (scale) for the whole X */
+.xloader-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: x-pulse 2.4s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+/* strokes: draw animation using stroke-dasharray / offset */
+.x-stroke {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: stroke-draw 1.2s cubic-bezier(.2,.9,.2,1) forwards;
+  transform-origin: center;
+}
+
+/* delay second stroke so X "draws" diagonally */
+.x-stroke--b {
+  animation-delay: 0.28s;
+}
+
+/* subtle scale pop on complete draw */
+.xloader-wrapper .x-fore {
+  transform-origin: center;
+  animation: x-pop 1.6s cubic-bezier(.2,.9,.2,1) both;
+  animation-delay: 1.2s;
+}
+
+/* orbiting dots rotate around center */
+.x-dots {
+  transform-origin: center;
+  animation: dots-orbit 2.4s linear infinite;
+  opacity: 0.95;
+}
+
+/* individual dot subtle scale/opacity flicker */
+.dot--1 { animation: dot-flick 1.6s ease-in-out infinite; animation-delay: 0s; }
+.dot--2 { animation: dot-flick 1.6s ease-in-out infinite; animation-delay: 0.24s; }
+.dot--3 { animation: dot-flick 1.6s ease-in-out infinite; animation-delay: 0.48s; }
+
+/* KEYFRAMES */
+@keyframes stroke-draw {
+  0% { stroke-dashoffset: 80; opacity: 0.0; }
+  60% { stroke-dashoffset: 6; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes x-pop {
+  0% { transform: scale(0.98); filter: blur(0px); opacity: 0.98; }
+  45% { transform: scale(1.08); }
+  100% { transform: scale(1.01); }
+}
+
+@keyframes x-rotate {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(8deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes x-pulse {
+  0% { transform: scale(1); opacity: 0.98; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.98; }
+}
+
+@keyframes dots-orbit {
+  0% { transform: rotate(0deg) translateZ(0); }
+  100% { transform: rotate(360deg) translateZ(0); }
+}
+
+@keyframes dot-flick {
+  0% { transform: scale(0.88); opacity: 0.7; }
+  50% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(0.88); opacity: 0.7; }
+}
+
+/* accessibility: hide sr-only text for visual users (Tailwind-like sr-only) */
+.sr-only {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+  border: 0; padding: 0; margin: -1px;
+}

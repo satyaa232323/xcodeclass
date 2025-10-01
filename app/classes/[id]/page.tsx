@@ -2,6 +2,7 @@
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import Image from "next/image";
+import XLoading from "@/components/LoadingEffect";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -43,53 +44,13 @@ export default function DetailClass() {
 
     }, [id]);
 
-    const handleClick = async () => {
-        try {
-
-            setLoading(true);
-            const token = localStorage.getItem("token");
-
-            if (!token || !isAuthenticated) {
-
-            }
-            setIsAuthenticated(!!token);
-            if (!token || !isAuthenticated) {
-                alert("Silakan login terlebih dahulu untuk membeli kelas.");
-                router.push("/auth/login");
-            }
-
-
-            const myClassesResponse = await myClasses(token as string);
-            const purchasedClasses = myClassesResponse.data;
-
-            const alreadyPurchased = purchasedClasses.some((cls: UserClassVideo) => cls.classObj.id === id);
-            // Redirect to payment gateway if needed
-            if (alreadyPurchased) {
-
-                alert("Anda sudah membeli kelas ini.");
-                return;
-            }
-
-            const response = await createOrder(token as string, id as string);
-            alert("Kelas berhasil ditambahkan ke keranjang. Silakan lanjutkan ke pembayaran.");
-            router.push("/profile/payment");
-            setOrder(response.data);
-            return;
-
-
-        } catch (err) {
-            console.log(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <p>Loading...</p>
-            </div>
-        );
-    }
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <XLoading size={120} />
+      </div>
+    );
+  }
 
     if (error || !detailClass) {
         return (

@@ -54,22 +54,38 @@ export default function Footer() {
           <h3 className="font-semibold mb-2">Navigasi</h3>
           <ul className="space-y-1 text-sm">
             <li>
-              <a href="#" className="hover:text-red-500">
+              <button
+                onClick={() =>
+                  document.getElementById("home")?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="hover:text-red-500"
+              >
                 Home
-              </a>
+              </button>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500">
+              <button
+                onClick={() =>
+                  document.getElementById("kelas")?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="hover:text-red-500"
+              >
                 Kelas
-              </a>
+              </button>
             </li>
             <li>
-              <a href="#" className="hover:text-red-500">
+              <button
+                onClick={() =>
+                  document.getElementById("mentor")?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="hover:text-red-500"
+              >
                 Mentor
-              </a>
+              </button>
             </li>
           </ul>
         </div>
+
 
         {/* 3. Bantuan */}
         <div>
