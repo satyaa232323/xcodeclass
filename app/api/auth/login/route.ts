@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
       select: { id: true, email: true, password: true, role: true, name: true },
     });
 
-    console.log("User fetched for login:", user);
 
     // protect endpoint rate limit
 

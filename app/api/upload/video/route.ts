@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
         });
 
         const result = uploadResult as any;
-        console.log('Cloudinary upload result:', result);
 
         // Get the thumbnail URL from eager transformations
         const thumbnailUrl = result.eager?.[0]?.secure_url ||
