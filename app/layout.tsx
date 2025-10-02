@@ -31,13 +31,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div>
+        <ToastProvider>
           {children}
           {/* Footer*/}
           <div>
             <Footer />
           </div>
-        </div>
+        </ToastProvider>
       </body>
     </html>
   );
