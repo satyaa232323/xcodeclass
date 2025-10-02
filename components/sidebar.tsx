@@ -17,7 +17,7 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
 
   const menuItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: Home },
-    { href: "/admin/classes", label: "Courses", icon: BookOpen },
+    { href: "/admin/classes", label: "Classes", icon: BookOpen },
     { href: "/admin/transactions", label: "Transactions", icon: CreditCard },
   ];
 

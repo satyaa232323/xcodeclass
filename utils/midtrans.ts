@@ -34,10 +34,10 @@ export const createMidtransTransaction = async (
       secure: true,
     },
     callbacks: {
-      finish: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment`,
-      unfinish: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment/unfinished`,
-      error: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment/error`,
-      pending: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment/pending`,
+       finish: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment?status=success&order_id=${midtransOrderId}`,
+      pending: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment?status=pending&order_id=${midtransOrderId}`,
+      error: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment?status=error&order_id=${midtransOrderId}`,
+      unfinish: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment?status=unfinish&order_id=${midtransOrderId}`,
     }
   };
 
