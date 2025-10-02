@@ -11,6 +11,19 @@ import { Class } from "@/app/generated/prisma";
 export default function PaymentPage() {
   const toast = useToast();
   const router = useRouter();
+  // Show toast if redirected from payment success
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("payment") === "success") {
+        toast.showToast("Pembayaran berhasil!", "success");
+        // Remove query param from URL after showing toast
+        const url = new URL(window.location.href);
+        url.searchParams.delete("payment");
+        window.history.replaceState({}, document.title, url.pathname);
+      }
+    }
+  }, []);
   const [isPaying, setIsPaying] = useState(false);
   const [error, setError] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
