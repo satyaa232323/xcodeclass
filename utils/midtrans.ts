@@ -33,6 +33,12 @@ export const createMidtransTransaction = async (
     credit_card: {
       secure: true,
     },
+    callbacks: {
+      finish: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment`,
+      unfinish: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment/unfinished`,
+      error: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment/error`,
+      pending: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment/pending`,
+    }
   };
 
   // createTransaction mengembalikan object dengan token & redirect_url

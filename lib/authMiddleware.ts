@@ -34,7 +34,6 @@ export async function verifyAuth(request: NextRequest, requiredRole: "ADMIN" | "
     }
     catch (error) {
         return null;
-        console.error("Error verifying auth:", error);
     }
 
 }

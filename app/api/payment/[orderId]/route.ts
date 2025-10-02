@@ -65,7 +65,7 @@ export async function POST(
       order.orderNumber,
       order.totalAmount,
       order.user.email,
-      order.user.name || "Customer"
+      order.user.name || "Customer",
     );
 
     // 💾 Update order dengan midtransOrderId

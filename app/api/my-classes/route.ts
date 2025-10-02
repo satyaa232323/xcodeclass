@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
         const prisma = new PrismaClient();
         const user = await verifyAuth(req, "USER");
         
-        console.log("Verified user in boughtClasses:", user);
 
         if (!user) {
             return NextResponse.json({ message: 'Authorization header missing' }, { status: 401 });

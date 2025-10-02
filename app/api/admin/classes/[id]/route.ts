@@ -61,6 +61,24 @@ export async function PATCH(
       return NextResponse.json({ error: "Class not found" }, { status: 404 });
     }
 
+
+
+    // cari ID dari video yang akan dihapus
+    const videosIdsToKeep = videosData
+    .filter((v: any) => v.id) // hanya yg punya id
+    .map((v: any) => v.id);
+
+    
+    // hapus video yg tidak ada di videosIdsToKeep
+    await prisma.video.deleteMany({
+      where: {
+        classId: id,
+        id: {
+          notIn: videosIdsToKeep
+        }
+      }
+    });
+
     // pisahkan data class & videos
     const updatedClass = await prisma.class.update({
       where: { id },
