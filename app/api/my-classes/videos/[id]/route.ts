@@ -10,7 +10,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
         const user = await verifyAuth(req, "USER")
 
-        console.log("Verified user in my-classes videos:", user);``
 
         if (!user) {
             return NextResponse.json({ message: 'Authorization header missing' }, { status: 401 });
@@ -35,6 +34,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                         title: true,
                         description: true,
                         price: true,
+                        mentor: true,
+                        mentorProfileUrl: true,
+                        thumbnailUrl: true,
                         createdAt: true,
                         updatedAt: true,
                         videos: {
@@ -43,7 +45,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                                 title: true,
                                 videoUrl: true,
                                 duration: true,
-                                order: true
+                                order: true,
+                                thumbnailUrl: true
                             },
                             orderBy: {
                                 order: 'asc'

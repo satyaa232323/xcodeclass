@@ -17,6 +17,7 @@ export async function GET(
         thumbnailUrl: true,
         title: true,
         mentor: true,
+        mentorProfileUrl: true,
         description: true,
         price: true,
         createdAt: true,

@@ -124,7 +124,7 @@ export default function ProfilePage() {
                   <Link
                     href={`/profile/myclass/${item.classId}?token=${encodeURIComponent(token)}`}
                   >
-                    <button className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition w-max mx-auto sm:mx-0 text-base font-bold">
+                    <button className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition w-max mx-auto sm:mx-0 text-base font-bold cursor-pointer ">
                       Lanjutkan Belajar
                     </button>
                   </Link>

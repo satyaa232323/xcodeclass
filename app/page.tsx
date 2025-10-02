@@ -271,10 +271,7 @@ export default function HomePage() {
           </p>
           <ReviewMarquee />
         </div>
-        {/* Footer*/}
-        <div>
-          <Footer />
-        </div>
+ 
       </main>
     </div>
   );

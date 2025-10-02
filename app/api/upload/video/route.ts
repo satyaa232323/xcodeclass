@@ -14,14 +14,14 @@ export async function POST(req: NextRequest) {
         const file = formData.get("file") as File;
 
         if (!file) {
-            return NextResponse.json({ error: "No file  provided" }, { status: 400 });
+            return NextResponse.json({ error: "No file provided" }, { status: 400 });
         }
 
         // Convert file to buffer
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // Upload to Cloudinary
+        // Upload to Cloudinary with thumbnail generation
         const uploadResult = await new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream(
                 {
@@ -29,6 +29,19 @@ export async function POST(req: NextRequest) {
                     format: "mp4",
                     folder: "xcodeclass/videos",
                     quality: "auto",
+                    eager: [
+                        // Generate thumbnail
+                        {
+                            format: "jpg",
+                            transformation: [
+                                { width: 800, height: 450, crop: "fill" },
+                                { quality: "auto" }
+                            ],
+                            resource_type: "video"
+                        }
+                    ],
+                    eager_async: true,
+                    eager_notification_url: null as any
                 },
                 (error, result) => {
                     if (error) reject(error);
@@ -40,15 +53,15 @@ export async function POST(req: NextRequest) {
         const result = uploadResult as any;
         console.log('Cloudinary upload result:', result);
 
-        if (!result.secure_url) {
-            throw new Error('No secure_url received from Cloudinary');
-        }
+        // Get the thumbnail URL from eager transformations
+        const thumbnailUrl = result.eager?.[0]?.secure_url ||
+            `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/w_800,h_450,c_fill,q_auto/${result.public_id}.jpg`;
 
         return NextResponse.json({
             secure_url: result.secure_url,
             public_id: result.public_id,
-            duration: result.duration, // duration in seconds from Cloudinary
-            thumbnail_url: result.thumbnail_url || result.secure_url
+            duration: result.duration,
+            thumbnail_url: thumbnailUrl
         });
 
     } catch (error) {

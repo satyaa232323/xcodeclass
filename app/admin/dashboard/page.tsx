@@ -88,7 +88,7 @@ export default function DashboardPage() {
             {recentTransactions.length > 0 ? (
               <p className="text-2xl font-bold text-blue-600">{recentTransactions.length}</p>
             ) : (
-              <p className="text-gray-500">Tidak ada transaksi</p>
+              <p className="text-gray-500">0</p>
             )}
           </div>
         </motion.div>
@@ -106,7 +106,7 @@ export default function DashboardPage() {
             {recentCourses.length > 0 ? (
               <p className="text-2xl font-bold text-red-600">{recentCourses.length}</p>
             ) : (
-              <p className="text-gray-500">Tidak ada course</p>
+              <p className="text-gray-500">0</p>
             )}
           </div>
         </motion.div>

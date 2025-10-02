@@ -8,13 +8,14 @@ interface User {
 }
 
 interface Video {
-  id: string;
-  classId: string;
+ id?: string;
   title: string;
   videoUrl: string;
-  thumbnailUrl: string;
-  duration: number;  // in minutes
-  order: number;    // video order in class
+  file?: File;
+  duration: number;
+  order: number;
+  thumbnailUrl?: string;
+  originalUrl?: string;  // Store original URL when editingss
 }
 
 interface Class {
