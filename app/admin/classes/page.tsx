@@ -10,7 +10,7 @@ import {
   uploadImageToCloudinary,
   uploadVideoToCloudinary,
 } from "@/utils/api";
-import { Edit2, Eye, Trash2 } from "lucide-react";
+import { Edit2, Eye, Trash2, TrashIcon } from "lucide-react";
 
 // ===================== TYPES =====================
 interface Video {
@@ -24,16 +24,12 @@ interface Video {
   originalUrl?: string;
 }
 
-interface Class {
-  id: string;
-  title: string;
-  description: string | null;
-  price: number;
-  thumbnailUrl: string;
-  mentor: string;
-  mentorProfileUrl?: string;
-  videos: Video[];
-}
+// ==================== ZOD SCHEMA ====================
+
+// ===================== TYPES =====================
+
+
+
 
 // ===================== MAIN COMPONENT =====================
 export default function CoursesPage() {
@@ -53,7 +49,7 @@ export default function CoursesPage() {
   const [mentor, setMentor] = useState("");
   const [mentorProfileUrl, setMentorProfileUrl] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailVideo, setThumbnailVideo] = useState("");
   const [videos, setVideos] = useState<Video[]>([]);
 
   // Edit states
@@ -176,7 +172,7 @@ export default function CoursesPage() {
     setPrice("");
     setMentor("");
     setThumbnailUrl("");
-    setThumbnailFile(null);
+    setThumbnailVideo("");
     setVideos([]);
     setEditingId(null);
   };
@@ -212,14 +208,16 @@ export default function CoursesPage() {
           const duration = await getDuration;
           const uploadResult = await uploadVideoToCloudinary(token, value);
 
-          if (!uploadResult?.secure_url) throw new Error("No URL received from video upload");
+          if (!uploadResult?.secure_url) {
+            throw new Error('No URL received from video upload');
+          }
 
           newVideos[index] = {
             ...newVideos[index],
             videoUrl: uploadResult.secure_url,
-            thumbnailUrl: uploadResult.thumbnail_url || uploadResult.secure_url,
+            thumbnailUrl: uploadResult.thumbnail_url, // Use the generated thumbnail URL
             duration: Math.max(duration, Math.ceil((uploadResult.duration || 0) / 60)),
-            title: newVideos[index].title || value.name.split(".")[0],
+            title: newVideos[index].title || value.name.split('.')[0]
           };
 
           setVideos([...newVideos]);
@@ -238,8 +236,18 @@ export default function CoursesPage() {
   };
 
   const removeVideo = (index: number) => {
-    const newVideos = videos.filter((_, i) => i !== index);
-    setVideos(newVideos);
+    if (window.confirm('Are you sure you want to remove this video?')) {
+      const newVideos = [...videos];
+      const removedVideo = newVideos[index];
+      newVideos.splice(index, 1);
+
+      // Reorder remaining videos
+      newVideos.forEach((video, idx) => {
+        video.order = idx + 1;
+      });
+
+      setVideos(newVideos);
+    }
   };
 
   const handleEditClick = (course: Class) => {
@@ -250,6 +258,21 @@ export default function CoursesPage() {
     setMentor(course.mentor);
     setMentorProfileUrl(course.mentorProfileUrl || "");
     setThumbnailUrl(course.thumbnailUrl);
+
+    // Set existing videos with all required properties
+    if (course.videos && course.videos.length > 0) {
+      setVideos(course.videos.map(video => ({
+        id: video.id,
+        title: video.title,
+        videoUrl: video.videoUrl,
+        thumbnailUrl: video.thumbnailUrl,
+        duration: video.duration,
+        order: video.order
+      })));
+    } else {
+      setVideos([]);
+    }
+
     setShowModal(true);
   };
 
@@ -322,9 +345,16 @@ export default function CoursesPage() {
 
       {/* ✅ Modal Add/Edit Course */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">{editingId ? "Edit Course" : "Add New Course"}</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Black overlay */}
+          <div className="absolute inset-0 bg-black opacity-70"></div>
+
+          {/* Modal content */}
+          <div className="relative z-10 bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+            <h2 className="text-xl font-bold mb-4">
+              {editingId ? "Edit Course" : "Add New Course"}
+            </h2>
+            <label className="block mb-1 font-medium">Classes Title</label>
             <form onSubmit={handleSubmit} className="space-y-4 text-black">
               <label className="block font-medium">Title</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2 rounded" required />
@@ -344,24 +374,44 @@ export default function CoursesPage() {
                 required
               />
 
-              {/* Thumbnail */}
-              <label className="block font-medium">Thumbnail</label>
-              <input type="file" accept="image/*" onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const token = localStorage.getItem("token");
-                  if (!token) return;
-                  setUploadingThumbnail(true);
-                  try {
-                    const uploadResult = await uploadImageToCloudinary(token, file);
-                    if (uploadResult?.secure_url) setThumbnailUrl(uploadResult.secure_url);
-                  } finally {
-                    setUploadingThumbnail(false);
-                  }
-                }
-              }} className="w-full border p-2 rounded" />
-              {uploadingThumbnail && <p className="text-sm text-blue-500">Uploading...</p>}
-              {thumbnailUrl && <img src={thumbnailUrl} className="w-32 h-32 mt-2 rounded object-cover" />}
+              {/* Thumbnail Upload */}
+              <div>
+                <label className="block mb-1 font-medium">Thumbnail Class</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      try {
+                        const token = localStorage.getItem("token");
+                        if (!token) return;
+                        setError("");
+                        setUploadingThumbnail(true);
+                        const uploadResult = await uploadImageToCloudinary(token, file);
+                        if (uploadResult?.secure_url) {
+                          setThumbnailUrl(uploadResult.secure_url);
+                          setThumbnailVideo(""); // Clear the file after successful upload
+                        } else {
+                          throw new Error('No URL received from image upload');
+                        }
+                      } catch (error) {
+                        console.error('Error uploading thumbnail:', error);
+                        setError('Failed to upload thumbnail: ' + (error instanceof Error ? error.message : 'Unknown error'));
+                      } finally {
+                        setUploadingThumbnail(false);
+                      }
+                    }
+                  }}
+                  className="w-full border p-2 rounded"
+                />
+                {uploadingThumbnail && <p className="text-blue-500 text-sm mt-1">Uploading thumbnail...</p>}
+                {thumbnailUrl && (
+                  <div className="mt-2">
+                    <img src={thumbnailUrl} alt="Thumbnail preview" className="w-32 h-32 object-cover rounded" />
+                  </div>
+                )}
+              </div>
 
               <label className="block font-medium">Mentor</label>
               <input type="text" value={mentor} onChange={(e) => setMentor(e.target.value)} className="w-full border p-2 rounded" required />
@@ -378,20 +428,105 @@ export default function CoursesPage() {
               }} className="w-full border p-2 rounded" />
               {mentorProfileUrl && <img src={mentorProfileUrl} className="w-32 h-32 mt-2 rounded object-cover" />}
 
-              {/* Videos */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold">Videos</span>
-                  <button type="button" onClick={addVideo} className="text-blue-500">+ Add Video</button>
+              {/* Videos section */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-lg">Videos</label>
+                  <button
+                    type="button"
+                    onClick={addVideo}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    + Add Video
+                  </button>
                 </div>
-                {videos.map((video, index) => (
-                  <div key={index} className="border p-3 rounded bg-gray-50 mb-3">
-                    <input type="text" value={video.title} onChange={(e) => updateVideo(index, "title", e.target.value)} placeholder="Video Title" className="w-full border p-2 rounded mb-2" />
-                    <input type="file" accept="video/*" onChange={(e) => updateVideo(index, "file", e.target.files?.[0] || new File([], ""))} className="w-full border p-2 rounded mb-2" />
-                    {uploadingVideos[index] && <p className="text-sm text-blue-500">Uploading video...</p>}
-                    {video.videoUrl && <video src={video.videoUrl} controls className="w-full h-32 rounded" />}
-                  </div>
-                ))}
+
+                <div className="space-y-4">
+                  {videos.map((video, index) => (
+                    <div
+                      key={video.id || index}
+                      className="border rounded-lg p-4 bg-white shadow-sm"
+                    >
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-medium text-lg">Video {index + 1}</h3>
+                        <button
+                          type="button"
+                          onClick={() => removeVideo(index)}
+                          className="text-red-500 hover:text-red-700 flex items-center gap-1"
+                        >
+                          <TrashIcon size={16} />
+                          Remove
+                        </button>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Title</label>
+                          <input
+                            type="text"
+                            placeholder="Video Title"
+                            value={video.title}
+                            onChange={(e) => updateVideo(index, "title", e.target.value)}
+                            className="w-full border p-2 rounded"
+                            required
+                          />
+                        </div>
+
+                        {video.videoUrl ? (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium mb-1">Video Preview</label>
+                                <video
+                                  src={video.videoUrl}
+                                  controls
+                                  className="w-full aspect-video rounded bg-black"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium mb-1">Thumbnail</label>
+                                <img
+                                  src={video.thumbnailUrl}
+                                  alt={`Preview for ${video.title}`}
+                                  className="w-full aspect-video object-cover rounded"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between text-sm text-gray-600">
+                              <span>Duration: {video.duration} minutes</span>
+                              <span>Order: {video.order}</span>
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium mb-1">Replace Video</label>
+                              <input
+                                type="file"
+                                accept="video/*"
+                                onChange={(e) => updateVideo(index, "file", e.target.files?.[0] || new File([], ""))}
+                                className="w-full border p-2 rounded"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Upload Video</label>
+                            <input
+                              type="file"
+                              accept="video/*"
+                              onChange={(e) => updateVideo(index, "file", e.target.files?.[0] || new File([], ""))}
+                              className="w-full border p-2 rounded"
+                              required
+                            />
+                            {uploadingVideos[index] && (
+                              <p className="text-blue-500 text-sm mt-1">Uploading video...</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="flex justify-end gap-2">

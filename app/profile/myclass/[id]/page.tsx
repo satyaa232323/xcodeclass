@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { fetchMyClassVideos } from "@/utils/api";
+import Link from "next/link";
 
 export default function IsiVideoPage() {
   const { id } = useParams();
@@ -85,7 +86,7 @@ export default function IsiVideoPage() {
                   onClick={() => setPlaying(true)}
                 >
                   <Image
-                    src={selectedVideo.thumbnailUrl || "/images/thumbnail.png"}
+                    src={selectedVideo.thumbnailUrl || ""}
                     alt="Video Thumbnail"
                     fill
                     className="object-cover"
@@ -122,14 +123,15 @@ export default function IsiVideoPage() {
                 />
                 <div>
                   <p className="font-semibold text-black">{classData.classObj.mentor}</p>
-                  <p className="text-sm text-black">Chief Technology Officer</p>
                 </div>
               </div>
               <p className="text-sm text-black">
                 Ada masalah dengan video?{" "}
-                <span className="text-red-600 font-semibold cursor-pointer">
+                <Link 
+                href={"https://api.whatsapp.com/send/?phone=6285728917933&text&type=phone_number&app_absent=0"} 
+                className="text-red-600 font-semibold cursor-pointer hover:text-red-900 ">
                   laporkan
-                </span>
+                </Link>
               </p>
             </div>
 
@@ -159,7 +161,7 @@ export default function IsiVideoPage() {
               {/* Thumbnail sidebar juga 16:9 */}
               <div className="w-full aspect-video bg-black relative">
                 <Image
-                  src={video.videoUrl}
+                  src={video.thumbnailUrl || ""}
                   alt="Thumbnail"
                   fill
                   className="object-cover"
