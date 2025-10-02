@@ -351,10 +351,10 @@ export default function CoursesPage() {
 
           {/* Modal content */}
           <div className="relative z-10 bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
-            <h2 className="text-xl font-bold mb-4">
+            <h2 className="text-gray-700 text-xl font-bold mb-4">
               {editingId ? "Edit Course" : "Add New Course"}
             </h2>
-            <label className="block mb-1 font-medium">Classes Title</label>
+            
             <form onSubmit={handleSubmit} className="space-y-4 text-black">
               <label className="block font-medium">Title</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2 rounded" required />
