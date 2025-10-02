@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/ToastContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchOrders, myClasses } from "@/utils/api";
 import Image from "next/image";
@@ -8,7 +9,21 @@ import { useRouter } from "next/navigation";
 import { Class } from "@/app/generated/prisma";
 
 export default function PaymentPage() {
+  const toast = useToast();
   const router = useRouter();
+  // Show toast if redirected from payment success
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("payment") === "success") {
+        toast.showToast("Pembayaran berhasil!", "success");
+        // Remove query param from URL after showing toast
+        const url = new URL(window.location.href);
+        url.searchParams.delete("payment");
+        window.history.replaceState({}, document.title, url.pathname);
+      }
+    }
+  }, []);
   const [isPaying, setIsPaying] = useState(false);
   const [error, setError] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
@@ -66,6 +81,7 @@ export default function PaymentPage() {
         ?.orderItems[0].classObj;
       if (orderClass && purchasedClasses.has(orderClass.id)) {
         setError("You have already purchased this class");
+        toast.showToast("Kelas sudah pernah dibeli", "error");
         return;
       }
 
@@ -79,6 +95,7 @@ export default function PaymentPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        toast.showToast(data.error || "Gagal memulai pembayaran", "error");
         throw new Error(data.error || "Payment initiation failed");
       }
 
@@ -86,11 +103,16 @@ export default function PaymentPage() {
         // Remove the paid order from the list
         setOrders((prev) => prev.filter((order) => order.id !== orderId));
         // Redirect to Midtrans payment page
+        toast.showToast("Berhasil, mengalihkan ke pembayaran...", "success");
         window.location.href = data.redirectUrl;
       }
     } catch (error: any) {
       console.error("Payment error:", error);
       setError(error.message || "Terjadi kesalahan saat memproses pembayaran");
+      toast.showToast(
+        error.message || "Terjadi kesalahan saat memproses pembayaran",
+        "error"
+      );
     } finally {
       setIsPaying(false);
     }
@@ -152,9 +174,9 @@ export default function PaymentPage() {
                   </span>
                   <span
                     className={`font-bold text-sm 
-                      ${item.status === 'PENDING' ? 'text-gray-500' : ''}
-                      ${item.status === 'COMPLETED' ? 'text-green-600' : ''}
-                      ${item.status === 'FAILED' ? 'text-red-600' : ''}
+                      ${item.status === "PENDING" ? "text-gray-500" : ""}
+                      ${item.status === "COMPLETED" ? "text-green-600" : ""}
+                      ${item.status === "FAILED" ? "text-red-600" : ""}
                     `}
                   >
                     {item.status}

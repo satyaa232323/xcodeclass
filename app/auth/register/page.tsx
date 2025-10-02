@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/ToastContext";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Link } from "lucide-react";
 import { register } from "@/utils/api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
-
 
 // Zod validation schema
 const registerSchema = z.object({
@@ -30,38 +29,36 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
+  const toast = useToast();
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const res = await register(data.username, data.email, data.password);
-
       if (!res) {
         setIsError("Register gagal");
+        toast.showToast("Register gagal", "error");
         return;
       }
-
       setIsError("Akun berhasil dibuat");
-
-      // redirect ke login setelah 2 detik
+      toast.showToast("Akun berhasil dibuat!", "success");
       setTimeout(() => {
         router.push("/auth/login");
-      }, 2000);
+      }, 1200);
     } catch (err) {
       setIsError("Terjadi kesalahan, silakan coba lagi");
+      toast.showToast("Terjadi kesalahan, silakan coba lagi", "error");
     }
   };
 
   return (
-    <div
-    >
-
+    <div>
       {/* Tombol Back */}
-      <a
+      <Link
         href="/"
         className="absolute bottom-6 left-6 flex items-center gap-2 text-white bg-black/50 px-4 py-2 rounded-full hover:bg-black/70 transition"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Home
-      </a>
+      </Link>
 
       <div className="bg-white/90 rounded-2xl shadow-xl w-96 p-8 relative z-10">
         <h1 className="text-2xl font-bold text-center text-black">Register</h1>
@@ -82,12 +79,16 @@ export default function RegisterPage() {
                          text-black"
             />
             {errors.username && (
-              <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.username.message}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-black">Email</label>
+            <label className="block text-sm font-medium text-black">
+              Email
+            </label>
             <input
               type="email"
               {...registerForm("email")}
@@ -96,7 +97,9 @@ export default function RegisterPage() {
                          text-black"
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -125,14 +128,17 @@ export default function RegisterPage() {
               </button>
             </div>
             {errors.password && (
-              <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
           {isError && (
             <p
-              className={`text-sm text-center ${isError.includes("berhasil") ? "text-green-600" : "text-red-600"
-                }`}
+              className={`text-sm text-center ${
+                isError.includes("berhasil") ? "text-green-600" : "text-red-600"
+              }`}
             >
               {isError}
             </p>

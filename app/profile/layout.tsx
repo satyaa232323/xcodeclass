@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { logout } from "@/utils/api";
+import { useToast } from "@/components/ToastContext";
 import { useRouter } from "next/navigation";
 
 export default function ProfileLayout({
@@ -14,10 +15,18 @@ export default function ProfileLayout({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const toast = useToast();
   const handleLogout = async () => {
-    await logout();
-    localStorage.removeItem("token");
-    window.location.href = "/";
+    try {
+      await logout();
+      localStorage.removeItem("token");
+      toast.showToast("Logout berhasil!", "success");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1200);
+    } catch {
+      toast.showToast("Logout gagal!", "error");
+    }
   };
   return (
     <div className="h-screen bg-gray-50 overflow-hidden flex flex-col">
