@@ -40,13 +40,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
                 { status: 401 }
             );
         }
-        console.log("User making order:", user);
 
 
 
 
         const { id } = await params;
-        console.log("Class ID from params:", id);
 
 
 
@@ -57,7 +55,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
 
 
-        console.log("classId:", id);
 
         if (!id) {
             return NextResponse.json(

@@ -107,7 +107,7 @@ export default function IsiVideoPage() {
               )}
             </div>
 
-            <p className="text-base sm:text-lg font-bold mb-6 text-black">
+            <p className="text-base sm:text-lg mb-6 text-black">
               {classData.classObj.description}
             </p>
 

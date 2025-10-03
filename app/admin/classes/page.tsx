@@ -25,6 +25,33 @@ interface Video {
 }
 
 // ==================== ZOD SCHEMA ====================
+import { z } from "zod";
+
+const videoSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, "Title is required"),
+  videoUrl: z.string().url("Must be a valid URL"),
+  duration: z.number().min(1, "Duration must be greater than 0"),
+  order: z.number().min(1, "Order must be greater than 0"),
+  thumbnailUrl: z.string().url("Must be a valid URL").optional(),
+  file: z.any().optional(),
+  originalUrl: z.string().optional()
+});
+
+const classSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  price: z.number().min(0, "Price must be greater than or equal to 0"),
+  thumbnailUrl: z.string().url("Must be a valid URL"),
+  mentor: z.string().min(1, "Mentor name is required"),
+  mentorProfileUrl: z.string().url("Must be a valid URL"),
+  videos: z.array(videoSchema).min(1, "At least one video is required")
+});
+
+type ValidationError = {
+  field: string;
+  message: string;
+};
 
 // ===================== TYPES =====================
 
@@ -51,6 +78,7 @@ export default function CoursesPage() {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [thumbnailVideo, setThumbnailVideo] = useState("");
   const [videos, setVideos] = useState<Video[]>([]);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
 
   // Edit states
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -99,9 +127,18 @@ export default function CoursesPage() {
     setSubmitting(true);
     setError("");
 
+    // Validate form before submission
+    if (!validateForm()) {
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
-      if (!token) return router.push("/auth/login");
+      if (!token) {
+        router.push("/auth/login");
+        return;
+      }
 
       if (!title || !description || !price || !thumbnailUrl || !mentor || !mentorProfileUrl) {
         setError("Please fill in all required fields");
@@ -276,6 +313,41 @@ export default function CoursesPage() {
     setShowModal(true);
   };
 
+  const validateForm = (): boolean => {
+    setValidationErrors([]);
+    const errors: ValidationError[] = [];
+
+    try {
+      const classData = {
+        title,
+        description,
+        price: Number(price),
+        thumbnailUrl,
+        mentor,
+        mentorProfileUrl,
+        videos: videos.map((video, index) => ({
+          ...video,
+          order: index + 1,
+        })),
+      };
+
+      classSchema.parse(classData);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.issues.forEach((err) => {
+          const field = err.path.join(".");
+          errors.push({
+            field,
+            message: err.message,
+          });
+        });
+      }
+      setValidationErrors(errors);
+      return false;
+    }
+  };
+
   // ===================== RENDER =====================
   if (loading) return <div>Loading...</div>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
@@ -354,7 +426,7 @@ export default function CoursesPage() {
             <h2 className="text-gray-700 text-xl font-bold mb-4">
               {editingId ? "Edit Course" : "Add New Course"}
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4 text-black">
               <label className="block font-medium">Title</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2 rounded" required />
@@ -528,6 +600,19 @@ export default function CoursesPage() {
                   ))}
                 </div>
               </div>
+
+              {validationErrors.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+                  <h3 className="text-red-800 font-medium mb-2">Please fix the following errors:</h3>
+                  <ul className="list-disc list-inside">
+                    {validationErrors.map((error, index) => (
+                      <li key={index} className="text-red-600">
+                        {error.field}: {error.message}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => { setShowModal(false); resetForm(); }} className="px-4 py-2 border rounded">

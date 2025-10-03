@@ -55,43 +55,51 @@ export default function DetailClass() {
                 return;
             }
 
-            // Ambil list kelas user
+            // Check if user already owns the class (in UserClassVideo)
             const myClassesResponse = await myClasses(token);
-            const purchasedClasses = myClassesResponse?.data || [];
-
-            // Cek apakah kelas sudah dibeli
-            const alreadyPurchased = purchasedClasses.some(
-                (cls: UserClassVideo) => cls.classObj.id === id
+            const ownedClass = myClassesResponse?.data?.find(
+                (cls: UserClassVideo) => cls.classId === id
             );
 
-            if (alreadyPurchased) {
+            if (ownedClass) {
                 alert("Anda sudah memiliki kelas ini. Silakan buka di menu 'My Classes'.");
-                router.push("/profile/my-classes");
+                router.push("/profile");
                 return;
             }
 
-            // Cek orders yang sudah ada
+            // Check for pending orders
             const ordersResponse = await fetch("/api/orders", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
+
+            if (!ordersResponse.ok) {
+                throw new Error("Failed to fetch orders");
+            }
+
             const ordersData = await ordersResponse.json();
 
-            // Cek apakah kelas sudah ada di orders tapi belum dibayar
-            const isPending = ordersData.orders?.some((order: any) =>
-                order.orderItems.some((item: any) =>
-                    item.classObj.id === id && order.status === "PENDING"
+            // Check for any existing order (PENDING or COMPLETED) for this class
+            const existingOrder = ordersData.orders?.find((order: Order) =>
+                order.orderItems.some((item: OrderItem) =>
+                    item.classId === id &&
+                    (order.status === "PENDING" || order.status === "COMPLETED")
                 )
             );
 
-            if (isPending) {
-                alert("Anda sudah memesan kelas ini. Silakan selesaikan pembayaran.");
-                router.push("/profile/payment");
+            if (existingOrder) {
+                if (existingOrder.status === "PENDING") {
+                    alert("Anda sudah memesan kelas ini. Silakan selesaikan pembayaran.");
+                    router.push("/profile/payment");
+                } else {
+                    alert("Anda sudah membeli kelas ini sebelumnya.");
+                    router.push("/profile/my-classes");
+                }
                 return;
             }
 
-            // Buat order baru jika belum ada
+            // If no existing order is found, create a new one
             const response = await createOrder(token, id as string);
             setOrder(response.data);
 

@@ -29,7 +29,7 @@ export default function History() {
             createdAt: new Date(order.createdAt).toLocaleDateString("id-ID"),
             orderItems: order.orderItems.map((item) => ({
               ...item,
-              date: new Date(item.date).toLocaleDateString("id-ID"),
+              date: new Date(item.classObj.createdAt).toLocaleDateString("id-ID"),
             })),
           }));
           setOrders(formattedOrders);

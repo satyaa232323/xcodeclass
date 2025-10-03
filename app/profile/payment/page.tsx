@@ -11,19 +11,37 @@ import { Class } from "@/app/generated/prisma";
 export default function PaymentPage() {
   const toast = useToast();
   const router = useRouter();
+
   // Show toast if redirected from payment success
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("payment") === "success") {
+      const paymentStatus = params.get("payment");
+
+      if (paymentStatus === "success") {
         toast.showToast("Pembayaran berhasil!", "success");
-        // Remove query param from URL after showing toast
-        const url = new URL(window.location.href);
-        url.searchParams.delete("payment");
-        window.history.replaceState({}, document.title, url.pathname);
-      }
+
+        const prevPage = sessionStorage.getItem("prevPage");
+        sessionStorage.removeItem("prevPage");
+
+        setTimeout(() => {
+          if (prevPage) {
+            router.push(prevPage);
+          } else {
+            router.push("/profile/my-classes");
+          }
+        }, 3000);
+
+      } else if (paymentStatus === "failed") {
+        toast.showToast("Pembayaran gagal atau dibatalkan", "error");
+      } 
+
+      // Hapus query param dari URL (opsional, biar clean)
+      const url = new URL(window.location.href);
+      url.searchParams.delete("payment");
+      window.history.replaceState({}, document.title, url.pathname);
     }
-  }, []);
+  }, [router, toast]);
   const [isPaying, setIsPaying] = useState(false);
   const [error, setError] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
@@ -84,6 +102,10 @@ export default function PaymentPage() {
         toast.showToast("Kelas sudah pernah dibeli", "error");
         return;
       }
+
+
+      sessionStorage.setItem("prevPage", window.location.pathname);
+
 
       const response = await fetch(`/api/payment/${orderId}`, {
         method: "POST",
@@ -188,12 +210,11 @@ export default function PaymentPage() {
                     isPaying ||
                     purchasedClasses.has(item.orderItems[0].classObj.id)
                   }
-                  className={`px-6 py-3 rounded-xl font-bold text-white transition ${
-                    isPaying ||
+                  className={`px-6 py-3 rounded-xl font-bold text-white transition ${isPaying ||
                     purchasedClasses.has(item.orderItems[0].classObj.id)
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-red-500 hover:bg-red-600"
-                  }`}
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600"
+                    }`}
                 >
                   {isPaying ? "Processing..." : "Bayar"}
                 </button>

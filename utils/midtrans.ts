@@ -21,6 +21,8 @@ export const createMidtransTransaction = async (
     clientKey: process.env.MIDTRANS_CLIENT_KEY,
   });
 
+
+
   const parameter = {
     transaction_details: {
       order_id: midtransOrderId,
@@ -34,8 +36,9 @@ export const createMidtransTransaction = async (
       secure: true,
     },
     callbacks: {
-      success: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/payment?status=success&order_id=${midtransOrderId}`,
-
+      finish: `${process.env.NEXT_PUBLIC_APP_URL}/profile/payment?orderId=${midtransOrderId}&status=finish`,
+      error: `${process.env.NEXT_PUBLIC_APP_URL}/profile/payment?orderId=${midtransOrderId}&status=error`,
+      pending: `${process.env.NEXT_PUBLIC_APP_URL}/profile/payment?orderId=${midtransOrderId}&status=pending`,
     }
   };
 
