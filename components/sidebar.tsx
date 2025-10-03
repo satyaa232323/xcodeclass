@@ -4,15 +4,24 @@ import { Home, BookOpen, LogOut, Menu, CreditCard } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { logout } from "@/utils/api";
+import { useToast } from "@/components/ToastContext";
 
 export default function Sidebar({ isMinimized, setIsMinimized }: any) {
   const pathname = usePathname();
   const router = useRouter();
+  const { showToast } = useToast();
 
   const handleLogout = async () => {
-    await logout();
-    localStorage.removeItem("token");
-    window.location.href = "/";
+    try {
+      await logout();
+      localStorage.removeItem("token");
+      showToast("Logout berhasil", "success");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1200);
+    } catch {
+      showToast("Logout gagal", "error");
+    }
   };
 
   const menuItems = [
@@ -60,7 +69,11 @@ export default function Sidebar({ isMinimized, setIsMinimized }: any) {
               href={href}
               className={`relative flex items-center gap-4 px-4 py-3 rounded-xl font-semibold tracking-wide text-lg
                 transition-all duration-200
-                ${isActive ? "bg-white/20 text-white shadow-lg" : "hover:bg-white/10"}`}
+                ${
+                  isActive
+                    ? "bg-white/20 text-white shadow-lg"
+                    : "hover:bg-white/10"
+                }`}
             >
               {isActive && (
                 <motion.div
