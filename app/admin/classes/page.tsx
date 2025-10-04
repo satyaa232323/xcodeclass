@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ToastContext";
 import { useState, useEffect } from "react";
 import {
   createClass,
@@ -26,7 +27,6 @@ interface Video {
 
 // ==================== ZOD SCHEMA ====================
 import { z } from "zod";
-import { useToast } from "@/components/ToastContext";
 
 const videoSchema = z.object({
   id: z.string().optional(),
@@ -36,7 +36,7 @@ const videoSchema = z.object({
   order: z.number().min(1, "Order must be greater than 0"),
   thumbnailUrl: z.string().url("Must be a valid URL").optional(),
   file: z.any().optional(),
-  originalUrl: z.string().optional()
+  originalUrl: z.string().optional(),
 });
 
 const classSchema = z.object({
@@ -46,7 +46,7 @@ const classSchema = z.object({
   thumbnailUrl: z.string().url("Must be a valid URL"),
   mentor: z.string().min(1, "Mentor name is required"),
   mentorProfileUrl: z.string().url("Must be a valid URL"),
-  videos: z.array(videoSchema).min(1, "At least one video is required")
+  videos: z.array(videoSchema).min(1, "At least one video is required"),
 });
 
 type ValidationError = {
@@ -56,13 +56,10 @@ type ValidationError = {
 
 // ===================== TYPES =====================
 
-// =================== Max videos ====================
-const MAX_VIDEOS_SIZE = 100 * 1024 * 1024; // 100mb
-
-
 // ===================== MAIN COMPONENT =====================
 export default function CoursesPage() {
   const router = useRouter();
+  const toast = useToast();
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -80,14 +77,18 @@ export default function CoursesPage() {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [thumbnailVideo, setThumbnailVideo] = useState("");
   const [videos, setVideos] = useState<Video[]>([]);
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
+    []
+  );
 
   // Edit states
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Upload states
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
-  const [uploadingVideos, setUploadingVideos] = useState<Record<number, boolean>>({});
+  const [uploadingVideos, setUploadingVideos] = useState<
+    Record<number, boolean>
+  >({});
   const [submitting, setSubmitting] = useState(false);
 
   // filtered class
@@ -119,8 +120,12 @@ export default function CoursesPage() {
 
   useEffect(() => {
     const result = classes.filter((item) => {
-      const matchTitle = item.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchMentor = item.mentor.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchTitle = item.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchMentor = item.mentor
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
       return matchTitle || matchMentor;
     });
     setFilteredClasses(result);
@@ -145,7 +150,14 @@ export default function CoursesPage() {
         return;
       }
 
-      if (!title || !description || !price || !thumbnailUrl || !mentor || !mentorProfileUrl) {
+      if (
+        !title ||
+        !description ||
+        !price ||
+        !thumbnailUrl ||
+        !mentor ||
+        !mentorProfileUrl
+      ) {
         setError("Please fill in all required fields");
         return;
       }
@@ -175,8 +187,10 @@ export default function CoursesPage() {
 
       if (editingId) {
         await updateClass(token, editingId, classData);
+        toast.showToast("Kelas berhasil diupdate!", "success");
       } else {
         await createClass(token, classData);
+        toast.showToast("Kelas berhasil ditambahkan!", "success");
       }
 
       await fetchClasses();
@@ -184,6 +198,7 @@ export default function CoursesPage() {
       setShowModal(false);
     } catch (err: any) {
       setError(err.message);
+      toast.showToast(err.message || "Terjadi kesalahan", "error");
     } finally {
       setSubmitting(false);
     }
@@ -196,9 +211,11 @@ export default function CoursesPage() {
       if (!token) return router.push("/auth/login");
 
       await deleteClass(token, id);
+      toast.showToast("Kelas berhasil dihapus!", "success");
       fetchClasses();
     } catch (err: any) {
       setError(err.message);
+      toast.showToast(err.message || "Gagal menghapus kelas", "error");
     }
   };
 
@@ -220,10 +237,17 @@ export default function CoursesPage() {
   };
 
   const addVideo = () => {
-    setVideos([...videos, { title: "", videoUrl: "", duration: 0, order: videos.length + 1 }]);
+    setVideos([
+      ...videos,
+      { title: "", videoUrl: "", duration: 0, order: videos.length + 1 },
+    ]);
   };
 
-  const updateVideo = async (index: number, field: keyof Video, value: string | number | File) => {
+  const updateVideo = async (
+    index: number,
+    field: keyof Video,
+    value: string | number | File
+  ) => {
     try {
       const newVideos = [...videos];
       if (field === "file" && value instanceof File) {
@@ -257,15 +281,18 @@ export default function CoursesPage() {
           const uploadResult = await uploadVideoToCloudinary(token, value);
 
           if (!uploadResult?.secure_url) {
-            throw new Error('No URL received from video upload');
+            throw new Error("No URL received from video upload");
           }
 
           newVideos[index] = {
             ...newVideos[index],
             videoUrl: uploadResult.secure_url,
             thumbnailUrl: uploadResult.thumbnail_url, // Use the generated thumbnail URL
-            duration: Math.max(duration, Math.ceil((uploadResult.duration || 0) / 60)),
-            title: newVideos[index].title || value.name.split('.')[0]
+            duration: Math.max(
+              duration,
+              Math.ceil((uploadResult.duration || 0) / 60)
+            ),
+            title: newVideos[index].title || value.name.split(".")[0],
           };
 
           setVideos([...newVideos]);
@@ -284,7 +311,7 @@ export default function CoursesPage() {
   };
 
   const removeVideo = (index: number) => {
-    if (window.confirm('Are you sure you want to remove this video?')) {
+    if (window.confirm("Are you sure you want to remove this video?")) {
       const newVideos = [...videos];
       const removedVideo = newVideos[index];
       newVideos.splice(index, 1);
@@ -309,14 +336,16 @@ export default function CoursesPage() {
 
     // Set existing videos with all required properties
     if (course.videos && course.videos.length > 0) {
-      setVideos(course.videos.map(video => ({
-        id: video.id,
-        title: video.title,
-        videoUrl: video.videoUrl,
-        thumbnailUrl: video.thumbnailUrl,
-        duration: video.duration,
-        order: video.order
-      })));
+      setVideos(
+        course.videos.map((video) => ({
+          id: video.id,
+          title: video.title,
+          videoUrl: video.videoUrl,
+          thumbnailUrl: video.thumbnailUrl,
+          duration: video.duration,
+          order: video.order,
+        }))
+      );
     } else {
       setVideos([]);
     }
@@ -367,7 +396,10 @@ export default function CoursesPage() {
     <div className="p-6">
       <div className="flex justify-between mb-6">
         <h1 className="text-gray-700 text-2xl font-bold">Classes Management</h1>
-        <button onClick={() => setShowModal(true)} className="bg-red-500 text-white px-4 py-2 rounded">
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-red-500 text-white px-4 py-2 rounded"
+        >
           Add New Course
         </button>
       </div>
@@ -375,22 +407,42 @@ export default function CoursesPage() {
       {/* Courses Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-600">
         {classes.map((course) => (
-          <div key={course.id} className="bg-white p-4 rounded-lg shadow relative">
-            <img src={course.thumbnailUrl} alt={course.title} className="w-full h-48 object-cover rounded mb-4" />
+          <div
+            key={course.id}
+            className="bg-white p-4 rounded-lg shadow relative"
+          >
+            <img
+              src={course.thumbnailUrl}
+              alt={course.title}
+              className="w-full h-48 object-cover rounded mb-4"
+            />
             <h3 className="font-bold text-lg mb-2">{course.title}</h3>
-            <p className="text-gray-600 mb-2 line-clamp-2">{course.description}</p>
+            <p className="text-gray-600 mb-2 line-clamp-2">
+              {course.description}
+            </p>
             <div className="flex justify-between items-center mb-2">
-              <span className="font-bold">Rp {course.price.toLocaleString()}</span>
+              <span className="font-bold">
+                Rp {course.price.toLocaleString()}
+              </span>
               <span className="text-gray-500">{course.mentor}</span>
             </div>
             <div className="flex justify-end gap-2">
-              <button onClick={() => handleDetailClass(course.id)} className="p-2 text-gray-600 hover:text-gray-800">
+              <button
+                onClick={() => handleDetailClass(course.id)}
+                className="p-2 text-gray-600 hover:text-gray-800"
+              >
                 <Eye size={18} />
               </button>
-              <button onClick={() => handleEditClick(course)} className="p-2 text-blue-600 hover:text-blue-800">
+              <button
+                onClick={() => handleEditClick(course)}
+                className="p-2 text-blue-600 hover:text-blue-800"
+              >
                 <Edit2 size={18} />
               </button>
-              <button onClick={() => setConfirmDeleteId(course.id)} className="p-2 text-red-600 hover:text-red-800">
+              <button
+                onClick={() => setConfirmDeleteId(course.id)}
+                className="p-2 text-red-600 hover:text-red-800"
+              >
                 <Trash2 size={18} />
               </button>
             </div>
@@ -440,10 +492,21 @@ export default function CoursesPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4 text-black">
               <label className="block font-medium">Title</label>
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2 rounded" required />
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
 
               <label className="block font-medium">Description</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full border p-2 rounded" required />
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
 
               <label className="block font-medium">Price (IDR)</label>
               <input
@@ -459,7 +522,9 @@ export default function CoursesPage() {
 
               {/* Thumbnail Upload */}
               <div>
-                <label className="block mb-1 font-medium">Thumbnail Class</label>
+                <label className="block mb-1 font-medium">
+                  Thumbnail Class
+                </label>
                 <input
                   type="file"
                   accept="image/*"
@@ -471,16 +536,24 @@ export default function CoursesPage() {
                         if (!token) return;
                         setError("");
                         setUploadingThumbnail(true);
-                        const uploadResult = await uploadImageToCloudinary(token, file);
+                        const uploadResult = await uploadImageToCloudinary(
+                          token,
+                          file
+                        );
                         if (uploadResult?.secure_url) {
                           setThumbnailUrl(uploadResult.secure_url);
                           setThumbnailVideo(""); // Clear the file after successful upload
                         } else {
-                          throw new Error('No URL received from image upload');
+                          throw new Error("No URL received from image upload");
                         }
                       } catch (error) {
-                        console.error('Error uploading thumbnail:', error);
-                        setError('Failed to upload thumbnail: ' + (error instanceof Error ? error.message : 'Unknown error'));
+                        console.error("Error uploading thumbnail:", error);
+                        setError(
+                          "Failed to upload thumbnail: " +
+                            (error instanceof Error
+                              ? error.message
+                              : "Unknown error")
+                        );
                       } finally {
                         setUploadingThumbnail(false);
                       }
@@ -488,28 +561,56 @@ export default function CoursesPage() {
                   }}
                   className="w-full border p-2 rounded"
                 />
-                {uploadingThumbnail && <p className="text-blue-500 text-sm mt-1">Uploading thumbnail...</p>}
+                {uploadingThumbnail && (
+                  <p className="text-blue-500 text-sm mt-1">
+                    Uploading thumbnail...
+                  </p>
+                )}
                 {thumbnailUrl && (
                   <div className="mt-2">
-                    <img src={thumbnailUrl} alt="Thumbnail preview" className="w-32 h-32 object-cover rounded" />
+                    <img
+                      src={thumbnailUrl}
+                      alt="Thumbnail preview"
+                      className="w-32 h-32 object-cover rounded"
+                    />
                   </div>
                 )}
               </div>
 
               <label className="block font-medium">Mentor</label>
-              <input type="text" value={mentor} onChange={(e) => setMentor(e.target.value)} className="w-full border p-2 rounded" required />
+              <input
+                type="text"
+                value={mentor}
+                onChange={(e) => setMentor(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
 
               <label className="block font-medium">Mentor Profile</label>
-              <input type="file" accept="image/*" onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const token = localStorage.getItem("token");
-                  if (!token) return;
-                  const uploadResult = await uploadImageToCloudinary(token, file);
-                  if (uploadResult?.secure_url) setMentorProfileUrl(uploadResult.secure_url);
-                }
-              }} className="w-full border p-2 rounded" />
-              {mentorProfileUrl && <img src={mentorProfileUrl} className="w-32 h-32 mt-2 rounded object-cover" />}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const token = localStorage.getItem("token");
+                    if (!token) return;
+                    const uploadResult = await uploadImageToCloudinary(
+                      token,
+                      file
+                    );
+                    if (uploadResult?.secure_url)
+                      setMentorProfileUrl(uploadResult.secure_url);
+                  }
+                }}
+                className="w-full border p-2 rounded"
+              />
+              {mentorProfileUrl && (
+                <img
+                  src={mentorProfileUrl}
+                  className="w-32 h-32 mt-2 rounded object-cover"
+                />
+              )}
 
               {/* Videos section */}
               <div className="space-y-4">
@@ -531,7 +632,9 @@ export default function CoursesPage() {
                       className="border rounded-lg p-4 bg-white shadow-sm"
                     >
                       <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-medium text-lg">Video {index + 1}</h3>
+                        <h3 className="font-medium text-lg">
+                          Video {index + 1}
+                        </h3>
                         <button
                           type="button"
                           onClick={() => removeVideo(index)}
@@ -544,12 +647,16 @@ export default function CoursesPage() {
 
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium mb-1">Title</label>
+                          <label className="block text-sm font-medium mb-1">
+                            Title
+                          </label>
                           <input
                             type="text"
                             placeholder="Video Title"
                             value={video.title}
-                            onChange={(e) => updateVideo(index, "title", e.target.value)}
+                            onChange={(e) =>
+                              updateVideo(index, "title", e.target.value)
+                            }
                             className="w-full border p-2 rounded"
                             required
                           />
@@ -559,7 +666,9 @@ export default function CoursesPage() {
                           <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-sm font-medium mb-1">Video Preview</label>
+                                <label className="block text-sm font-medium mb-1">
+                                  Video Preview
+                                </label>
                                 <video
                                   src={video.videoUrl}
                                   controls
@@ -567,7 +676,9 @@ export default function CoursesPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium mb-1">Thumbnail</label>
+                                <label className="block text-sm font-medium mb-1">
+                                  Thumbnail
+                                </label>
                                 <img
                                   src={video.thumbnailUrl}
                                   alt={`Preview for ${video.title}`}
@@ -582,27 +693,45 @@ export default function CoursesPage() {
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium mb-1">Replace Video</label>
+                              <label className="block text-sm font-medium mb-1">
+                                Replace Video
+                              </label>
                               <input
                                 type="file"
                                 accept="video/*"
-                                onChange={(e) => updateVideo(index, "file", e.target.files?.[0] || new File([], ""))}
+                                onChange={(e) =>
+                                  updateVideo(
+                                    index,
+                                    "file",
+                                    e.target.files?.[0] || new File([], "")
+                                  )
+                                }
                                 className="w-full border p-2 rounded"
                               />
                             </div>
                           </div>
                         ) : (
                           <div>
-                            <label className="block text-sm font-medium mb-1">Upload Video</label>
+                            <label className="block text-sm font-medium mb-1">
+                              Upload Video
+                            </label>
                             <input
                               type="file"
                               accept="video/*"
-                              onChange={(e) => updateVideo(index, "file", e.target.files?.[0] || new File([], ""))}
+                              onChange={(e) =>
+                                updateVideo(
+                                  index,
+                                  "file",
+                                  e.target.files?.[0] || new File([], "")
+                                )
+                              }
                               className="w-full border p-2 rounded"
                               required
                             />
                             {uploadingVideos[index] && (
-                              <p className="text-blue-500 text-sm mt-1">Uploading video...</p>
+                              <p className="text-blue-500 text-sm mt-1">
+                                Uploading video...
+                              </p>
                             )}
                           </div>
                         )}
@@ -614,7 +743,9 @@ export default function CoursesPage() {
 
               {validationErrors.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
-                  <h3 className="text-red-800 font-medium mb-2">Please fix the following errors:</h3>
+                  <h3 className="text-red-800 font-medium mb-2">
+                    Please fix the following errors:
+                  </h3>
                   <ul className="list-disc list-inside">
                     {validationErrors.map((error, index) => (
                       <li key={index} className="text-red-600">
@@ -626,10 +757,21 @@ export default function CoursesPage() {
               )}
 
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => { setShowModal(false); resetForm(); }} className="px-4 py-2 border rounded">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    resetForm();
+                  }}
+                  className="px-4 py-2 border rounded"
+                >
                   Cancel
                 </button>
-                <button type="submit" disabled={submitting} className="px-4 py-2 bg-red-500 text-white rounded">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-4 py-2 bg-red-500 text-white rounded"
+                >
                   {submitting ? "Saving..." : "Save Course"}
                 </button>
               </div>
