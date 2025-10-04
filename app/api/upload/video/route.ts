@@ -25,8 +25,6 @@ export async function POST(req: NextRequest) {
         {
           resource_type: "video",
           folder: "xcodeclass/videos",
-          // format: "mp4",
-          // quality: "auto",
         },
         (err, result) => {
           if (err) reject(err);
@@ -44,9 +42,6 @@ export async function POST(req: NextRequest) {
       eager: [
         {
           format: "jpg",
-          // transformation: [
-          //   { width: 800, height: 450, crop: "fill" }
-          // ],
         },
       ],
       eager_async: true, // proses di background
