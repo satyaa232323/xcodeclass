@@ -59,7 +59,6 @@ type ValidationError = {
 // ===================== MAIN COMPONENT =====================
 export default function CoursesPage() {
   const router = useRouter();
-  const toast = useToast();
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -80,6 +79,9 @@ export default function CoursesPage() {
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
     []
   );
+
+  // max videos 100 mb
+  const MAX_VIDEOS_SIZE = 100 * 1024 * 1024; // 100 MB
 
   // Edit states
   const [editingId, setEditingId] = useState<string | null>(null);
