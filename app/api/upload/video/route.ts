@@ -11,59 +11,61 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as File;
+    const file = formData.get("file") as File | null;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Convert ke buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Upload ke Cloudinary (upload_large untuk video besar)
+    // Upload video pakai upload_stream
     const uploadResult: any = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_large(
-        `data:video/mp4;base64,${buffer.toString("base64")}`, // kirim dalam bentuk data URI
+      const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: "video",
-          format: "mp4",
           folder: "xcodeclass/videos",
-          quality: "auto",
-          eager: [
-            {
-              format: "jpg",
-              transformation: [
-                { width: 800, height: 450, crop: "fill" },
-                { quality: "auto" },
-              ],
-              resource_type: "video",
-            },
-          ],
-          eager_async: true,
+          // format: "mp4",
+          // quality: "auto",
         },
-        (error, result) => {
-          if (error) reject(error);
+        (err, result) => {
+          if (err) reject(err);
           else resolve(result);
         }
       );
+
+      stream.end(buffer);
     });
 
-    // Ambil thumbnail (kalau ada)
-    const thumbnailUrl =
-      uploadResult.eager?.[0]?.secure_url ||
-      `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/w_800,h_450,c_fill,q_auto/${uploadResult.public_id}.jpg`;
+    // Setelah upload selesai, trigger eager_async thumbnail
+    await cloudinary.uploader.explicit(uploadResult.public_id, {
+      resource_type: "video",
+      type: "upload",
+      eager: [
+        {
+          format: "jpg",
+          // transformation: [
+          //   { width: 800, height: 450, crop: "fill" }
+          // ],
+        },
+      ],
+      eager_async: true, // proses di background
+    });
+
+    // Fallback: dynamic URL thumbnail (langsung bisa dipakai walau eager belum ready)
+    const thumbnailUrl = `https://res.cloudinary.com/${process.env.CLOUD_NAME}/video/upload/so_2,w_800,h_450,c_fill,q_auto/${uploadResult.public_id}.jpg`;
 
     return NextResponse.json({
       secure_url: uploadResult.secure_url,
       public_id: uploadResult.public_id,
       duration: uploadResult.duration,
-      thumbnail_url: thumbnailUrl,
+      thumbnail_url: thumbnailUrl, // bisa langsung dipakai
     });
-  } catch (error) {
-    console.error("Video upload error:", error);
+
+  } catch (err: any) {
+    console.error("Video upload error:", err);
     return NextResponse.json(
-      { error: "Failed to upload video" },
+      { error: "Failed to upload video", details: err.message },
       { status: 500 }
     );
   }

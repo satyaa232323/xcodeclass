@@ -26,6 +26,7 @@ interface Video {
 
 // ==================== ZOD SCHEMA ====================
 import { z } from "zod";
+import { useToast } from "@/components/ToastContext";
 
 const videoSchema = z.object({
   id: z.string().optional(),
@@ -55,7 +56,8 @@ type ValidationError = {
 
 // ===================== TYPES =====================
 
-
+// =================== Max videos ====================
+const MAX_VIDEOS_SIZE = 100 * 1024 * 1024; // 100mb
 
 
 // ===================== MAIN COMPONENT =====================
@@ -91,6 +93,9 @@ export default function CoursesPage() {
   // filtered class
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // toast
+  const toast = useToast();
 
   // ===================== FETCH DATA =====================
   useEffect(() => {
@@ -222,6 +227,12 @@ export default function CoursesPage() {
     try {
       const newVideos = [...videos];
       if (field === "file" && value instanceof File) {
+
+        // check file size 
+        if (value.size > MAX_VIDEOS_SIZE) {
+          toast.showToast("video must be less than 100 mb", "error");
+          return;
+        }
         const video = document.createElement("video");
         video.preload = "metadata";
         const getDuration = new Promise<number>((resolve) => {
