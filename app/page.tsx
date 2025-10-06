@@ -8,6 +8,7 @@ import { FaUserTie, FaBookOpen, FaUsers, FaInfinity } from "react-icons/fa";
 import { fetchClasses } from "@/utils/api";
 import Link from "next/link";
 import { motion } from "motion/react";
+import Footer from "@/components/footer";
 
 export default function HomePage() {
   // fecth classes 4 aja
@@ -270,6 +271,8 @@ export default function HomePage() {
           </p>
           <ReviewMarquee />
         </div>
+
+        <Footer />
  
       </main>
     </div>

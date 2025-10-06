@@ -6,6 +6,7 @@ import XLoading from "@/components/LoadingEffect";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Footer from "@/components/footer";
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
@@ -111,6 +112,7 @@ export default function ClassesPage() {
         </div>
 
       </main>
+      <Footer />
     </div>
   );
 }

@@ -288,6 +288,7 @@ export default function DetailClass() {
                     </div>
                 </div>
             </main>
+            <Footer />
         </div>
     );
 }

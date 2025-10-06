@@ -179,6 +179,8 @@ export default function IsiVideoPage() {
           ))}
         </aside>
       </div>
+
     </div>
+
   );
 }

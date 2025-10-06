@@ -8,5 +8,6 @@ export default function ClassLayout({ children }: { children: React.ReactNode })
     
       <main className="pt-20">{children}</main>
     </div>
+    
   );
 }
