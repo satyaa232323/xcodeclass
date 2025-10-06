@@ -167,21 +167,34 @@ export default function DashboardPage() {
         transition={{ duration: 0.6, delay: 0.5 }}
       >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-red-800 font-semibold text-lg">Recent Course Added</h3>
-          <Link href={'/admin/classes'} className="text-sm text-blue-500">View All</Link>
+          <h3 className="text-red-800 font-semibold text-lg">Recent Class Added</h3>
+          <Link href="/admin/classes" className="text-sm text-blue-500 hover:underline">
+            View All
+          </Link>
         </div>
-        {recentCourses.slice(0, 3).map((course) =>
-          <ul className="space-y-3" key={course.id}>
-            <li className="border-b pb-2">
-              <p className="text-gray-700 font-medium">{course.title}</p>
-              <span className="text-sm text-gray-500">
-                by {course.mentor} • {course.createdAt}
-              </span>
-            </li>
-            {recentCourses.length === 0 && !loading && (
-              <p className="text-gray-500 text-center py-6">Tidak ada course terbaru</p>
-            )}
-          </ul>
+
+        {recentCourses && recentCourses.length > 0 ? (
+          recentCourses
+            .slice() // buat salinan supaya gak ubah array asli
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) // urutkan dari terbaru
+            .slice(0, 2) // ambil 3 data paling baru
+            .map((course) => (
+              <ul className="space-y-3" key={course.id}>
+                <li className="border-b pb-2">
+                  <p className="text-gray-700 font-medium">{course.title}</p>
+                  <span className="text-sm text-gray-500">
+                    by {course.mentor} •{" "}
+                    {new Date(course.createdAt).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </li>
+              </ul>
+            ))
+        ) : (
+          <p className="text-gray-500 text-center py-6">Tidak ada course terbaru</p>
         )}
       </motion.div>
     </div>
