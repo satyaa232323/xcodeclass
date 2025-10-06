@@ -2,7 +2,6 @@
 
 import Navbar from "@/components/navbar";
 import Image from "next/image";
-import Footer from "@/components/footer";
 import ReviewMarquee from "@/components/ReviewMarquee";
 import { useEffect, useState } from "react";
 import { FaUserTie, FaBookOpen, FaUsers, FaInfinity } from "react-icons/fa";
