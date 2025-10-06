@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -14,8 +14,9 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-
   const toast = useToast();
+  const router = useRouter();
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -28,6 +29,23 @@ export default function ProfileLayout({
       toast.showToast("Logout gagal!", "error");
     }
   };
+
+  // 🔹 Cek payment status setelah redirect dari Midtrans
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const paymentStatus = sessionStorage.getItem("paymentStatus");
+
+      if (paymentStatus) {
+        if (paymentStatus === "success") {
+          toast.showToast("Pembayaran berhasil!", "success");
+        } else if (paymentStatus === "failed") {
+          toast.showToast("Pembayaran gagal atau dibatalkan", "error");
+        }
+        sessionStorage.removeItem("paymentStatus");
+      }
+    }
+  }, [toast]);
+
   return (
     <div className="h-screen bg-gray-50 overflow-hidden flex flex-col">
       <main className="flex flex-1 overflow-hidden relative">

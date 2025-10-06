@@ -93,6 +93,12 @@ interface RegisterFormData {
   password: string;
 }
 
+
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 interface ApiResponse {
   success: boolean;
   message: string;

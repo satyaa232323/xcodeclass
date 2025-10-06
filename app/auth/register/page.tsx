@@ -8,18 +8,21 @@ import { register } from "@/utils/api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { handleArcjetError } from "@/lib/utils";
+
 
 // Zod validation schema
 const registerSchema = z.object({
-  username: z.string().min(2, "Username must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  username: z.string().min(2, "Username harus memiliki setidaknya 2 karakter"),
+  email: z.string().email("Alamat email tidak valid"),
+  password: z.string().min(6, "Password harus memiliki setidaknya 6 karakter"),
 });
 
 export default function RegisterPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isError, setIsError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const {
     register: registerForm,
@@ -43,9 +46,18 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/auth/login");
       }, 1200);
-    } catch (err) {
-      setIsError("Terjadi kesalahan, silakan coba lagi");
-      toast.showToast("Terjadi kesalahan, silakan coba lagi", "error");
+    } catch (err: any) {
+      const errorMessage = handleArcjetError(err);
+      setIsError(errorMessage as string);
+      toast.showToast(errorMessage as string || "Terjadi kesalahan", "error");
+
+      // Disable form jika rate limited
+      if (err?.response?.status === 429) {
+        setLoading(true);
+        setTimeout(() => {
+          setLoading(false);
+        }, 10000);
+      }
     }
   };
 
@@ -136,9 +148,8 @@ export default function RegisterPage() {
 
           {isError && (
             <p
-              className={`text-sm text-center ${
-                isError.includes("berhasil") ? "text-green-600" : "text-red-600"
-              }`}
+              className={`text-sm text-center ${isError.includes("berhasil") ? "text-green-600" : "text-red-600"
+                }`}
             >
               {isError}
             </p>

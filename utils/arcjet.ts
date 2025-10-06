@@ -24,7 +24,7 @@ export const arcjetUtils = () => {
         interval: 10, // tiap 10 detik
         capacity: 4, // max 3 request
         characteristics: ["ip.src"], // limit berdasarkan IP
-        
+
 
       }),
     ],

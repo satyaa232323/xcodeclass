@@ -3,55 +3,58 @@
 import { useState } from "react";
 import { useToast } from "@/components/ToastContext";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import { login, Userprofile } from "@/utils/api";
+import { login } from "@/utils/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
+// Zod validation schema
+const loginSchema = z.object({
+  email: z.string().email("Alamat email tidak valid"),
+  password: z.string().min(6, "Password harus memiliki setidaknya 6 karakter"),
+});
 
-
-
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
-
-  // login
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [token, setToken] = useState("");
-  const [user, setUser] = useState(null);
-
   const toast = useToast();
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  // Handle login with zod + react-hook-form
+  const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
-    setError("");
 
     try {
-      const user = await Userprofile(token);
-      setUser(user);
-      const body = await login(email, password); // langsung dapet JSON
+      const body = await login(data.email, data.password);
+
       if (body.token) {
-        setToken(body.token);
         localStorage.setItem("token", body.token);
         toast.showToast("Login berhasil!", "success");
+
+        if (body.user.role === "ADMIN") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/");
+        }
       } else {
-        setError("Login gagal, cek email/password");
         toast.showToast("Login gagal, cek email/password", "error");
-        console.error("Login gagal:", body);
-        return;
-      }
-      if (body.user.role === "ADMIN") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/");
       }
     } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan");
-      toast.showToast("Terjadi kesalahan coba beberapa saat lagi", "error");
+      const errorMessage =
+        err.response?.data?.error || "Password salah atau email belum terdaftar";
+      toast.showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
@@ -78,7 +81,8 @@ export default function LoginPage() {
         </h1>
         <p className="text-center text-black mb-6">Login Account</p>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-black">
               Email
@@ -88,11 +92,14 @@ export default function LoginPage() {
               className="w-full mt-1 px-3 py-2 border-2 border-gray-400 rounded-md 
                          focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 
                          text-black"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register("email")}
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+            )}
           </div>
 
+          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-black">
               Password
@@ -103,8 +110,7 @@ export default function LoginPage() {
                 className="w-full mt-1 px-3 py-2 border-2 border-gray-400 rounded-md 
                            focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 
                            text-black pr-10"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password")}
               />
               <button
                 type="button"
@@ -118,8 +124,12 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+            )}
           </div>
 
+          {/* Forgot password */}
           <div className="text-right text-sm">
             <Link
               href={"auth/forgot-password"}
@@ -129,13 +139,17 @@ export default function LoginPage() {
             </Link>
           </div>
 
+          {/* Submit button */}
           <button
             type="submit"
-            className="w-full bg-red-600 text-white cursor-pointer py-2 rounded-full hover:bg-red-700 transition"
-            onClick={handleLogin}
+            className={`w-full ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700 cursor-pointer"
+            } text-white py-2 rounded-full transition`}
             disabled={loading}
           >
-            SIGN IN
+            {loading ? "Mohon tunggu..." : "SIGN IN"}
           </button>
         </form>
 

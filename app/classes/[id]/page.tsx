@@ -12,9 +12,13 @@ import {
     fetchClasses,
     myClasses,
 } from "@/utils/api";
+import { handleArcjetError } from "@/lib/utils";
+import { useToast } from "@/components/ToastContext";
 
 export default function DetailClass() {
     const { id } = useParams();
+
+    const toast = useToast();
 
     const [detailClass, setDetailClass] = useState<DetailClass | null>(null);
     const [loading, setLoading] = useState(true);
@@ -90,11 +94,11 @@ export default function DetailClass() {
 
             if (existingOrder) {
                 if (existingOrder.status === "PENDING") {
-                    alert("Anda sudah memesan kelas ini. Silakan selesaikan pembayaran.");
+                    toast.showToast("Anda sudah memesan kelas ini. Silakan selesaikan pembayaran.", "error");
                     router.push("/profile/payment");
                 } else {
-                    alert("Anda sudah membeli kelas ini sebelumnya.");
-                    router.push("/profile/my-classes");
+                    toast.showToast("Anda sudah membeli kelas ini sebelumnya.", "error");
+                    router.push("/profile");
                 }
                 return;
             }
@@ -103,10 +107,30 @@ export default function DetailClass() {
             const response = await createOrder(token, id as string);
             setOrder(response.data);
 
-            alert("Kelas berhasil ditambahkan ke keranjang. Silakan lanjutkan ke pembayaran.");
+            toast.showToast("Order berhasil dibuat! Silakan lanjutkan ke pembayaran.", "success");
             router.push("/profile/payment");
 
         } catch (err: any) {
+
+            // Handle rate limiting
+            if (err.response?.status === 429) {
+                toast.showToast("Terlalu banyak request. Mohon tunggu beberapa saat...", "error");
+
+                // Disable button for 10 seconds
+                setLoading(true);
+                setTimeout(() => {
+                    setLoading(false);
+                }, 10000);
+                return;
+            }
+
+            if (err.response?.status === 401) {
+                toast.showToast("Sesi anda telah berakhir. Silakan login kembali.", "error");
+                router.push("/auth/login");
+            } else {
+                toast.showToast(err.response?.data?.error || "Terjadi kesalahan sistem", "error");
+            }
+
             console.error("Gagal memproses pembelian:", err);
 
             if (err.response?.status === 401) {
