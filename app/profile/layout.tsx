@@ -43,21 +43,7 @@ export default function ProfileLayout({
     }
   };
 
-  // 🔹 Cek payment status setelah redirect dari Midtrans
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const paymentStatus = sessionStorage.getItem("paymentStatus");
 
-      if (paymentStatus) {
-        if (paymentStatus === "success") {
-          toast.showToast("Pembayaran berhasil!", "success");
-        } else if (paymentStatus === "failed") {
-          toast.showToast("Pembayaran gagal atau dibatalkan", "error");
-        }
-        sessionStorage.removeItem("paymentStatus");
-      }
-    }
-  }, [toast]);
 
   return (
     <div className="h-screen bg-gray-50 overflow-hidden flex flex-col">
