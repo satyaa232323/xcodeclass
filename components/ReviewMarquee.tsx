@@ -43,7 +43,7 @@ export default function ReviewMarquee() {
 
   return (
     <div className="w-full py-6 overflow-hidden">
-      <div className="max-w-3xl mx-auto flex gap-20 whitespace-nowrap animate-marquee text-lg font-semibold text-gray-700">
+      <div className="max-w-3xl mx-auto flex gap-10 whitespace-nowrap animate-marquee text-lg font-semibold text-gray-700">
         {loopedReviews.map((review, idx) => (
           <div
             key={idx}
