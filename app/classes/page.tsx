@@ -5,6 +5,7 @@ import { fetchClasses } from "@/utils/api";
 import XLoading from "@/components/LoadingEffect";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
@@ -86,9 +87,11 @@ export default function ClassesPage() {
                 <span className="font-bold text-base mb-4">
                   Rp {item.price.toLocaleString("id-ID")}
                 </span>
-                <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
-                  Beli
-                </button>
+                <Link href={`/classes/${item.id}`}>
+                  <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
+                    Beli
+                  </button>
+                </Link>
               </div>
             </div>
           ))}
