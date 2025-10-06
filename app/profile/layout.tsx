@@ -28,6 +28,8 @@ export default function ProfileLayout({
   }, [isOpen]);
 
   const toast = useToast();
+  const router = useRouter();
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -40,6 +42,9 @@ export default function ProfileLayout({
       toast.showToast("Logout gagal!", "error");
     }
   };
+
+
+
   return (
     <div className="h-screen bg-gray-50 overflow-hidden flex flex-col">
       <main className="flex flex-1 overflow-hidden relative">

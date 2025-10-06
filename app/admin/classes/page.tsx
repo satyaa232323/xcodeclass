@@ -161,11 +161,13 @@ export default function CoursesPage() {
         !mentorProfileUrl
       ) {
         setError("Please fill in all required fields");
+        toast.showToast("Isi semua field yang diperlukan", "error");
         return;
       }
 
       if (videos.length === 0) {
         setError("Please add at least one video");
+        toast.showToast("Tambahkan setidaknya satu video", "error");
         return;
       }
 

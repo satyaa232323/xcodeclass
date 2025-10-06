@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ToastContext";
-import { motion, AnimatePresence } from "framer-motion";
 import { fetchOrders, myClasses } from "@/utils/api";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -34,15 +33,16 @@ export default function PaymentPage() {
 
       } else if (paymentStatus === "failed") {
         toast.showToast("Pembayaran gagal atau dibatalkan", "error");
-      } 
+      }
 
-      // Hapus query param dari URL (opsional, biar clean)
+      // Hapus query param dari URL
       const url = new URL(window.location.href);
       url.searchParams.delete("payment");
       window.history.replaceState({}, document.title, url.pathname);
     }
   }, [router, toast]);
-  const [isPaying, setIsPaying] = useState(false);
+
+  const [processingOrderId, setProcessingOrderId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
   const [purchasedClasses, setPurchasedClasses] = useState<Set<string>>(
@@ -84,7 +84,7 @@ export default function PaymentPage() {
   }, []);
 
   const handlePay = async (orderId: string) => {
-    setIsPaying(true);
+    setProcessingOrderId(orderId);
     setError("");
 
     try {
@@ -100,12 +100,11 @@ export default function PaymentPage() {
       if (orderClass && purchasedClasses.has(orderClass.id)) {
         setError("You have already purchased this class");
         toast.showToast("Kelas sudah pernah dibeli", "error");
+        setProcessingOrderId(null);
         return;
       }
 
-
       sessionStorage.setItem("prevPage", window.location.pathname);
-
 
       const response = await fetch(`/api/payment/${orderId}`, {
         method: "POST",
@@ -136,7 +135,7 @@ export default function PaymentPage() {
         "error"
       );
     } finally {
-      setIsPaying(false);
+      setProcessingOrderId(null);
     }
   };
 
@@ -205,18 +204,19 @@ export default function PaymentPage() {
                   </span>
                 </div>
                 <button
-                  onClick={() => handlePay(item.id)}
+                  onClick={() => handlePay(item.orderItems[0].orderId)}
                   disabled={
-                    isPaying ||
+                    processingOrderId === item.id ||
                     purchasedClasses.has(item.orderItems[0].classObj.id)
                   }
-                  className={`px-6 py-3 rounded-xl font-bold text-white transition ${isPaying ||
+                  className={`px-6 py-3 rounded-xl font-bold text-white transition ${
+                    processingOrderId === item.id ||
                     purchasedClasses.has(item.orderItems[0].classObj.id)
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-red-500 hover:bg-red-600"
-                    }`}
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-red-500 hover:bg-red-600"
+                  }`}
                 >
-                  {isPaying ? "Processing..." : "Bayar"}
+                  {processingOrderId === item.id ? "Processing..." : "Bayar"}
                 </button>
               </div>
             </div>
