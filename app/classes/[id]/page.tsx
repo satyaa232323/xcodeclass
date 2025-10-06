@@ -11,22 +11,23 @@ import {
     fetchClassDetails,
     fetchClasses,
     myClasses,
+    fetchOrders,
 } from "@/utils/api";
-import { handleArcjetError } from "@/lib/utils";
 import { useToast } from "@/components/ToastContext";
 
 export default function DetailClass() {
     const { id } = useParams();
-
     const toast = useToast();
+    const router = useRouter();
 
     const [detailClass, setDetailClass] = useState<DetailClass | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
-    const [isAuthenticated, setIsAuthenticated] = useState(true);
     const [order, setOrder] = useState<Order | null>(null);
-    const router = useRouter();
+
+    const [hasPurchased, setHasPurchased] = useState(false);
+    const [isPendingOrder, setIsPendingOrder] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -34,18 +35,50 @@ export default function DetailClass() {
                 const response = await fetchClassDetails(id as string);
                 setDetailClass(response?.data ?? null);
 
-                console.log("Fetched class details:", response);
                 const all = await fetchClasses();
                 setFilteredClasses(all?.data || []);
             } catch (err) {
                 setError("Gagal memuat data");
-                console.log(err);
+                console.error(err);
             } finally {
                 setLoading(false);
             }
         };
         loadData();
+    }, [id]);
 
+    // 🔍 Cek apakah user sudah beli atau masih pending
+    useEffect(() => {
+        const checkPurchaseStatus = async () => {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            try {
+                // Cek kelas yang sudah dibeli
+                const myClassesResponse = await myClasses(token);
+                const ownedClass = myClassesResponse?.data?.find(
+                    (cls: UserClassVideo) => cls.classId === id
+                );
+                if (ownedClass) {
+                    setHasPurchased(true);
+                    return;
+                }
+
+                // Cek order yang masih pending
+                const ordersResponse = await fetchOrders(token);
+                const pending = ordersResponse.orders?.find((order: Order) =>
+                    order.orderItems.some(
+                        (item: OrderItem) =>
+                            item.classId === id && order.status === "PENDING"
+                    )
+                );
+                if (pending) setIsPendingOrder(true);
+            } catch (err) {
+                console.error("Gagal cek status pembelian:", err);
+            }
+        };
+
+        checkPurchaseStatus();
     }, [id]);
 
     const handleClick = async () => {
@@ -54,56 +87,12 @@ export default function DetailClass() {
             const token = localStorage.getItem("token");
 
             if (!token) {
-                alert("Silakan login terlebih dahulu untuk membeli kelas.");
+                toast.showToast("Silakan login terlebih dahulu untuk membeli kelas.", "error");
                 router.push("/auth/login");
                 return;
             }
 
-            // Check if user already owns the class (in UserClassVideo)
-            const myClassesResponse = await myClasses(token);
-            const ownedClass = myClassesResponse?.data?.find(
-                (cls: UserClassVideo) => cls.classId === id
-            );
-
-            if (ownedClass) {
-                alert("Anda sudah memiliki kelas ini. Silakan buka di menu 'My Classes'.");
-                router.push("/profile");
-                return;
-            }
-
-            // Check for pending orders
-            const ordersResponse = await fetch("/api/orders", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            if (!ordersResponse.ok) {
-                throw new Error("Failed to fetch orders");
-            }
-
-            const ordersData = await ordersResponse.json();
-
-            // Check for any existing order (PENDING or COMPLETED) for this class
-            const existingOrder = ordersData.orders?.find((order: Order) =>
-                order.orderItems.some((item: OrderItem) =>
-                    item.classId === id &&
-                    (order.status === "PENDING" || order.status === "COMPLETED")
-                )
-            );
-
-            if (existingOrder) {
-                if (existingOrder.status === "PENDING") {
-                    toast.showToast("Anda sudah memesan kelas ini. Silakan selesaikan pembayaran.", "error");
-                    router.push("/profile/payment");
-                } else {
-                    toast.showToast("Anda sudah membeli kelas ini sebelumnya.", "error");
-                    router.push("/profile");
-                }
-                return;
-            }
-
-            // If no existing order is found, create a new one
+            // Buat order baru
             const response = await createOrder(token, id as string);
             setOrder(response.data);
 
@@ -111,16 +100,9 @@ export default function DetailClass() {
             router.push("/profile/payment");
 
         } catch (err: any) {
-
-            // Handle rate limiting
             if (err.response?.status === 429) {
                 toast.showToast("Terlalu banyak request. Mohon tunggu beberapa saat...", "error");
-
-                // Disable button for 10 seconds
-                setLoading(true);
-                setTimeout(() => {
-                    setLoading(false);
-                }, 10000);
+                setTimeout(() => setLoading(false), 10000);
                 return;
             }
 
@@ -132,15 +114,6 @@ export default function DetailClass() {
             }
 
             console.error("Gagal memproses pembelian:", err);
-
-            if (err.response?.status === 401) {
-                alert("Sesi anda telah berakhir. Silakan login kembali.");
-                router.push("/auth/login");
-            } else if (err.response?.status === 400) {
-                alert(err.response.data.error || "Terjadi kesalahan saat memproses pesanan.");
-            } else {
-                alert("Terjadi kesalahan sistem. Silakan coba beberapa saat lagi.");
-            }
         } finally {
             setLoading(false);
         }
@@ -149,7 +122,12 @@ export default function DetailClass() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <XLoading size={120} />
+                <div className="flex items-center gap-3">
+                    <XLoading size={50} />
+                    <p className="text-gray-600 text-base font-medium tracking-wide animate-pulse">
+                        Loading...
+                    </p>
+                </div>
             </div>
         );
     }
@@ -192,18 +170,14 @@ export default function DetailClass() {
                                 <p className="text-gray-600">{detailClass.description}</p>
                                 <div className="flex gap-6 text-sm text-gray-500 mt-2">
                                     <span>📹 {detailClass.videos?.length || 0} Videos</span>
-                                    <span>
-                                        ⏱ {(detailClass.videos?.length || 0) * 5} minutes
-                                    </span>
+                                    <span>⏱ {(detailClass.videos?.length || 0) * 5} minutes</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Course Content */}
                         <div className="bg-white shadow rounded-lg p-6 border flex-1">
-                            <h2 className="text-xl font-bold text-gray-800 mb-4">
-                                Course Content
-                            </h2>
+                            <h2 className="text-xl font-bold text-gray-800 mb-4">Course Content</h2>
                             <div className="flex flex-col gap-3">
                                 {detailClass.videos?.length > 0 ? (
                                     detailClass.videos.map((video, idx) => (
@@ -247,14 +221,30 @@ export default function DetailClass() {
 
                         {/* Price Card */}
                         <div className="bg-white shadow rounded-lg p-4 border">
-                            <h2 className="text-lg font-bold text-gray-700">
-                                Price Information
-                            </h2>
+                            <h2 className="text-lg font-bold text-gray-700">Price Information</h2>
                             <p className="text-red-600 font-bold text-xl mt-2">
                                 Rp {detailClass.price.toLocaleString("id-ID")}
                             </p>
-                            <button onClick={handleClick} className="mt-4 w-full py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer">
-                                Beli
+                            <button
+                                onClick={
+                                    hasPurchased
+                                        ? undefined
+                                        : isPendingOrder
+                                        ? () => router.push("/profile/payment")
+                                        : handleClick
+                                }
+                                disabled={hasPurchased || isPendingOrder}
+                                className={`mt-4 w-full py-2 px-4 rounded-lg font-semibold transition cursor-pointer ${
+                                    hasPurchased || isPendingOrder
+                                        ? "bg-gray-400 text-white cursor-not-allowed"
+                                        : "bg-red-500 text-white hover:bg-red-600"
+                                }`}
+                            >
+                                {hasPurchased
+                                    ? "Sudah Dibeli"
+                                    : isPendingOrder
+                                    ? "Menunggu Pembayaran"
+                                    : "Beli"}
                             </button>
                         </div>
 
@@ -264,40 +254,39 @@ export default function DetailClass() {
                                 Rekomendasi Kelas
                             </h2>
                             <div className="grid gap-4 grid-cols-1">
-                                {filteredClasses.slice(0, 2).map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="flex flex-col bg-white text-black border-gray-200 border rounded-xl overflow-hidden shadow-md"
-                                    >
-                                        <Image
-                                            src={item.thumbnailUrl || "/images/foto_vid.png"}
-                                            alt="Thumbnail Video"
-                                            width={400}
-                                            height={220}
-                                            className="object-cover w-full h-auto"
-                                        />
-                                        <div className="flex flex-col flex-1 p-2 gap-2">
-                                            <h2 className="font-bold text-lg line-clamp-1">
-                                                {item.title}
-                                            </h2>
-                                            <span className="font-bold text-sm">
-                                                Rp {item.price.toLocaleString("id-ID")}
-                                            </span>
-                                            <Link key={item.id} href={`/classes/${item.id}`}>
-                                                <button className="mt-4 w-full py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-                                                    Lihat
-                                                </button>
-                                            </Link>
+                                {filteredClasses
+                                    .filter((item) => item.id !== detailClass?.id)
+                                    .sort(() => Math.random() - 0.5)
+                                    .slice(0, 2)
+                                    .map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className="flex flex-col bg-white text-black border-gray-200 border rounded-xl overflow-hidden shadow-md"
+                                        >
+                                            <Image
+                                                src={item.thumbnailUrl || "/images/foto_vid.png"}
+                                                alt={`${item.title} Thumbnail`}
+                                                width={400}
+                                                height={220}
+                                                className="object-cover w-full h-auto"
+                                            />
+                                            <div className="flex flex-col flex-1 p-2 gap-2">
+                                                <h2 className="font-bold text-lg line-clamp-1">{item.title}</h2>
+                                                <span className="font-bold text-sm">
+                                                    Rp {item.price.toLocaleString("id-ID")}
+                                                </span>
+                                                <Link href={`/classes/${item.id}`} passHref>
+                                                    <button className="mt-auto py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full">
+                                                        Lihat
+                                                    </button>
+                                                </Link>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Footer */}
-                <Footer />
             </main>
         </div>
     );

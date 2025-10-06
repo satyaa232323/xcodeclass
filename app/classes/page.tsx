@@ -36,12 +36,17 @@ export default function ClassesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <XLoading size={100} />
-        <p className="ml-4 text-lg text-gray-600"></p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex items-center gap-3">
+          <XLoading size={50} />
+          <p className="text-gray-600 text-base font-medium tracking-wide animate-pulse">
+            Loading...
+          </p>
+        </div>
       </div>
     );
   }
+  
 
   if (error) {
     return (
@@ -69,6 +74,7 @@ export default function ClassesPage() {
               key={item.id}
               className="flex flex-col bg-white text-black border-gray-200 border-2 rounded-xl overflow-hidden shadow-md"
             >
+              {/* Thumbnail */}
               <Image
                 src={item.thumbnailUrl || "/images/foto_vid.png"}
                 alt={`${item.title} Thumbnail`}
@@ -76,18 +82,25 @@ export default function ClassesPage() {
                 height={220}
                 className="object-cover w-full h-48"
               />
-              <div className="flex flex-col flex-1 p-4 gap-2">
-                <div>
+
+              {/* Content */}
+              <div className="flex flex-col flex-1 p-4">
+                {/* Info Kelas */}
+                <div className="flex-1">
                   <h2 className="font-bold text-lg mb-1">{item.title}</h2>
                   <p className="font-extralight text-sm mb-2 line-clamp-2">
                     {item.description}
                   </p>
                   <p className="text-sm text-gray-600">Mentor: {item.mentor}</p>
                 </div>
-                <span className="font-bold text-base mb-4">
+
+                {/* Harga */}
+                <span className="font-bold text-base mt-3 mb-4">
                   Rp {item.price.toLocaleString("id-ID")}
                 </span>
-                <Link href={`/classes/${item.id}`}>
+
+                {/* Tombol Beli */}
+                <Link href={`/classes/${item.id}`} passHref>
                   <button className="mt-auto py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold w-full cursor-pointer">
                     Beli
                   </button>
@@ -96,6 +109,7 @@ export default function ClassesPage() {
             </div>
           ))}
         </div>
+
       </main>
     </div>
   );
