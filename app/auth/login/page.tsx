@@ -51,7 +51,7 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan");
-      toast.showToast(err.message || "Terjadi kesalahan", "error");
+      toast.showToast("Terjadi kesalahan coba beberapa saat lagi", "error");
     } finally {
       setLoading(false);
     }
