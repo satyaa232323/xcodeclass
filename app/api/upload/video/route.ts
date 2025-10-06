@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     // Upload ke Cloudinary (upload_large untuk video besar)
     const uploadResult: any = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_large(
+      cloudinary.uploader.upload_large_stream(
         `data:video/mp4;base64,${buffer.toString("base64")}`, // kirim dalam bentuk data URI
         {
           resource_type: "video",
