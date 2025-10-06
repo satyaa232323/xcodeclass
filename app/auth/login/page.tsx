@@ -49,7 +49,7 @@ export default function LoginPage() {
           router.push("/");
         }
       } else {
-        toast.showToast("Login gagal, cek email/password", "error");
+        toast.showToast("Coba periksa password dan emailnya.", "error");
       }
     } catch (err: any) {
       const errorMessage =
@@ -163,6 +163,27 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/90 flex flex-col items-center justify-center z-50">
+          {/* Logo X */}
+          <div className="relative w-20 h-20">
+            <div className="absolute inset-0 w-full h-1 bg-red-600 rotate-45 origin-center animate-pulse"></div>
+            <div className="absolute inset-0 w-full h-1 bg-white -rotate-45 origin-center animate-pulse"></div>
+          </div>
+
+          {/* Teks XCODE */}
+          <h2 className="mt-8 text-white text-3xl font-bold tracking-widest animate-pulse">
+            XCODE
+          </h2>
+
+          {/* Subtext Loading */}
+          <p className="mt-2 text-gray-400 text-sm animate-pulse">
+            Loading...
+          </p>
+        </div>
+      )}
     </div>
   );
 }
