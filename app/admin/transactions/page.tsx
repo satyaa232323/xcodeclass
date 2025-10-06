@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fetchAllOrders } from "@/utils/api";
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, CreditCard, Receipt, BarChart3 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 
@@ -87,19 +87,51 @@ export default function TransactionsPage() {
 
       {/* STATS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard title="Total Transaksi" value={stats.totalTransactions} />
-        <StatCard title="Total Nilai" value={`Rp ${stats.totalAmount.toLocaleString("id-ID")}`} />
-        <StatCard
-          title="Pertumbuhan"
-          value={`${stats.growth}%`}
-          icon={stats.growth >= 0 ? <ArrowUpRight className="text-green-500 mr-2" /> : <ArrowDownRight className="text-red-500 mr-2" />}
-        />
+      {/* Total Transaksi */}
+      <div className="flex items-center bg-blue-50 p-6 rounded-2xl shadow-sm hover:shadow-md transition">
+        <div className="flex items-center justify-center bg-blue-100 text-blue-600 w-12 h-12 rounded-full mr-4">
+          <Receipt size={24} />
+        </div>
+        <div>
+          <h3 className="text-sm text-gray-600">Total Transaksi</h3>
+          <p className="text-2xl font-bold text-blue-600">{stats.totalTransactions}</p>
+        </div>
       </div>
+
+      {/* Total Nilai */}
+      <div className="flex items-center bg-green-50 p-6 rounded-2xl shadow-sm hover:shadow-md transition">
+        <div className="flex items-center justify-center bg-green-100 text-green-600 w-12 h-12 rounded-full mr-4">
+          <CreditCard size={24} />
+        </div>
+        <div>
+          <h3 className="text-sm text-gray-600">Total Nilai</h3>
+          <p className="text-2xl font-bold text-green-600">
+            Rp {stats.totalAmount.toLocaleString("id-ID")}
+          </p>
+        </div>
+      </div>
+
+      {/* Rata-rata Transaksi */}
+      <div className="flex items-center bg-purple-50 p-6 rounded-2xl shadow-sm hover:shadow-md transition">
+        <div className="flex items-center justify-center bg-purple-100 text-purple-600 w-12 h-12 rounded-full mr-4">
+          <BarChart3 size={24} />
+        </div>
+        <div>
+          <h3 className="text-sm text-gray-600">Rata-rata Transaksi</h3>
+          <p className="text-2xl font-bold text-purple-600">
+            Rp{" "}
+            {Math.round(
+              stats.totalAmount / (stats.totalTransactions || 1)
+            ).toLocaleString("id-ID")}
+          </p>
+        </div>
+      </div>
+    </div>
 
       {/* CHART */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-gray-700">Tren Transaksi</CardTitle>
+          <CardTitle className="text-red-800">Tren Transaksi</CardTitle>
         </CardHeader>
         <CardContent className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -129,7 +161,7 @@ export default function TransactionsPage() {
       {/* TABLE */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-gray-700">Transaksi Terbaru</CardTitle>
+          <CardTitle className="text-red-800">Transaksi Terbaru</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -144,27 +176,33 @@ export default function TransactionsPage() {
             <TableBody>
               {recentTransactions.map((order) => (
                 <TableRow key={order.id} className="hover:bg-gray-100 transition-colors cursor-pointer">
-                  <TableCell>{order.user?.name || "Unknown"}</TableCell>
-                  <TableCell>Rp {order.totalAmount.toLocaleString("id-ID")}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-sm ${
+                <TableCell className="text-gray-800 font-medium">
+                  {order.user?.name || "Unknown"}
+                </TableCell>
+                <TableCell className="text-gray-800">
+                  Rp {order.totalAmount.toLocaleString("id-ID")}
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={`px-2 py-1 rounded-full text-sm ${
                       order.status === "COMPLETED"
                         ? "bg-green-100 text-green-800"
                         : order.status === "PENDING"
                         ? "bg-yellow-100 text-yellow-800"
                         : "bg-red-100 text-red-800"
-                    }`}>
-                      {order.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(order.createdAt).toLocaleDateString("id-ID", {
-                      day: "2-digit",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </TableCell>
-                </TableRow>
+                    }`}
+                  >
+                    {order.status}
+                  </span>
+                </TableCell>
+                <TableCell className="text-gray-800">
+                  {new Date(order.createdAt).toLocaleDateString("id-ID", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </TableCell>
+              </TableRow>
               ))}
             </TableBody>
           </Table>
