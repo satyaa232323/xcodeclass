@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -14,6 +14,18 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [isOpen]);
 
   const toast = useToast();
   const handleLogout = async () => {
@@ -66,16 +78,27 @@ export default function ProfileLayout({
             {/* Menu */}
             <ul className="w-full text-center lg:text-left ">
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
-                <Link href="/profile">Dashboard</Link>
+                <Link href="/profile" onClick={() => setIsOpen(false)}>
+                  Dashboard
+                </Link>
               </li>
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
-                <Link href={`/profile/payment`}>Payment</Link>
+                <Link
+                  href={`/profile/payment`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  Payment
+                </Link>
               </li>
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
-                <Link href="/profile/history">History</Link>
+                <Link href="/profile/history" onClick={() => setIsOpen(false)}>
+                  History
+                </Link>
               </li>
               <li className="p-6 text-lg text-gray-500 hover:text-red-500 cursor-pointer">
-                <Link href="/">Kembali</Link>
+                <Link href="/" onClick={() => setIsOpen(false)}>
+                  Kembali
+                </Link>
               </li>
             </ul>
           </div>
