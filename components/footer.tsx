@@ -55,9 +55,15 @@ export default function Footer() {
           <ul className="space-y-1 text-sm">
             <li>
               <button
-                onClick={() =>
-                  document.getElementById("home")?.scrollIntoView({ behavior: "smooth" })
-                }
+                onClick={() => {
+                  if (window.location.pathname !== "/") {
+                    window.location.href = "/#home";
+                  } else {
+                    document
+                      .getElementById("home")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
                 className="hover:text-red-500"
               >
                 Home
@@ -65,9 +71,15 @@ export default function Footer() {
             </li>
             <li>
               <button
-                onClick={() =>
-                  document.getElementById("kelas")?.scrollIntoView({ behavior: "smooth" })
-                }
+                onClick={() => {
+                  if (window.location.pathname !== "/") {
+                    window.location.href = "/#kelas";
+                  } else {
+                    document
+                      .getElementById("kelas")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
                 className="hover:text-red-500"
               >
                 Kelas
@@ -75,9 +87,15 @@ export default function Footer() {
             </li>
             <li>
               <button
-                onClick={() =>
-                  document.getElementById("mentor")?.scrollIntoView({ behavior: "smooth" })
-                }
+                onClick={() => {
+                  if (window.location.pathname !== "/") {
+                    window.location.href = "/#mentor";
+                  } else {
+                    document
+                      .getElementById("mentor")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
                 className="hover:text-red-500"
               >
                 Mentor
@@ -85,7 +103,6 @@ export default function Footer() {
             </li>
           </ul>
         </div>
-
 
         {/* 3. Bantuan */}
         <div>
