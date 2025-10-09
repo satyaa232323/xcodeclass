@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/app/generated/prisma";
+import { prisma } from '@/lib/prisma';
 import { verifyAuth } from "@/lib/authMiddleware";
 import { createMidtransTransaction } from "@/utils/midtrans";
 import { arcjetUtils } from "@/utils/arcjet";
 
-const prisma = new PrismaClient();
 const aj = arcjetUtils();
 export async function POST(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+   context: { params: Promise<{ orderId: string }> }
 ) {
   try {
     // 🔑 Verify JWT token
@@ -39,7 +38,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { orderId } = await params;
+    const { orderId } = await context.params;
 
     // 🔎 Get order details (and ensure it belongs to the logged-in user)
     const order = await prisma.order.findFirst({

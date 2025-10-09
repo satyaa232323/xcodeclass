@@ -1,9 +1,7 @@
-import { PrismaClient } from "@/app/generated/prisma";
+import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAuth } from "@/lib/authMiddleware";
 import { arcjetUtils } from "@/utils/arcjet";
 
-const prisma = new PrismaClient();
 const aj = arcjetUtils();
 export async function POST(request: NextRequest) {
   try {

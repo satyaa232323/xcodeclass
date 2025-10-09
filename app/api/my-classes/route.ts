@@ -1,13 +1,12 @@
-import { PrismaClient } from "@/app/generated/prisma";
+import { prisma } from '@/lib/prisma';
 import { verifyAuth } from "@/lib/authMiddleware";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 
     try {
-        const prisma = new PrismaClient();
         const user = await verifyAuth(req, "USER");
-        
+
 
         if (!user) {
             return NextResponse.json({ message: 'Authorization header missing' }, { status: 401 });

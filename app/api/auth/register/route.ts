@@ -1,10 +1,9 @@
 import { hashPassword } from "@/lib/auth";
-import { PrismaClient } from "@/app/generated/prisma";
+import { prisma } from '@/lib/prisma';
 import { NextResponse } from "next/server";
 import { arcjetUtils } from "@/utils/arcjet";
 
 export async function POST(req: Request) {
-  const prisma = new PrismaClient();
   const aj = arcjetUtils();
   try {
     const decision = await aj.protect(req, { requested: 1 });
@@ -37,13 +36,13 @@ export async function POST(req: Request) {
       );
     }
 
-        const exsistingUser = await prisma.user.findUnique({
-            where: { email: email.trim().toLowerCase() }
-        })
+    const exsistingUser = await prisma.user.findUnique({
+      where: { email: email.trim().toLowerCase() }
+    })
 
-        if (exsistingUser) {
-            return NextResponse.json({ message: 'Email sudah terdaftar' }, { status: 400 });
-        }
+    if (exsistingUser) {
+      return NextResponse.json({ message: 'Email sudah terdaftar' }, { status: 400 });
+    }
 
     const hashedPassword = await hashPassword(password);
 

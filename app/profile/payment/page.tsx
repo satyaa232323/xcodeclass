@@ -5,7 +5,6 @@ import { useToast } from "@/components/ToastContext";
 import { fetchOrders, myClasses } from "@/utils/api";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Class } from "@/app/generated/prisma";
 
 export default function PaymentPage() {
   const toast = useToast();

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/app/generated/prisma";
+import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
@@ -6,7 +6,6 @@ import { arcjetUtils } from "@/utils/arcjet";
 export async function POST(request: NextRequest) {
   const aj = arcjetUtils();
 
-  const prisma = new PrismaClient();
   try {
     const decision = await aj.protect(request, { requested: 1 });
 

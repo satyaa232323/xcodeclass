@@ -1,12 +1,11 @@
-import { PrismaClient } from "@/app/generated/prisma";
+import { prisma } from '@/lib/prisma';
 import { verifyAuth } from "@/lib/authMiddleware";
 import { NextRequest, NextResponse } from "next/server";
 
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest,   context: { params: Promise<{ id: string }> }) {
     try {
-        const prisma = new PrismaClient();
-        const { id } = await params;
+        const { id } = await context.params;
 
         const user = await verifyAuth(req, "USER")
 
@@ -61,7 +60,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json({ message: 'No purchased video found with this ID' }, { status: 404 });
         }
 
-        return NextResponse.json({data: boughtVideo }, { status: 200 });
+        return NextResponse.json({ data: boughtVideo }, { status: 200 });
 
     } catch (error) {
         console.error(error);

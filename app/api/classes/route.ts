@@ -1,8 +1,7 @@
-import { PrismaClient } from "@/app/generated/prisma";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-    const prisma = new PrismaClient();
 
     try {
         const classes = await prisma.class.findMany({

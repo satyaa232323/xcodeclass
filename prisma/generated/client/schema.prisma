@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Define your database models, relations, and enums here
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  password        String
+  name            String?
+  role            role             @default(USER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  orders          Order[]
+  userClassVideos UserClassVideo[]
+
+  // reset password
+  resetPasswordToken  String? // token untuk reset password
+  resetPasswordExpiry DateTime? // waktu kadaluarsa token
+  passwordChangedAt   DateTime? // waktu terakhir password diubah
+}
+
+model Class {
+  id               String           @id @default(cuid())
+  title            String
+  description      String?
+  price            Int
+  thumbnailUrl     String
+  mentor           String
+  mentorProfileUrl String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  videos           Video[]
+  orders           OrderItem[]
+  userClassVideos  UserClassVideo[]
+}
+
+model Video {
+  id           String @id @default(cuid())
+  classId      String
+  title        String
+  thumbnailUrl String
+  videoUrl     String
+  duration     Int // durasi dalam menit
+  order        Int // urutan video dalam kelas
+  class        Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  totalAmount     Int
+  status          OrderStatus @default(PENDING)
+  midtransOrderId String?     @unique // <--- ID transaksi dari Midtrans
+  orderNumber     Int         @default(autoincrement())
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems      OrderItem[]
+  createdAt       DateTime    @default(now())
+}
+
+model PaymentLog {
+  id        String   @id @default(cuid())
+  orderId   String
+  rawBody   Json
+  createdAt DateTime @default(now())
+}
+
+model OrderItem {
+  id       Int    @id @default(autoincrement())
+  orderId  String
+  classId  String
+  price    Int
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  classObj Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
+}
+
+model UserClassVideo {
+  id           String   @id @default(cuid())
+  userId       String
+  classId      String
+  purchaseDate DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classObj     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, classId])
+}
+
+enum role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}

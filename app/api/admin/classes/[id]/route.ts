@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/app/generated/prisma";
+import { prisma } from '@/lib/prisma';
 import { verifyAuth } from "@/lib/authMiddleware";
 
-const prisma = new PrismaClient();
 
 // GET single class
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await verifyAuth(req, "ADMIN");
@@ -15,8 +14,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id} = await context.params;
+
     const classData = await prisma.class.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         videos: true
       }
@@ -38,10 +39,10 @@ export async function GET(
 // PATCH update class
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context:  { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const user = await verifyAuth(req, "ADMIN");
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -65,10 +66,10 @@ export async function PATCH(
 
     // cari ID dari video yang akan dihapus
     const videosIdsToKeep = videosData
-    .filter((v: any) => v.id) // hanya yg punya id
-    .map((v: any) => v.id);
+      .filter((v: any) => v.id) // hanya yg punya id
+      .map((v: any) => v.id);
 
-    
+
     // hapus video yg tidak ada di videosIdsToKeep
     await prisma.video.deleteMany({
       where: {
@@ -134,10 +135,10 @@ export async function PATCH(
 // DELETE class
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
 
     const user = await verifyAuth(req, "ADMIN");
     if (!user || user.role !== "ADMIN") {
