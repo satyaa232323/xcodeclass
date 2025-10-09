@@ -11,6 +11,7 @@ export default function PaymentPage() {
   const toast = useToast();
   const router = useRouter();
 
+
   // Show toast if redirected from payment success
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -27,7 +28,7 @@ export default function PaymentPage() {
           if (prevPage) {
             router.push(prevPage);
           } else {
-            router.push("/profile/my-classes");
+            router.push("/profile");
           }
         }, 3000);
 

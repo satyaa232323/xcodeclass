@@ -179,6 +179,41 @@ npx prisma db push
 npm run dev
 ```
 
+# Aktivasi dan Konfigurasi Webhook Midtrans
+
+## Pengertian Webhook
+Webhook adalah cara sistem Midtrans memberikan notifikasi otomatis ke sistem Anda setiap kali terjadi perubahan status transaksi (seperti pembayaran sukses, pending, atau gagal).
+
+## Langkah-langkah Mengaktifkan Webhook
+
+1. **Login ke Midtrans Dashboard**
+    - Buka [Midtrans Dashboard](https://dashboard.midtrans.com)
+    - Login menggunakan akun Anda
+
+2. **Akses Settings Webhook**
+    - Pilih menu "Settings"
+    - Klik "Configuration"
+    - Pilih tab "Webhook URL"
+
+3. **Konfigurasi URL Webhook**
+    - Masukkan URL endpoint sistem Anda yang akan menerima notifikasi
+    - Format: `https://[domain-anda]/webhook/midtrans`
+    - Pastikan endpoint tersebut bisa diakses publik (tidak localhost)
+
+4. **Pengaturan Keamanan**
+    - Catat Server Key dari dashboard Midtrans
+    - Gunakan Server Key untuk memverifikasi autentisitas notifikasi
+    - Implementasikan verifikasi signature pada endpoint webhook Anda
+
+5. **Testing Webhook**
+    - Gunakan fitur "Test Webhook" di dashboard Midtrans
+    - Periksa response dari sistem Anda
+    - Pastikan mendapat response HTTP 200
+6. **Untuk penggunaanya**
+    - pakai ngrok untuk pake port forward dan sebagainya
+    ``ngrok http 3000`` untuk menyalakan port forward di ngrok untuk webhook
+
+
 ### 📝 Dokumentasi API
 
 #### Endpoint Autentikasi

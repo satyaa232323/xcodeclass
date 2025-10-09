@@ -87,7 +87,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
                 order: {
                     is: {
                         userId: user.id,
-                        status: { in: ["PENDING", "COMPLETED"] },
+                        status: { in: ["PENDING"] },
 
                     }
                 },

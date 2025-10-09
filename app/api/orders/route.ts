@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       include: {
         orderItems: {
           include: {
-            classObj: true,
+          classObj: true,
           },
         }
       },
