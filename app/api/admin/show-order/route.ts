@@ -1,7 +1,6 @@
 import { verifyAuth } from "@/lib/authMiddleware";
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/app/generated/prisma";
-
+import { prisma } from '@/lib/prisma'
 export async function GET(request: NextRequest) {
 
     const user = await verifyAuth(request, "ADMIN");
@@ -11,7 +10,6 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const prisma = new PrismaClient();
 
     try {
         const orders = await prisma.order.findMany({
@@ -21,7 +19,7 @@ export async function GET(request: NextRequest) {
                         id: true,
                         name: true,
                         email: true,
-                        
+
                     },
                 },
                 orderItems: {
