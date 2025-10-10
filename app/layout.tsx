@@ -2,13 +2,14 @@ import React from "react";
 import { ToastProvider } from "@/components/ToastContext";
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist, Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+
+const geist = Geist({
   subsets: ["latin"],
   display: "swap",
-});
+})
 
 export const metadata: Metadata = {
   title: "Xcodeclass",
@@ -30,7 +31,7 @@ export default function RootLayout({
         ></script>
       </head>
       <body
-        className={`${inter.className} antialiased`}
+        className={`${geist.className} antialiased`}
       >
         <ToastProvider>
           {children}
