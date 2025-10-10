@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { FaUserTie, FaBookOpen, FaUsers, FaInfinity } from "react-icons/fa";
 import { fetchClasses } from "@/utils/api";
 import Link from "next/link";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import Footer from "@/components/footer";
 
 export default function HomePage() {
@@ -273,7 +273,7 @@ export default function HomePage() {
         </div>
 
         <Footer />
- 
+
       </main>
     </div>
   );
